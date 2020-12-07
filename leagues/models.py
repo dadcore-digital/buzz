@@ -25,7 +25,7 @@ class Season(models.Model):
     playoffs_end = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        return f'{self.league.name} {self.name}'
 
 class Circuit(models.Model):
     """A sub-division of teams within a Season. Often split by region & rank."""
@@ -39,6 +39,7 @@ class Circuit(models.Model):
         ('1', 'Tier 1'),
         ('2', 'Tier 2'),
         ('3', 'Tier 3'),
+        ('4', 'Tier 4'),        
         ('0', 'No Tier'),
     )
 

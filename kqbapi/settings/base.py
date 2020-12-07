@@ -35,6 +35,9 @@ SECRET_KEY = get_secret('SECRET_KEY')
 DEBUG = True
 ALLOWED_HOSTS = []
 
+TEAMS_CSV_URL = get_secret('TEAMS_CSV_URL')
+MATCHES_CSV_URL = get_secret('MATCHES_CSV_URL')
+
 
 # Application definition
 
