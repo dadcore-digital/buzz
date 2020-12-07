@@ -48,7 +48,9 @@ INSTALLED_APPS = [
     'kqbapi',
     'players',
     'leagues',
-    'teams'
+    'teams',
+    'matches',
+    'casters'
 
 ]
 

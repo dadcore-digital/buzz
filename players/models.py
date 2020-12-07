@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 class Player(models.Model):
     name = models.CharField(blank=True, max_length=255)
     discord_username = models.CharField(blank=True, max_length=255)
+    twitch_username = models.CharField(blank=True, null=True, max_length=255)
 
     user = models.ForeignKey(
         User, related_name='captained_teams', on_delete=models.CASCADE,
