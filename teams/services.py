@@ -1,6 +1,6 @@
 import csv
 from django.conf import settings
-from kqbapi.services import get_sheet_csv
+from buzz.services import get_sheet_csv
 from leagues.models import Circuit
 from players.models import Player
 from .models import Team

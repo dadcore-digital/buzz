@@ -1,10 +1,10 @@
 from .base import *  
 
-ALLOWED_HOSTS = ['kqbapi.local']
+ALLOWED_HOSTS = ['buzz.local']
 DEBUG = True
 INTERNAL_IPS = ('127.0.0.1', '192.168.56.2', '192.168.56.1', '192.168.56.2')
 
-STATIC_ROOT = '/var/www/kqbapi_static/'
+STATIC_ROOT = '/var/www/buzz_static/'
 MEDIA_ROOT = '/var/www/kbapi_media/'
 
 INSTALLED_APPS = INSTALLED_APPS + [
@@ -15,8 +15,8 @@ INSTALLED_APPS = INSTALLED_APPS + [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'kqbapi',
-        'USER': 'kqbapi',
+        'NAME': 'buzz',
+        'USER': 'buzz',
         'PASSWORD': get_secret('DB_PASSWORD'),  # noqa: F405
         'HOST': '127.0.0.1',
         'OPTIONS': {

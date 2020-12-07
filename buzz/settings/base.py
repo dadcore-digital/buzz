@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'kqbapi',
+    'buzz',
     'players',
     'leagues',
     'teams',
@@ -69,7 +69,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'kqbapi.urls'
+ROOT_URLCONF = 'buzz.urls'
 
 TEMPLATES = [
     {
@@ -87,7 +87,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'kqbapi.wsgi.application'
+WSGI_APPLICATION = 'buzz.wsgi.application'
 
 AUTH_PASSWORD_VALIDATORS = [
     {

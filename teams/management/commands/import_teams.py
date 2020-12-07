@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
-from kqbapi.services import get_sheet_csv
+from buzz.services import get_sheet_csv
 from teams.services import parse_teams_csv, bulk_import_teams
 from leagues.models import League, Season, Circuit
 

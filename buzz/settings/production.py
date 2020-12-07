@@ -14,8 +14,8 @@ USE_X_FORWARDED_HOST = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'kqbapi',
-        'USER': 'kqbapi',
+        'NAME': 'buzz',
+        'USER': 'buzz',
         'PASSWORD': get_secret('DB_PASSWORD'),  # noqa: F405
         'HOST': '',
         'OPTIONS': {
@@ -24,5 +24,5 @@ DATABASES = {
     }
 }
 
-STATIC_ROOT = '/home/ianfitzpatrick/apps/kqbapi_static'
-MEDIA_ROOT = '/home/ianfitzpatrick/apps/kqbapi_media'
+STATIC_ROOT = '/home/ianfitzpatrick/apps/buzz_static'
+MEDIA_ROOT = '/home/ianfitzpatrick/apps/buzz_media'
