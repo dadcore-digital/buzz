@@ -48,12 +48,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'kqbapi',
     'players',
     'leagues',
     'teams',
     'matches',
-    'casters'
+    'casters',
+    'api'
 
 ]
 

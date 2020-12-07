@@ -29,3 +29,4 @@ class Team(models.Model):
             return f'{self.name} (captained by {self.captain.name})'
         else:
             return f'{self.name}'
+
