@@ -7,12 +7,16 @@ from leagues.models import League, Season, Circuit
 class Command(BaseCommand):
     help = 'Import all team and player data fresh from KQB Almanac'
 
+    def add_arguments(self, parser):
+        parser.add_argument('--league', type=str, help='Name of the league importing teams for')
+        parser.add_argument('--season', type=str, help='Name of the season import teams for')
+
     def handle(self, *args, **options):
-        csv_data = get_sheet_csv(settings.TEAMS_CSV_URL)
+        league = League.objects.filter(name__icontains=options['league']).first()
+        season = league.seasons.filter(name__icontains=options['season']).first()
+        csv_data = get_sheet_csv(season.teams_csv_url)
         teams = parse_teams_csv(csv_data)
-        league = League.objects.get(name='Indy Gaming League')
-        season = Season.objects.get(league=league)
-        result_count = bulk_import_teams(teams, league, season)
+        result_count = bulk_import_teams(teams, season)
 
         
         self.stdout.write(self.style.SUCCESS(

@@ -1,5 +1,4 @@
 import csv
-from django.conf import settings
 from buzz.services import get_sheet_csv
 from leagues.models import Circuit
 from players.models import Player
@@ -26,9 +25,9 @@ def parse_teams_csv(csv_data):
         'all players': [],
         'Playoff Seed': None
     }
-
-    for idx, row in enumerate(rows):
     
+    for idx, row in enumerate(rows):
+        
         # Set Row Header Positions
         if idx == 0:
             for key in headers.keys():
@@ -56,7 +55,7 @@ def parse_teams_csv(csv_data):
     return teams
 
 
-def bulk_import_teams(teams, league, season):
+def bulk_import_teams(teams, season):
     """
     Given a list of team data, bulk import into database.
 

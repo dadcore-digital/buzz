@@ -8,15 +8,24 @@ from matches.services import bulk_import_matches, parse_matches_csv
 class Command(BaseCommand):
     help = 'Import all team and player data fresh from KQB Almanac'
 
+    def add_arguments(self, parser):
+        parser.add_argument('--league', type=str, help='Name of the league importing matches for')
+        parser.add_argument('--season', type=str, help='Name of the season import matches for')
+
     def handle(self, *args, **options):
-        csv_data = get_sheet_csv(settings.MATCHES_CSV_URL)
+        league = League.objects.filter(name__icontains=options['league']).first()
+        season = league.seasons.filter(name__icontains=options['season']).first()
+        csv_data = get_sheet_csv(season.matches_csv_url)
         matches = parse_matches_csv(csv_data)
-        league = League.objects.get(name='Indy Gaming League')
-        season = Season.objects.get(league=league)
-        result_count = bulk_import_matches(matches, league, season)
 
+        result_count = bulk_import_matches(matches, season)
 
-        
         self.stdout.write(self.style.SUCCESS(
             f'Successfully imported {result_count["matches_created"]} Matches.')
         )
+
+        if result_count['skipped']:
+            self.stdout.write(self.style.NOTICE(
+                    f'Skipped {result_count["skipped"]} rows.')
+                )
+

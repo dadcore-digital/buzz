@@ -19,10 +19,14 @@ class Season(models.Model):
     league = models.ForeignKey(
         League, related_name='seasons', on_delete=models.CASCADE)
 
+    is_active = models.BooleanField(default=False, null=False)
     regular_start = models.DateTimeField(blank=True, null=True)
     regular_end = models.DateTimeField(blank=True, null=True)
     playoffs_start = models.DateTimeField(blank=True, null=True)
     playoffs_end = models.DateTimeField(blank=True, null=True)
+
+    teams_csv_url = models.URLField(blank=True, null=True)
+    matches_csv_url = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return f'{self.league.name} {self.name}'

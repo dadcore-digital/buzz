@@ -1,6 +1,7 @@
 import csv
 import time
 from datetime import datetime, timedelta
+from django.db import IntegrityError
 from buzz.services import convert_et_to_utc
 from leagues.models import League, Season, Circuit
 from teams.models import Team
@@ -47,7 +48,7 @@ def parse_matches_csv(csv_data):
 
     return matches
 
-def bulk_import_matches(matches, league, season):
+def bulk_import_matches(matches, season):
     """
     Given a list of match data, bulk import into database.
 
@@ -65,12 +66,12 @@ def bulk_import_matches(matches, league, season):
 
     Arguments:
     matches -- List of match dicts derived from matches CSV sheet. (list)
-    league -- A League model instance to associate these teams with. (obj)
     season -- A Season model instance to associate these teams with. (obj)
     """
     # Clear out all old data
     Match.objects.all().delete()
     matches_created = 0
+    skipped = 0
 
     for entry in matches:
         # Skip any matches that don't have a date
@@ -103,11 +104,15 @@ def bulk_import_matches(matches, league, season):
             et_match_start = datetime.strptime(f'{match_date} {match_time}', '%Y-%m-%d %H:%M')
             utc_match_start = convert_et_to_utc(et_match_start)
 
-            Match.objects.create(
-                home=home_team, away=away_team, circuit=circuit,
-                start_time=utc_match_start
-            )            
-
-            matches_created += 1
+            try:
+                Match.objects.create(
+                    home=home_team, away=away_team, circuit=circuit,
+                    start_time=utc_match_start
+                )            
+                matches_created += 1
+            
+            # Encountered some error/missing field
+            except IntegrityError:
+                skipped += 1
     
-    return {'matches_created': matches_created}
+    return {'matches_created': matches_created, 'skipped': skipped}
