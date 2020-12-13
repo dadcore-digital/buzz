@@ -7,7 +7,7 @@ from .models import Team
 
 def parse_teams_csv(csv_data):
     """
-    Parse through a CSV file of teams, convert to a dictionary of team data.
+    Parse through CSV data of teams, convert to a list of team data dicts.
 
     Arguments:
     csv_data -- Raw CSV data containing team information. (str)

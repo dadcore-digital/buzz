@@ -22,7 +22,7 @@ class Match(models.Model):
         blank=True, null=True)
 
     secondary_casters = models.ManyToManyField(
-        Caster, related_name='cocasted_matches', blank=True, null=True)
+        Caster, related_name='cocasted_matches', blank=True)
 
     winner = models.ForeignKey(
         Team, related_name='won_matches', on_delete=models.CASCADE, blank=True,

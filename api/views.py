@@ -2,9 +2,10 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from django.contrib.auth.models import User
 from .serializers import (
-    LeagueSerializer, SeasonSerializer, CircuitSerializer, TeamSerializer,
-    PlayerSerializer, UserSerializer) 
+    LeagueSerializer, SeasonSerializer, CircuitSerializer, MatchSerializer,
+    TeamSerializer, PlayerSerializer, UserSerializer) 
 from leagues.models import League, Season, Circuit
+from matches.models import Match
 from players.models import Player
 from teams.models import Team
 
@@ -22,6 +23,11 @@ class SeasonViewSet(viewsets.ModelViewSet):
 class CircuitViewSet(viewsets.ModelViewSet):
     queryset = Circuit.objects.all().order_by('name')
     serializer_class = CircuitSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+class MatchViewSet(viewsets.ModelViewSet):
+    queryset = Match.objects.all().order_by('start_time')
+    serializer_class = MatchSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class TeamViewSet(viewsets.ModelViewSet):

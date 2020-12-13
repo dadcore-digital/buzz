@@ -1,4 +1,21 @@
+from datetime import datetime, timedelta
+import pytz
 import requests
+
+def convert_et_to_utc(date_obj):
+    """Convert a datetime object from Eastern to UTC."""
+    tz = pytz.timezone('US/Eastern')
+    now = pytz.utc.localize(datetime.utcnow())
+    is_edt = date_obj.astimezone(tz).dst() != timedelta(0)
+
+    if is_edt:
+        utc_date = date_obj + timedelta(hours=4) 
+    else:
+        utc_date = date_obj + timedelta(hours=5) 
+
+    # Tag UTC time zone
+    utc_date = utc_date.replace(tzinfo=pytz.UTC)
+    return utc_date
 
 def get_sheet_csv(sheets_url, output_filename=None, write_to_file=False):
     """
@@ -20,3 +37,4 @@ def get_sheet_csv(sheets_url, output_filename=None, write_to_file=False):
     
     else:
         return resp.text
+

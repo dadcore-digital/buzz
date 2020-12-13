@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User, Group
 from leagues.models import League, Season, Circuit
+from matches.models import Match
 from players.models import Player
 from teams.models import Team
 
@@ -25,6 +26,13 @@ class CircuitSerializer(serializers.HyperlinkedModelSerializer):
         model = Circuit
         fields = [
             'season', 'region', 'tier', 'name'
+        ]
+
+class MatchSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Match
+        fields = [
+            'home', 'away', 'circuit', 'start_time', 'primary_caster'
         ]
 
 class TeamSerializer(serializers.HyperlinkedModelSerializer):

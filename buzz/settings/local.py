@@ -7,9 +7,6 @@ INTERNAL_IPS = ('127.0.0.1', '192.168.56.2', '192.168.56.1', '192.168.56.2')
 STATIC_ROOT = '/var/www/buzz_static/'
 MEDIA_ROOT = '/var/www/kbapi_media/'
 
-INSTALLED_APPS = INSTALLED_APPS + [
-    'django_extensions',
-]
 
 # Database
 DATABASES = {
