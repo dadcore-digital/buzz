@@ -24,18 +24,9 @@ class Match(models.Model):
     secondary_casters = models.ManyToManyField(
         Caster, related_name='cocasted_matches', blank=True)
 
-    winner = models.ForeignKey(
-        Team, related_name='won_matches', on_delete=models.CASCADE, blank=True,
-        null=True
-    )
-
-    loser = models.ForeignKey(
-        Team, related_name='lost_matches', on_delete=models.CASCADE, blank=True,
-        null=True
-    )
-
-    home_sets_won =models.PositiveSmallIntegerField(blank=True, null=True)    
-    away_sets_won =models.PositiveSmallIntegerField(blank=True, null=True)    
+    result = models.OneToOneField(
+        'Result', related_name='match', on_delete=models.CASCADE, blank=True,
+        null=True)    
 
     vod_link = models.URLField(blank=True, null=True)
 
@@ -48,21 +39,88 @@ class Match(models.Model):
     def __str__(self):
         return f'{self.away.name} @ {self.home.name}'
 
-    def end_match(self, winner):
-        """Set Winner and Loser for match, then save match object."""
-        teams = Team.objects.filter(
-            pk__in=[self.challenger.id, self.defender.id])
+class Result(models.Model):
+    """Winner, Loser, and statistics for a particular Match."""
 
-        self.winner = winner
-        self.loser = teams.exclude(id=self.winner.id).get()
+    modified = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
 
-        # Do some quick sanity checking before saving.
-        if not (self.winner == self.challenger or self.winner == self.defender):
-            raise ValueError(
-                'Winner must be a team associated with this match.')
+    winner = models.ForeignKey(
+        Team, related_name='won_match_results', on_delete=models.CASCADE,
+    )
 
-        if not (self.loser == self.challenger or self.loser == self.defender):
-            raise ValueError(
-                'Loser must be a team associated with this match.')
+    loser = models.ForeignKey(
+        Team, related_name='lost_match_results', on_delete=models.CASCADE)
 
-        self.save()
+    def __str__(self):
+        return f'{self.winner.name} over {self.loser.name} in {self.sets.count()} sets'
+
+class Set(models.Model):
+    """A series of games played in a Match."""
+    result = models.ForeignKey(
+        Result, related_name='sets', on_delete=models.CASCADE, blank=True,
+        null=True)
+
+    number = models.PositiveSmallIntegerField(default=1)
+
+    winner = models.ForeignKey(
+        Team, related_name='won_sets', on_delete=models.CASCADE)
+
+    loser = models.ForeignKey(
+        Team, related_name='lost_sets', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'Set {self.number}: {self.winner.name}'
+        
+class Game(models.Model):
+    """A single map played in a Set."""
+    number = models.PositiveSmallIntegerField(default=1)
+
+    MAP_CHOICES = (
+        ('PD', 'The Pod'),
+        ('TF', 'The Tally Fields'),
+        ('NF', 'The Nesting Flats'),
+        ('SJ', 'Split Juniper'),
+        ('BQ', 'Black Queen\'s Keep'),
+        ('HT', 'Helix Temple'),
+        ('SP', 'The Spire'),
+    )
+
+    map = models.CharField(
+        max_length=2, choices=MAP_CHOICES, blank=True, null=True)
+
+    winner = models.ForeignKey(
+        Team, related_name='won_games', on_delete=models.CASCADE, blank=True,
+        null=True)
+
+    loser = models.ForeignKey(
+        Team, related_name='lost_games', on_delete=models.CASCADE, blank=True,
+        null=True)
+
+    set = models.ForeignKey(
+        Set, related_name='games', on_delete=models.CASCADE, blank=True,
+        null=True
+    )
+
+    home_berries = models.PositiveSmallIntegerField(blank=True, default=True)
+    away_berries = models.PositiveSmallIntegerField(blank=True, default=True)
+
+    home_snail = models.PositiveSmallIntegerField(blank=True, default=True)
+    away_snail = models.PositiveSmallIntegerField(blank=True, default=True)
+
+    home_queen_deaths = models.PositiveSmallIntegerField(blank=True, default=True)
+    away_queen_deaths = models.PositiveSmallIntegerField(blank=True, default=True)
+
+    WIN_CONDITION_CHOICES = (
+        ('E', 'Economic'),
+        ('M', 'Military'),
+        ('S', 'Snail')
+    )
+
+    win_condition = models.CharField(
+        max_length=1, choices=WIN_CONDITION_CHOICES, blank=True, null=True)
+
+
+    def __str__(self):
+        return f'Game {self.number}: {self.winner.name}'
+
