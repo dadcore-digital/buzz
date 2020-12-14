@@ -55,7 +55,7 @@ def parse_teams_csv(csv_data):
     return teams
 
 
-def bulk_import_teams(teams, season):
+def bulk_import_teams(teams, season, delete_before_import=False):
     """
     Given a list of team data, bulk import into database.
 
@@ -74,29 +74,45 @@ def bulk_import_teams(teams, season):
     team_list -- List of team data derived from team CSV sheet. (list)
     league -- A League model instance to associate these teams with. (obj)
     season -- A Season model instance to associate these teams with.
+    delete_before_import -- Delete all existing Teams (bool) (optional)
     """
+    team_count = {'created': 0, 'updated': 0, 'deleted': 0}
+    player_count = {'created': 0, 'updated': 0, 'deleted': 0}
+
     # Clear out all old data
-    Team.objects.all().delete()
-    Player.objects.all().delete()
-    teams_created = 0
-    players_created = 0
+    if delete_before_import:
+        existing_teams = Team.objects.filter(circuit__in=season.circuits.all())
+        team_count['deleted'] = existing_teams.count()
+        existing_teams.delete()
 
     for entry in teams:
         # Basic team object
         circuit = season.circuits.filter(region=entry['circuit'], tier=entry['tier']).first()
-        team = Team.objects.create(name=entry['team'], circuit=circuit)
-        teams_created += 1
+        
+
+        team, created = Team.objects.get_or_create(
+            name__icontains=entry['team'], circuit=circuit)
+
+        if created:        
+            team_count['created'] += 1
+            team.name = entry['team']
+            team.save()
+        else:
+            team_count['updated'] += 1
 
         # Add members to team
         for member in entry['members']:
-            player = Player.objects.filter(name=member).first()
-            if not player:
-                player = Player.objects.create(name=member)
-                players_created +=1
-            team.members.add(player)
+            player, created = Player.objects.get_or_create(name__icontains=member)
         
+            if not team.members.filter(id=player.id).exists():
+                team.members.add(player)
+
+            
+            if created:
+                player_count['created'] += 1
+
         # Assign captain player object
         team.captain = Player.objects.filter(name=entry['captain']).first()
         team.save()
     
-    return {'teams_created': teams_created, 'players_created': players_created}
+    return {'teams': team_count, 'players': player_count}
