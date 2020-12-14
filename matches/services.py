@@ -5,7 +5,7 @@ from django.db import IntegrityError
 from buzz.services import convert_et_to_utc
 from leagues.models import League, Season, Circuit
 from teams.models import Team
-from .models import Match
+from .models import Match, Result, Set
 
 def parse_matches_csv(csv_data):
     """

@@ -24,10 +24,6 @@ class Match(models.Model):
     secondary_casters = models.ManyToManyField(
         Caster, related_name='cocasted_matches', blank=True)
 
-    result = models.OneToOneField(
-        'Result', related_name='match', on_delete=models.CASCADE, blank=True,
-        null=True)    
-
     vod_link = models.URLField(blank=True, null=True)
 
     modified = models.DateTimeField(auto_now=True)
@@ -41,6 +37,10 @@ class Match(models.Model):
 
 class Result(models.Model):
     """Winner, Loser, and statistics for a particular Match."""
+
+    match = models.OneToOneField(
+        Match, related_name='result', on_delete=models.CASCADE, blank=True,
+        null=True)    
 
     modified = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
