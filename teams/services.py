@@ -1,4 +1,5 @@
 import csv
+from django.db import IntegrityError
 from buzz.services import get_sheet_csv
 from leagues.models import Circuit
 from players.models import Player
@@ -102,8 +103,8 @@ def bulk_import_teams(teams, season, delete_before_import=False):
 
         # Add members to team
         for member in entry['members']:
-            player, created = Player.objects.get_or_create(name__icontains=member)
-        
+            player, created = Player.objects.get_or_create(name=member)
+
             if not team.members.filter(id=player.id).exists():
                 team.members.add(player)
 

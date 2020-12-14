@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Player(models.Model):
-    name = models.CharField(blank=True, max_length=255)
+    name = models.CharField(unique=True, max_length=255)
     discord_username = models.CharField(blank=True, max_length=255)
     twitch_username = models.CharField(blank=True, null=True, max_length=255)
 
