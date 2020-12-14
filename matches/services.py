@@ -48,7 +48,7 @@ def parse_matches_csv(csv_data):
 
     return matches
 
-def bulk_import_matches(matches, season):
+def bulk_import_matches(matches, season, delete_before_import=True):
     """
     Given a list of match data, bulk import into database.
 
@@ -67,17 +67,31 @@ def bulk_import_matches(matches, season):
     Arguments:
     matches -- List of match dicts derived from matches CSV sheet. (list)
     season -- A Season model instance to associate these teams with. (obj)
+    delete_before_import -- Delete all existing Matches then initiate
+                            import process. A way to start clean with
+                            new data. (bool) (optional)
     """
     # Clear out all old data
-    Match.objects.all().delete()
-    matches_created = 0
-    skipped = 0
+    match_count = {
+        'created': 0,
+        'deleted': 0,
+        'skipped': 0
+    }
+
+    # Currently deleting before import as we don't have a unique way to
+    # identify matches, so no way to update them in place. This functionality
+    # is here for future use. 
+    if delete_before_import:
+        existing_matches = Match.objects.filter(circuit__season=season)
+        match_count['deleted'] = existing_matches.count()
+        existing_matches.delete()
 
     for entry in matches:
         # Skip any matches that don't have a date
         match_date = entry['date']
         if ('TBD' in match_date
             or not match_date):
+            match_count['skipped'] += 1
             continue
         else:
             # Determine circuit, home team, and away team fields to existing
@@ -109,10 +123,11 @@ def bulk_import_matches(matches, season):
                     home=home_team, away=away_team, circuit=circuit,
                     start_time=utc_match_start
                 )            
-                matches_created += 1
+                match_count['created'] += 1
             
             # Encountered some error/missing field
             except IntegrityError:
-                skipped += 1
+                match_count['skipped'] += 1
     
-    return {'matches_created': matches_created, 'skipped': skipped}
+    return {'matches': match_count }
+        
