@@ -28,7 +28,9 @@ def parse_matches_csv(csv_data):
         'Co-casters': None,
         'Stream Link': None,
         'VOD Link': None,
-        'Concatenate': None 
+        'Away Sets Won': None,
+        'Home Sets Won': None,
+        'Winner': None
     }
 
     for idx, row in enumerate(rows):
@@ -63,6 +65,7 @@ def bulk_import_matches(matches, season, delete_before_import=True):
         - Convert match time from ET to UTC
         - TODO: Match 'caster' to existing caster entry in database (text for 
                 now)            
+    4. Create Result object if Match has declared winner.
 
     Arguments:
     matches -- List of match dicts derived from matches CSV sheet. (list)
@@ -119,12 +122,47 @@ def bulk_import_matches(matches, season, delete_before_import=True):
             utc_match_start = convert_et_to_utc(et_match_start)
 
             try:
-                Match.objects.create(
+                match = Match.objects.create(
                     home=home_team, away=away_team, circuit=circuit,
                     start_time=utc_match_start
                 )            
                 match_count['created'] += 1
-            
+
+                # Create Result and Set Objects if Winner defined
+                if entry['winner']:
+                    if entry['winner'] == match.home.name:
+                        match_winner = match.home
+                        match_loser = match.away
+                    else:
+                        match_winner = match.away
+                        match_loser = match.home
+                    
+                    # Create Result object to record match details
+                    result = Result.objects.create(
+                        match=match, winner=match_winner, loser=match_loser)
+
+                    # Create Set objects for game and assign winner and loser
+                    home_sets_won = int(entry['home_sets_won'])
+                    away_sets_won = int(entry['away_sets_won'])
+
+                    # Sets for home team
+                    for number in range(1, home_sets_won + 1):
+                        Set.objects.create(
+                            result=result,
+                            number = number,
+                            winner = match.home,
+                            loser = match.away
+                        )
+                    
+                    # Sets for away team
+                    for number in range(1, away_sets_won + 1):
+                        Set.objects.create(
+                            result=result,
+                            number = number,
+                            winner = match.away,
+                            loser = match.home
+                        )
+                    
             # Encountered some error/missing field
             except IntegrityError:
                 match_count['skipped'] += 1
