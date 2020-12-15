@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'teams',
     'matches',
     'casters',
+    'awards',
     'api',
 
 ]
