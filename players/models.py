@@ -15,4 +15,8 @@ class Player(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.name} (@{self.discord_username})'
+        if self.discord_username:
+            return f'{self.name} (@{self.discord_username})'
+        else:
+            return self.name
+
