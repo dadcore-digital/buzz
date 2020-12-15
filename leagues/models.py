@@ -73,11 +73,11 @@ class Circuit(models.Model):
 
 class Bracket(models.Model):
     """A bracket of tournament play within a circuit."""
-    circuit = models.ForeignKey(Circuit, on_delete=models.CASCADE)
+    season = models.ForeignKey(Season, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
 
     def __str__(self):
-        return f'{self.name} Bracket for {self.circuit}'
+        return f'{self.name} Bracket for {self.season}'
 
 class Round(models.Model):
     """A period of play in which matches can take place, usually a week."""
