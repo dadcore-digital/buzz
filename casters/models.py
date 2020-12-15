@@ -10,9 +10,25 @@ class Caster(models.Model):
     def __str__(self):
         return self.player.name
 
+class NameMapping(models.Model):
+    """
+    Manually map the name of a caster to a player
+
+    Useful when a caster plays with a different name than their casting name.
+    """
+    caster_name = models.CharField(max_length=255)
+    player_name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f'"{self.caster_name}" plays as "{self.player_name}"'
+
+
 class Settings(models.Model):
     """Settings data for use with caster app."""
     casters_csv_url = models.URLField()
+
+    # A list of names to ignore when importing, seperated by comma
+    ignore_names = models.CharField(blank=True, null=True, max_length=255)
 
     class Meta:
         verbose_name_plural = 'settings'
