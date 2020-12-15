@@ -1,6 +1,6 @@
 from django.db import models
 from casters.models import Caster
-from leagues.models import Circuit
+from leagues.models import Circuit, Round
 from teams.models import Team
 
 class Match(models.Model):
@@ -15,6 +15,8 @@ class Match(models.Model):
     circuit = models.ForeignKey(
         Circuit, related_name='circuit_matches', on_delete=models.CASCADE)
 
+    round = models.ForeignKey(Round, on_delete=models.CASCADE)
+
     start_time = models.DateTimeField(blank=True, null=True)
 
     primary_caster = models.ForeignKey(
@@ -28,6 +30,7 @@ class Match(models.Model):
 
     modified = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+
 
     class Meta:
         verbose_name_plural = 'Matches'

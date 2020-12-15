@@ -18,12 +18,16 @@ class Season(models.Model):
     name = models.CharField(max_length=255, help_text='Name your league')
     league = models.ForeignKey(
         League, related_name='seasons', on_delete=models.CASCADE)
-
+    
     is_active = models.BooleanField(default=False, null=False)
+
     regular_start = models.DateTimeField(blank=True, null=True)
     regular_end = models.DateTimeField(blank=True, null=True)
-    playoffs_start = models.DateTimeField(blank=True, null=True)
-    playoffs_end = models.DateTimeField(blank=True, null=True)
+    tournament_start = models.DateTimeField(blank=True, null=True)
+    tournament_end = models.DateTimeField(blank=True, null=True)
+
+    num_regular_rounds = models.PositiveIntegerField(default=1)
+    num_tournament_rounds = models.PositiveIntegerField(default=1)
 
     teams_csv_url = models.URLField(blank=True, null=True)
     matches_csv_url = models.URLField(blank=True, null=True)
@@ -67,3 +71,23 @@ class Circuit(models.Model):
         else:
             return f'{self.league.name} {self.season.name} {self.get_region_display()} {self.get_tier_display()}'
 
+class Bracket(models.Model):
+    """A bracket of tournament play within a circuit."""
+    circuit = models.ForeignKey(Circuit, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f'{self.name} Bracket for {self.circuit}'
+
+class Round(models.Model):
+    """A period of play in which matches can take place, usually a week."""
+    circuit = models.ForeignKey(Circuit, on_delete=models.CASCADE)
+    round_number = models.PositiveSmallIntegerField(default=1)
+    bracket = models.ForeignKey(
+        Bracket, blank=True, null=True, on_delete=models.CASCADE)
+
+    def __str__(self):
+        bracket_text = ''
+        if self.bracket:
+            bracket_text = f'{self.bracket.name} Bracket'
+        return f'Round {self.round_number} for {self.circuit} {bracket_text}'
