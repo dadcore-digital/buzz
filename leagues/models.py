@@ -81,7 +81,7 @@ class Bracket(models.Model):
 
 class Round(models.Model):
     """A period of play in which matches can take place, usually a week."""
-    circuit = models.ForeignKey(Circuit, on_delete=models.CASCADE)
+    season = models.ForeignKey(Season, on_delete=models.CASCADE)
     round_number = models.PositiveSmallIntegerField(default=1)
     bracket = models.ForeignKey(
         Bracket, blank=True, null=True, on_delete=models.CASCADE)
@@ -90,4 +90,4 @@ class Round(models.Model):
         bracket_text = ''
         if self.bracket:
             bracket_text = f'{self.bracket.name} Bracket'
-        return f'Round {self.round_number} for {self.circuit} {bracket_text}'
+        return f'Round {self.round_number} for {self.season} {bracket_text}'
