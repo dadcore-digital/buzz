@@ -7,6 +7,8 @@ class Caster(models.Model):
         Player, related_name='caster_profile', on_delete=models.CASCADE)    
     bio_link = models.URLField(blank=True, null=True)
 
+    is_active = models.BooleanField(default=True)
+
     def __str__(self):
         return self.player.name
 
