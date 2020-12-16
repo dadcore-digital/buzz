@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 
 class Player(models.Model):
     name = models.CharField(unique=True, max_length=255)
+    name_phonetic = models.CharField(max_length=255, blank=True, null=True)
+    pronouns = models.CharField(max_length=255, blank=True, null=True)
+
     discord_username = models.CharField(blank=True, max_length=255)
     twitch_username = models.CharField(blank=True, null=True, max_length=255)
 
@@ -10,6 +13,7 @@ class Player(models.Model):
         User, related_name='captained_teams', on_delete=models.CASCADE,
         blank=True, null=True
     )
+    
 
     modified = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
