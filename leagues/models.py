@@ -73,7 +73,8 @@ class Circuit(models.Model):
 
 class Bracket(models.Model):
     """A bracket of tournament play within a circuit."""
-    season = models.ForeignKey(Season, on_delete=models.CASCADE)
+    season = models.ForeignKey(
+        Season, related_name='brackets', on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
 
     def __str__(self):
@@ -83,11 +84,20 @@ class Round(models.Model):
     """A period of play in which matches can take place, usually a week."""
     season = models.ForeignKey(Season, on_delete=models.CASCADE)
     round_number = models.PositiveSmallIntegerField(default=1)
+    name = models.CharField(max_length=255, blank=True, null=True)
     bracket = models.ForeignKey(
         Bracket, blank=True, null=True, on_delete=models.CASCADE)
 
+    class Meta:
+        ordering = ['bracket', 'round_number', '-name']
+
     def __str__(self):
-        bracket_text = ''
+        prepend_text =  ''
+        if self.name:
+            prepend_text = f'{self.name} ' 
+
+        append_text = ''
         if self.bracket:
-            bracket_text = f'{self.bracket.name} Bracket'
-        return f'Round {self.round_number} for {self.season} {bracket_text}'
+            append_text = f' {self.bracket.name} Bracket'
+        
+        return f'{self.season} {prepend_text}Round {self.round_number}' + append_text

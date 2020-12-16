@@ -1,9 +1,10 @@
 import csv
+import re
 import time
 from datetime import datetime, timedelta
 from django.db import IntegrityError
 from buzz.services import convert_et_to_utc
-from leagues.models import League, Season, Circuit
+from leagues.models import League, Season, Circuit, Round
 from teams.models import Team
 from .models import Match, Result, Set
 
@@ -30,7 +31,8 @@ def parse_matches_csv(csv_data):
         'VOD Link': None,
         'Away Sets Won': None,
         'Home Sets Won': None,
-        'Winner': None
+        'Winner': None,
+        'Week': None
     }
 
     for idx, row in enumerate(rows):
@@ -89,6 +91,7 @@ def bulk_import_matches(matches, season, delete_before_import=True):
         match_count['deleted'] = existing_matches.count()
         existing_matches.delete()
 
+    
     for entry in matches:
         # Skip any matches that don't have a date
         match_date = entry['date']
@@ -102,7 +105,40 @@ def bulk_import_matches(matches, season, delete_before_import=True):
             circuit = season.circuits.filter(region=entry['circ'], tier=entry['tier']).first()
             home_team = Team.objects.filter(circuit=circuit, name=entry['home_team']).first()
             away_team = Team.objects.filter(circuit=circuit, name=entry['away_team']).first()
-                
+            
+            # Determine Round and create if does not exist
+            round_data = entry['week'].lower()
+            round_name = None
+            bracket = None
+
+            if 'week' in round_data:
+                round_number = re.findall(r'\d+', round_data)[0]
+                            
+            elif 'playoff' in round_data:
+                round_number = re.findall(r'\d+', round_data)[0]
+                bracket = circuit.season.brackets.filter(name__icontains='Winner').first()
+
+            elif re.findall('semi|champ', round_data):      
+                round_number = re.findall(r'\d+', round_data)[0]
+                round_name = round_data.split('-')[0].capitalize()
+
+                bracket_abbrev = round_data.split('-')[1][0]
+                bracket_verbose = 'winner' if bracket_abbrev.startswith('w') else 'loser'
+
+                bracket = circuit.season.brackets.filter(
+                    name__icontains=bracket_verbose).first()
+
+            elif 'bye' in round_data:                
+                round_number = 9999
+                round_name = round_data.capitalize()
+
+            round, created  = Round.objects.get_or_create(
+                season=season,
+                round_number=round_number,
+                name=round_name,
+                bracket=bracket
+            )
+
             # Set all invalid/TDB times to midnight
             match_time = entry['time_(eastern)']
 
@@ -124,7 +160,7 @@ def bulk_import_matches(matches, season, delete_before_import=True):
             try:
                 match = Match.objects.create(
                     home=home_team, away=away_team, circuit=circuit,
-                    start_time=utc_match_start
+                    round=round, start_time=utc_match_start,
                 )            
                 match_count['created'] += 1
 
