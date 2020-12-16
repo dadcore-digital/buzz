@@ -194,7 +194,7 @@ def bulk_import_matches(matches, season, delete_before_import=True):
                 match = Match.objects.create(
                     home=home_team, away=away_team, circuit=circuit,
                     round=round, start_time=utc_match_start,
-                    primary_caster=caster
+                    primary_caster=caster,vod_link=entry['vod_link']
                 )            
                 for secondary_caster in co_casters:
                     match.secondary_casters.add(secondary_caster)
