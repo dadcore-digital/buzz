@@ -92,6 +92,7 @@ def bulk_import_casters(caster_list, delete_before_import=True):
 
         caster, caster_created = Caster.objects.get_or_create(player=player)
         caster.bio_link = entry['bio']
+        caster.does_solo_casts = True
         caster.save()
         
         # Update Player Twitch Link

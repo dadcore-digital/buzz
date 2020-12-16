@@ -20,11 +20,11 @@ class Match(models.Model):
     start_time = models.DateTimeField(blank=True, null=True)
 
     primary_caster = models.ForeignKey(
-        Caster, related_name='casted_matches', on_delete=models.CASCADE,
+        Caster, related_name='casted_matches', on_delete=models.SET_NULL,
         blank=True, null=True)
 
     secondary_casters = models.ManyToManyField(
-        Caster, related_name='cocasted_matches', blank=True)
+        Caster, related_name='cocasted_matches', blank=True, null=True)
 
     vod_link = models.URLField(blank=True, null=True)
 

@@ -8,6 +8,7 @@ class Caster(models.Model):
     bio_link = models.URLField(blank=True, null=True)
 
     is_active = models.BooleanField(default=True)
+    does_solo_casts = models.BooleanField(default=True)
 
     def __str__(self):
         return self.player.name

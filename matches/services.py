@@ -4,7 +4,9 @@ import time
 from datetime import datetime, timedelta
 from django.db import IntegrityError
 from buzz.services import convert_et_to_utc
+from casters.models import Caster
 from leagues.models import League, Season, Circuit, Round
+from players.models import Player
 from teams.models import Team
 from .models import Match, Result, Set
 
@@ -157,11 +159,46 @@ def bulk_import_matches(matches, season, delete_before_import=True):
             et_match_start = datetime.strptime(f'{match_date} {match_time}', '%Y-%m-%d %H:%M')
             utc_match_start = convert_et_to_utc(et_match_start)
 
+            # Get Casters and Co-Casters
+            caster = Caster.objects.filter(
+                player__name__icontains=entry['caster']).first()
+
+            # Co-casters often don't have casting profiles, so auto-generate
+            # one for them.
+            co_casters = []
+            if entry['co-casters']:
+                co_caster_names =  entry['co-casters'].split(',')
+
+                for co_caster_name in co_caster_names:
+                    co_caster_name = co_caster_name.strip()
+                    co_caster = Caster.objects.filter(
+                        player__name__icontains=co_caster_name).first()
+
+                    if not co_caster:
+                        player = Player.objects.filter(
+                            name__icontains=co_caster_name).first()
+                        if player:
+                            co_caster, created = Caster.objects.get_or_create(
+                                player=player, does_solo_casts=False)
+                        else:
+                            player, created = Player.objects.get_or_create(
+                                name=co_caster_name
+                            )
+                            co_caster, created = Caster.objects.get_or_create(
+                                player=player, does_solo_casts=False)
+                
+                    co_casters.append(co_caster)
+
+
             try:
                 match = Match.objects.create(
                     home=home_team, away=away_team, circuit=circuit,
                     round=round, start_time=utc_match_start,
+                    primary_caster=caster
                 )            
+                for secondary_caster in co_casters:
+                    match.secondary_casters.add(secondary_caster)
+
                 match_count['created'] += 1
 
                 # Create Result and Set Objects if Winner defined
