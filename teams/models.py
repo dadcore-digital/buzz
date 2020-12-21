@@ -19,7 +19,7 @@ class Team(models.Model):
     )
 
     members = models.ManyToManyField(
-        Player, related_name='member_of', blank=True)
+        Player, related_name='teams', blank=True)
 
     modified = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)

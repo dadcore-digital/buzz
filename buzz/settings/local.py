@@ -5,7 +5,7 @@ DEBUG = True
 INTERNAL_IPS = ('127.0.0.1', '192.168.56.2', '192.168.56.1', '192.168.56.2')
 
 STATIC_ROOT = '/var/www/buzz_static/'
-MEDIA_ROOT = '/var/www/kbapi_media/'
+MEDIA_ROOT = '/var/www/buzz_media/'
 
 
 # Database

@@ -38,6 +38,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'admin_interface',
+    'colorfield',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -115,6 +117,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
+
+# Required by django admin interface
+X_FRAME_OPTIONS='SAMEORIGIN'
 
 STATICFILES_DIRS = [
     f'{str(Path(cwd).parent.parent)}/assets'

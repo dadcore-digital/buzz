@@ -31,7 +31,7 @@ class Award(models.Model):
     
 
     def __str__(self):
-        return f'[{self.circuit} | Week/Roundp {self.round} | {self.award_category.name}]:  {self.player.name}'
+        return f'{self.award_category.name}: {self.player.name} | {self.round}'
 
 class StatCategory(models.Model):
     name = models.CharField(max_length=255)
