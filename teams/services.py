@@ -73,7 +73,6 @@ def bulk_import_teams(teams, season, delete_before_import=False):
 
     Arguments:
     team_list -- List of team data derived from team CSV sheet. (list)
-    league -- A League model instance to associate these teams with. (obj)
     season -- A Season model instance to associate these teams with.
     delete_before_import -- Delete all existing Teams then initiate
                             import process. A way to start clean with

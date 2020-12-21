@@ -1,5 +1,5 @@
 from django.db import models
-from leagues.models import Circuit
+from leagues.models import Circuit, Round
 from players.models import Player
 
 class AwardCategory(models.Model):
@@ -19,7 +19,8 @@ class Award(models.Model):
     circuit = models.ForeignKey(
         Circuit, related_name='awards', on_delete=models.deletion.CASCADE
     )
-    round_number = models.PositiveSmallIntegerField(default=1)
+    round = models.ForeignKey(
+        Round, related_name='awards', on_delete=models.deletion.CASCADE)
     
     player = models.ForeignKey(
         Player, related_name='awards',
@@ -30,7 +31,7 @@ class Award(models.Model):
     
 
     def __str__(self):
-        return f'[{self.circuit} | Week/Roundp {self.round_number} | {self.award_category.name}]:  {self.player.name}'
+        return f'[{self.circuit} | Week/Roundp {self.round} | {self.award_category.name}]:  {self.player.name}'
 
 class StatCategory(models.Model):
     name = models.CharField(max_length=255)

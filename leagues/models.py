@@ -31,6 +31,7 @@ class Season(models.Model):
 
     teams_csv_url = models.URLField(blank=True, null=True)
     matches_csv_url = models.URLField(blank=True, null=True)
+    awards_csv_url = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return f'{self.league.name} {self.name}'
@@ -82,7 +83,8 @@ class Bracket(models.Model):
 
 class Round(models.Model):
     """A period of play in which matches can take place, usually a week."""
-    season = models.ForeignKey(Season, on_delete=models.CASCADE)
+    season = models.ForeignKey(
+        Season, related_name='rounds', on_delete=models.CASCADE)
     round_number = models.PositiveSmallIntegerField(default=1)
     name = models.CharField(max_length=255, blank=True, null=True)
     bracket = models.ForeignKey(
