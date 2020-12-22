@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 import pytz
 import requests
+from django.urls import reverse
+
 
 def convert_et_to_utc(date_obj):
     """Convert a datetime object from Eastern to UTC."""
@@ -38,3 +40,13 @@ def get_sheet_csv(sheets_url, output_filename=None, write_to_file=False):
     else:
         return resp.text
 
+
+def get_object_admin_link(obj, link_text):
+    url = reverse(
+        f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change',
+        args=[obj.id]
+    )
+    
+    link = f'<a href="{url}">{link_text}</a>'
+    return link
+    

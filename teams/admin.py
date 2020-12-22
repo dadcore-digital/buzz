@@ -15,4 +15,6 @@ class TeamAdmin(admin.ModelAdmin):
     list_display = ('name', 'captain', members, 'circuit')
     search_fields = ('name', 'members__name')
     
+    autocomplete_fields = ['members']
+
 admin.site.register(Team, TeamAdmin)

@@ -27,7 +27,7 @@ class Award(models.Model):
         on_delete=models.deletion.CASCADE
     )
 
-    stats = models.ManyToManyField('Stat', related_name='category')
+    stats = models.ManyToManyField('Stat', related_name='award')
     
 
     def __str__(self):
