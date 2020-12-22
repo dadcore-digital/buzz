@@ -7,7 +7,12 @@ chardet==3.0.4
 curtsies==0.3.4
 decorator==4.4.2
 Django==3.1
+django-admin-interface==0.14.1
+django-colorfield==0.3.2
 django-extensions==3.0.5
+django-flat-responsive==2.0
+django-flat-theme==1.1.4
+djangorestframework==3.12.2
 greenlet==0.4.16
 idna==2.10
 ipdb==0.13.3
@@ -18,10 +23,11 @@ mysqlclient==2.0.1
 parso==0.7.1
 pexpect==4.8.0
 pickleshare==0.7.5
-
+pkg-resources==0.0.0
 prompt-toolkit==3.0.6
 ptyprocess==0.6.0
 Pygments==2.6.1
+pygraphviz==1.6
 pytz==2020.1
 requests==2.24.0
 six==1.15.0
