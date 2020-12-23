@@ -4,7 +4,7 @@ from players.models import Player
 
 class Event(models.Model):
     name = models.CharField(max_length=255)
-    start_time = start_time = models.DateTimeField()
+    start_time = models.DateTimeField()
     description = models.CharField(max_length=5120, blank=True, null=True)
 
     organizers = models.ManyToManyField(

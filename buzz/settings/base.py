@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'casters',
     'awards',
     'events',
+    'streams',
     'api',
 
 ]
