@@ -7,7 +7,6 @@ from django.core.exceptions import ImproperlyConfigured
 cwd = os.path.dirname(os.path.realpath(__file__))
 PROJECT_DIR = str(Path(cwd).parent)
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
-TEMPLATE_DIR = str(Path(BASE_DIR).parents[1]) + '/templates'
 
 def get_secret(secret_name):
     """
@@ -75,7 +74,7 @@ ROOT_URLCONF = 'buzz.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [str(Path(BASE_DIR).parents[1]) + '/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

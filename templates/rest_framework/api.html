@@ -1,0 +1,21 @@
+{% extends "rest_framework/base.html" %}
+
+{% block bootstrap_theme %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/3.4.1/darkly/bootstrap.min.css" type="text/css">
+
+    <style>
+    .navbar-inverse {
+        background-color: #7900bc;
+    }
+    </style>
+{% endblock %}
+
+{% block branding %}
+    <span>
+              
+    <a class="navbar-brand" rel="nofollow" href="/api/">
+        Buzz API
+    </a>
+              
+    </span>
+{% endblock %}
