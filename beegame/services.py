@@ -30,5 +30,9 @@ def update_steam_playing_count(timeout=120):
     """
     steam = Steam()
     playing_count = steam.get_playing_count(timeout=timeout)
-    obj = Playing.objects.create(total=8)
+    obj = None
+
+    if playing_count:
+        obj = Playing.objects.create(total=playing_count)
+
     return obj
