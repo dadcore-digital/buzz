@@ -21,4 +21,3 @@ class Stream(models.Model):
 class StreamerBlacklist(models.Model):
     username = models.CharField(max_length=255)
     reason = models.CharField(max_length=255, blank=True, null=True)
-

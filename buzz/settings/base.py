@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'awards',
     'events',
     'streams',
+    'beegame',
     'api',
 
 ]
