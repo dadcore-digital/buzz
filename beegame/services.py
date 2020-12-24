@@ -26,7 +26,7 @@ class Steam:
 
 def update_steam_playing_count(timeout=120):
     """
-    Update 
+    Update database with number of people currently playing game in steam.
     """
     steam = Steam()
     playing_count = steam.get_playing_count(timeout=timeout)
