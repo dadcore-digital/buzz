@@ -127,3 +127,5 @@ STATICFILES_DIRS = [
     f'{str(Path(cwd).parent.parent)}/assets'
 ]
 
+# Steam Settings
+STEAM_GAME_ID = '663670'

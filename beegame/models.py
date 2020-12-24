@@ -9,7 +9,7 @@ PLATFORM_CHOICES = (
 )
 
 class Playing(models.Model):
-    updated = models.DateTimeField()
+    updated = models.DateTimeField(auto_now=True)
     total = models.PositiveSmallIntegerField()
 
     platform = models.CharField(
@@ -32,7 +32,7 @@ class Playing(models.Model):
 
 
     def __str__(self):
-        return f'{self.updated}: {self.total}'
+        return f'{self.updated}: {self.total} Playing'
 
 class Release(models.Model):
     version = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
