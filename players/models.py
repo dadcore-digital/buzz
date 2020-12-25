@@ -6,7 +6,7 @@ class Player(models.Model):
     name_phonetic = models.CharField(max_length=255, blank=True, null=True)
     pronouns = models.CharField(max_length=255, blank=True, null=True)
 
-    discord_username = models.CharField(blank=True, max_length=255)
+    discord_username = models.CharField(blank=True, null=True, max_length=255)
     twitch_username = models.CharField(blank=True, null=True, max_length=255)
 
     user = models.ForeignKey(

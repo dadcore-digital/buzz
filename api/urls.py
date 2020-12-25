@@ -2,7 +2,7 @@ from django.urls import include, path
 from rest_framework import routers
 from .views import (
     LeagueViewSet, SeasonViewSet, CircuitViewSet, MatchViewSet, TeamViewSet,
-    PlayerViewSet, UserViewSet)
+    PlayerViewSet, EventViewSet)
 
 router = routers.DefaultRouter()
 router.register(r'leagues', LeagueViewSet)
@@ -11,7 +11,7 @@ router.register(r'circuits', CircuitViewSet)
 router.register(r'matches', MatchViewSet)
 router.register(r'teams', TeamViewSet)
 router.register(r'players', PlayerViewSet)
-router.register(r'users', UserViewSet)
+router.register(r'events', EventViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.

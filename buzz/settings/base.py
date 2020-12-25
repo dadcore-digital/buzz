@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'rest_framework',
+    'django_filters',
     'buzz',
     'players',
     'leagues',
@@ -126,6 +127,11 @@ X_FRAME_OPTIONS='SAMEORIGIN'
 STATICFILES_DIRS = [
     f'{str(Path(cwd).parent.parent)}/assets'
 ]
+
+# Django Rest Framework Settings
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}
 
 # Steam Settings
 STEAM_GAME_ID = '663670'

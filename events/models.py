@@ -5,6 +5,7 @@ from players.models import Player
 class Event(models.Model):
     name = models.CharField(max_length=255)
     start_time = models.DateTimeField()
+    duration = models.DurationField(blank=True, null=True)
     description = models.CharField(max_length=5120, blank=True, null=True)
 
     organizers = models.ManyToManyField(
