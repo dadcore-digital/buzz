@@ -14,7 +14,7 @@ class PlayerSerializer(serializers.ModelSerializer):
         depth = 2
         fields = [
             'name', 'discord_username', 'twitch_username', 'modified', 'created',
-            'teams', 'awards',
+            'teams', 'awards'
         ]
 
 class PlayerSerializerNoDates(serializers.HyperlinkedModelSerializer):

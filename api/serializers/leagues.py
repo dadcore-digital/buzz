@@ -1,43 +1,52 @@
 from rest_framework import serializers
+from rest_framework.reverse import reverse
+from rest_framework_nested.relations import NestedHyperlinkedRelatedField
+from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from leagues.models import League, Season, Circuit, Round
 
+
 class LeagueSerializer(serializers.HyperlinkedModelSerializer):
+    
+    seasons = NestedHyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        view_name='league-seasons-detail',
+        parent_lookup_kwargs={'league_pk': 'league__pk'}
+    )
+
     class Meta:
         model = League
         fields = [
-            'name', 'modified', 'created'
+            'id', 'name', 'modified', 'created', 'seasons'
         ]
 
 
 class LeagueSummarySerializer(serializers.HyperlinkedModelSerializer):
 
-    detail_url = serializers.HyperlinkedIdentityField(
+    _href = serializers.HyperlinkedIdentityField(
         view_name='league-detail'
     )
 
     class Meta:
         model = League
         fields = [
-            'name', 'detail_url'
+            'name', '_href'
         ]
-
 class SeasonSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Season
         fields = [
-            'name', 'league', 'regular_start', 'regular_end', 'playoffs_start',
-            'playoffs_end'
+            'name', 'league', 'regular_start', 'regular_end',
+            'tournament_start', 'tournament_end'
         ]
 
 class SeasonSummarySerializer(serializers.ModelSerializer):
     league = LeagueSummarySerializer()
-    detail_url = serializers.HyperlinkedIdentityField(
-        view_name='season-detail'
-    )
+    
 
     class Meta:
         model = Season
-        fields = ['name', 'league', 'detail_url']
+        fields = ['id', 'name', 'league']
 
 class CircuitSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -48,14 +57,14 @@ class CircuitSerializer(serializers.HyperlinkedModelSerializer):
 
 class CircuitSummarySerializer(serializers.ModelSerializer):
     
-    detail_url = serializers.HyperlinkedIdentityField(
+    _href = serializers.HyperlinkedIdentityField(
         view_name='circuit-detail')
     season = SeasonSummarySerializer()
 
     class Meta:
         model = Circuit
         fields = [
-            'season', 'region', 'tier', 'name', 'detail_url'
+            'season', 'region', 'tier', 'name', '_href'
         ]
         
 
@@ -67,10 +76,10 @@ class RoundSerializer(serializers.ModelSerializer):
         
 class RoundSummarySerializer(serializers.ModelSerializer):
 
-    detail_url = serializers.HyperlinkedIdentityField(
+    _href = serializers.HyperlinkedIdentityField(
         view_name='round-detail')
 
     class Meta:
         model = Round
-        fields = ['round_number', 'detail_url']
+        fields = ['round_number', '_href']
         

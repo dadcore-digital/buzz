@@ -12,9 +12,9 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
 
 class TeamSummarySerializer(serializers.HyperlinkedModelSerializer):
     
-    detail_url = serializers.HyperlinkedIdentityField(view_name='team-detail')
+    _href = serializers.HyperlinkedIdentityField(view_name='team-detail')
     circuit = CircuitSummarySerializer()
-    
+
     class Meta:
         model = Team
-        fields = ['name', 'detail_url', 'circuit']
+        fields = ['name', '_href', 'circuit']

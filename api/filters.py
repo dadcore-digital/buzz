@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import pytz
 from django_filters import rest_framework as filters
 from events.models import Event
+from players.models import Player
 now = pytz.utc.localize(datetime.utcnow())
 
 class EventFilter(filters.FilterSet):
@@ -35,7 +36,21 @@ class EventFilter(filters.FilterSet):
             start_time__gte=datetime.now(),
             start_time__lte=time_threshold
         )
-
     class Meta:
         model = Event
         fields = ['name', 'hours', 'days', 'organizer']
+
+class PlayerFilter(filters.FilterSet):
+    name = filters.CharFilter(lookup_expr='icontains')
+    discord_username = filters.CharFilter(lookup_expr='icontains')
+    twitch_username = filters.CharFilter(lookup_expr='icontains')
+    team = filters.CharFilter(
+        field_name='teams__name', lookup_expr='icontains')
+    award = filters.CharFilter(
+        field_name='awards__award_category__name', lookup_expr='icontains')
+
+
+    class Meta:
+        model = Player
+        fields = [
+            'name', 'discord_username', 'twitch_username', 'team', 'award']

@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import filters
 from django.contrib.auth.models import User
-from .filters import EventFilter
+from .filters import EventFilter, PlayerFilter
 from .serializers.awards import AwardSerializer
 from .serializers.leagues import (
     LeagueSerializer, SeasonSerializer, CircuitSerializer, RoundSerializer)
@@ -30,14 +30,18 @@ class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class SeasonViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Season.objects.all().order_by('name')
+    
+    def get_queryset(self):
+        return Season.objects.filter(
+            league=self.kwargs['league_pk']).order_by('name')
+
     serializer_class = SeasonSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class CircuitViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Circuit.objects.all().order_by('name')
     serializer_class = CircuitSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
 
 class RoundViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Round.objects.all()
@@ -56,6 +60,7 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
 class PlayerViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Player.objects.all().order_by('name')
     serializer_class = PlayerSerializer
+    filterset_class = PlayerFilter
 
 class EventViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Event.objects.all()
