@@ -1,8 +1,14 @@
 from rest_framework import serializers
+from .awards import AwardSummarySerializer
+from .teams import TeamSummarySerializer
 from players.models import Player
 
 
 class PlayerSerializer(serializers.ModelSerializer):
+    
+    teams = TeamSummarySerializer(many=True)
+    awards = AwardSummarySerializer(many=True)
+
     class Meta:
         model = Player
         depth = 2
