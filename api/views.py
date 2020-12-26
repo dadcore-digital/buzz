@@ -52,7 +52,6 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
 class PlayerViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Player.objects.all().order_by('name')
     serializer_class = PlayerSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class EventViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Event.objects.all()
