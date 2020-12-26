@@ -3,9 +3,15 @@ from rest_framework import permissions
 from rest_framework import filters
 from django.contrib.auth.models import User
 from .filters import EventFilter
-from .serializers import (
-    LeagueSerializer, SeasonSerializer, CircuitSerializer, MatchSerializer,
-    TeamSerializer, PlayerSerializer, EventSerializer, StreamSerializer) 
+from .serializers.awards import AwardSerializer
+from .serializers.leagues import (
+    LeagueSerializer, SeasonSerializer, CircuitSerializer)
+from .serializers.matches import MatchSerializer
+from .serializers.teams import TeamSerializer
+from .serializers.players import PlayerSerializer
+from .serializers.events import EventSerializer
+from .serializers.streams import StreamSerializer
+from awards.models import Award
 from events.models import Event
 from leagues.models import League, Season, Circuit
 from matches.models import Match
@@ -13,6 +19,10 @@ from players.models import Player
 from streams.models import Stream
 from teams.models import Team
 
+
+class AwardViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Award.objects.all()
+    serializer_class = AwardSerializer
 
 class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = League.objects.all().order_by('name')

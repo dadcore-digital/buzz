@@ -1,10 +1,11 @@
 from django.urls import include, path
 from rest_framework import routers
 from .views import (
-    LeagueViewSet, SeasonViewSet, CircuitViewSet, MatchViewSet, TeamViewSet,
-    PlayerViewSet, EventViewSet)
+    AwardViewSet, LeagueViewSet, SeasonViewSet, CircuitViewSet, MatchViewSet,
+    TeamViewSet, PlayerViewSet, EventViewSet)
 
 router = routers.DefaultRouter()
+router.register(r'awards', AwardViewSet)
 router.register(r'leagues', LeagueViewSet)
 router.register(r'seasons', SeasonViewSet)
 router.register(r'circuits', CircuitViewSet)
