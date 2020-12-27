@@ -1,8 +1,10 @@
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import filters
+from rest_framework.response import Response
 from django.contrib.auth.models import User
-from .filters import EventFilter, PlayerFilter
+from django.shortcuts import get_object_or_404
+from .filters import EventFilter, PlayerFilter, TeamFilter
 from .serializers.awards import AwardSerializer
 from .serializers.leagues import (
     LeagueSerializer, SeasonSerializer, CircuitSerializer, RoundSerializer)
@@ -24,23 +26,51 @@ class AwardViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Award.objects.all()
     serializer_class = AwardSerializer
 
-class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = League.objects.all().order_by('name')
+class LeagueViewSet(viewsets.ViewSet):
     serializer_class = LeagueSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-class SeasonViewSet(viewsets.ReadOnlyModelViewSet):
+    def list(self, request):
+        queryset = League.objects.filter()
+        serializer = LeagueSerializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data)
     
-    def get_queryset(self):
-        return Season.objects.filter(
-            league=self.kwargs['league_pk']).order_by('name')
+    def retrieve(self, request, pk=None):
+        queryset = League.objects.filter()
+        league = get_object_or_404(queryset, pk=pk)
+        serializer = LeagueSerializer(league, context={'request': request})
+        return Response(serializer.data)
 
+
+class SeasonViewSet(viewsets.ViewSet):
+    
     serializer_class = SeasonSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-class CircuitViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Circuit.objects.all().order_by('name')
+    def list(self, request, league_pk=None):
+        queryset = Season.objects.filter(league=league_pk)
+        serializer = SeasonSerializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data)
+    
+    def retrieve(self, request, pk=None, league_pk=None):
+        queryset = Season.objects.filter(pk=pk, league=league_pk)
+        season = get_object_or_404(queryset, pk=pk)
+        serializer = SeasonSerializer(season, context={'request': request})
+        return Response(serializer.data)
+
+
+class CircuitViewSet(viewsets.ViewSet):
+    
     serializer_class = CircuitSerializer
+
+    def list(self, request, league_pk=None, season_pk=None):
+        queryset = Circuit.objects.filter(league=league_pk, season=season_pk)
+        serializer = CircuitSerializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data)
+    
+    def retrieve(self, request, pk=None, league_pk=None, season_pk=None):
+        queryset = Circuit.objects.filter(pk=pk, season=season_pk)
+        circuit = get_object_or_404(queryset, pk=pk)
+        serializer = CircuitSerializer(circuit, context={'request': request})
+        return Response(serializer.data)
 
 
 class RoundViewSet(viewsets.ReadOnlyModelViewSet):
@@ -56,6 +86,7 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Team.objects.all().order_by('name')
     serializer_class = TeamSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filterset_class = TeamFilter
 
 class PlayerViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Player.objects.all().order_by('name')

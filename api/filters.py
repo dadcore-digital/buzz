@@ -4,7 +4,8 @@ import pytz
 from django_filters import rest_framework as filters
 from events.models import Event
 from players.models import Player
-now = pytz.utc.localize(datetime.utcnow())
+from teams.models import Team
+
 
 class EventFilter(filters.FilterSet):
     name = filters.CharFilter(lookup_expr='icontains')
@@ -41,16 +42,81 @@ class EventFilter(filters.FilterSet):
         fields = ['name', 'hours', 'days', 'organizer']
 
 class PlayerFilter(filters.FilterSet):
-    name = filters.CharFilter(lookup_expr='icontains')
-    discord_username = filters.CharFilter(lookup_expr='icontains')
-    twitch_username = filters.CharFilter(lookup_expr='icontains')
+    name = filters.CharFilter(lookup_expr='icontains', label='Player Name')
+    discord_username = filters.CharFilter(
+        lookup_expr='icontains', label='Discord Username')
+    twitch_username = filters.CharFilter(
+        lookup_expr='icontains', label='Twitch Username')
+    
     team = filters.CharFilter(
-        field_name='teams__name', lookup_expr='icontains')
+        field_name='teams__name', lookup_expr='icontains', label='Team Name')
+    
+    league = filters.CharFilter(
+        field_name='teams__circuit__season__league__name',
+        lookup_expr='icontains',
+        label='League Name'
+    )
+
+    season = filters.CharFilter(
+        field_name='teams__circuit__season__name',
+        lookup_expr='icontains',
+        label='Season Name'
+    )
+
+    region = filters.CharFilter(
+        field_name='teams__circuit__region',
+        lookup_expr='icontains',
+        label='Team\'s Circuit Region Abbreviation'
+    )
+
+    tier = filters.CharFilter(
+        field_name='teams__circuit__tier',
+        lookup_expr='exact',
+        label='Team\'s Circuit Tier Number'
+    )
+
     award = filters.CharFilter(
-        field_name='awards__award_category__name', lookup_expr='icontains')
+        field_name='awards__award_category__name', lookup_expr='icontains',
+        label='Award Name')
 
 
     class Meta:
         model = Player
         fields = [
-            'name', 'discord_username', 'twitch_username', 'team', 'award']
+            'name', 'discord_username', 'twitch_username', 'team', 'league',
+            'season', 'region', 'tier', 'award'
+        ]
+
+
+class TeamFilter(filters.FilterSet):
+    name = filters.CharFilter(lookup_expr='icontains', label='Team Name')
+    
+    league = filters.CharFilter(
+        field_name='circuit__season__league__name',
+        lookup_expr='icontains',
+        label='League Name'
+    )
+
+    season = filters.CharFilter(
+        field_name='circuit__season__name',
+        lookup_expr='icontains',
+        label='Season Name'
+    )
+
+    region = filters.CharFilter(
+        field_name='circuit__region',
+        lookup_expr='icontains',
+        label='Circuit Region Abbreviation'
+    )
+
+    tier = filters.CharFilter(
+        field_name='circuit__tier',
+        lookup_expr='exact',
+        label='Circuit Tier Number'
+    )
+
+    class Meta:
+        model = Team
+        fields = [
+            'name', 'league', 'season', 'region', 'tier'
+        ]

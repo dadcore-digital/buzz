@@ -7,14 +7,14 @@ from players.models import Player
 class PlayerSerializer(serializers.ModelSerializer):
     
     teams = TeamSummarySerializer(many=True)
-    awards = AwardSummarySerializer(many=True)
+    # awards = AwardSummarySerializer(many=True)
 
     class Meta:
         model = Player
         depth = 2
         fields = [
             'name', 'discord_username', 'twitch_username', 'modified', 'created',
-            'teams', 'awards'
+            'teams'
         ]
 
 class PlayerSerializerNoDates(serializers.HyperlinkedModelSerializer):

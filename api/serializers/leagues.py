@@ -10,7 +10,7 @@ class LeagueSerializer(serializers.HyperlinkedModelSerializer):
     seasons = NestedHyperlinkedRelatedField(
         many=True,
         read_only=True,
-        view_name='league-seasons-detail',
+        view_name='seasons-detail',
         parent_lookup_kwargs={'league_pk': 'league__pk'}
     )
 
@@ -24,7 +24,7 @@ class LeagueSerializer(serializers.HyperlinkedModelSerializer):
 class LeagueSummarySerializer(serializers.HyperlinkedModelSerializer):
 
     _href = serializers.HyperlinkedIdentityField(
-        view_name='league-detail'
+        view_name='leagues-detail'
     )
 
     class Meta:
@@ -32,12 +32,23 @@ class LeagueSummarySerializer(serializers.HyperlinkedModelSerializer):
         fields = [
             'name', '_href'
         ]
+
 class SeasonSerializer(serializers.HyperlinkedModelSerializer):
+
+    circuits = NestedHyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        view_name='circuits-detail',
+        parent_lookup_kwargs={
+            'league_pk': 'league__pk', 'season_pk': 'season__pk'
+        }
+    )
+
     class Meta:
         model = Season
         fields = [
-            'name', 'league', 'regular_start', 'regular_end',
-            'tournament_start', 'tournament_end'
+            'name', 'regular_start', 'regular_end',
+            'tournament_start', 'tournament_end', 'circuits'
         ]
 
 class SeasonSummarySerializer(serializers.ModelSerializer):
@@ -52,20 +63,16 @@ class CircuitSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Circuit
         fields = [
-            'season', 'region', 'tier', 'name'
+            'region', 'tier', 'name'
         ]
 
 class CircuitSummarySerializer(serializers.ModelSerializer):
     
-    _href = serializers.HyperlinkedIdentityField(
-        view_name='circuit-detail')
     season = SeasonSummarySerializer()
 
     class Meta:
         model = Circuit
-        fields = [
-            'season', 'region', 'tier', 'name', '_href'
-        ]
+        fields = ['season', 'region', 'tier', 'name']
         
 
 class RoundSerializer(serializers.ModelSerializer):
