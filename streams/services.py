@@ -1,6 +1,7 @@
 import re
 import requests
 from django.conf import settings
+from players.models import Player
 from .models import Stream
 
 class Twitch:
@@ -67,7 +68,14 @@ def update_twitch_streams(timeout=120):
             stream_id=entry['id'], start_time = entry['started_at'])
         stream.twitch_id = entry['id']
         stream.user_id = entry['user_id']
-        stream.username = entry['user_name'],
+
+        twitch_username = entry['user_name']
+        if type(twitch_username) is not str:
+            twitch_username = entry['user_name'][0]
+
+        stream.username = twitch_username
+        stream.player = Player.objects.filter(
+            twitch_username__icontains=twitch_username).first()
         stream.name = entry['title']
         stream.start_time = entry['started_at']
         stream.thumbnail_url = entry['thumbnail_url']

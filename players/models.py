@@ -14,7 +14,6 @@ class Player(models.Model):
         blank=True, null=True
     )
     
-
     modified = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
