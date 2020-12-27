@@ -60,6 +60,7 @@ def update_twitch_streams(timeout=120):
     results = tw.get_live_streams(timeout=timeout)
     created = 0
     streams = []
+    live_stream_ids = []
 
     for entry in results:
         stream, created = Stream.objects.get_or_create(
@@ -70,22 +71,30 @@ def update_twitch_streams(timeout=120):
         stream.name = entry['title']
         stream.start_time = entry['started_at']
         stream.thumbnail_url = entry['thumbnail_url']
-
         current_view_count = entry['viewer_count']
+
+        if entry['type'] == 'live':
+            stream.is_live = True
 
         if current_view_count > stream.max_viewer_count:
             stream.max_viewer_count = current_view_count
         
         stream.save()
         streams.append(stream)
+        live_stream_ids.append(stream.id)
+        
 
         if created:
             created +=1
     
+    # Set all streams no in results to is_live = False
+    marked_offline = Stream.objects.filter(is_live=True).exclude(id__in=live_stream_ids).update(is_live=False)
+
     return {
         'total': len(streams),
         'updated': len(streams) - created,
-        'created': created
+        'created': created,
+        'marked_offline': marked_offline
     }
 
 

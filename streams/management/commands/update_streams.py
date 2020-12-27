@@ -14,3 +14,5 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(f'Total Live Streams {results["total"]}'))
+        self.stdout.write(
+            self.style.SUCCESS(f'Streams Marked Offline {results["marked_offline"]}'))

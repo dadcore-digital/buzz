@@ -140,10 +140,6 @@ class EventViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = EventSerializer
     filterset_class = EventFilter
 
-class StreamViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Stream.objects.all()
-    serializer_class = StreamSerializer
-
 class PlayingViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Playing.objects.all().order_by('-updated')
     serializer_class = PlayingSerializer
