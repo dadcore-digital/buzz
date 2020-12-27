@@ -1,5 +1,4 @@
 from rest_framework import viewsets
-from rest_framework import permissions
 from rest_framework import filters
 from rest_framework.response import Response
 from django.contrib.auth.models import User
@@ -121,7 +120,6 @@ class MatchViewSet(viewsets.ReadOnlyModelViewSet):
 class TeamViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Team.objects.all().order_by('name')
     serializer_class = TeamSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filterset_class = TeamFilter
 
 class PlayerViewSet(viewsets.ReadOnlyModelViewSet):
@@ -133,6 +131,10 @@ class CasterViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Caster.objects.all().order_by('player__name')
     serializer_class = CasterSerializer
 
+class StreamViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Stream.objects.all().order_by('-start_time')
+    serializer_class = StreamSerializer
+
 class EventViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
@@ -141,7 +143,6 @@ class EventViewSet(viewsets.ReadOnlyModelViewSet):
 class StreamViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Stream.objects.all()
     serializer_class = StreamSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class PlayingViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Playing.objects.all().order_by('-updated')

@@ -3,7 +3,7 @@ from rest_framework_nested import routers
 from .views import (
     AwardViewSet, LeagueViewSet, SeasonViewSet, CircuitViewSet, MatchViewSet,
     TeamViewSet, PlayerViewSet, EventViewSet, RoundViewSet, BracketViewSet,
-    CasterViewSet, PlayingViewSet, ReleaseViewSet)
+    CasterViewSet, StreamViewSet, PlayingViewSet, ReleaseViewSet)
 
 router = routers.DefaultRouter()
 router.register(r'leagues', LeagueViewSet, basename='leagues')
@@ -12,6 +12,7 @@ router.register(r'teams', TeamViewSet)
 router.register(r'matches', MatchViewSet)
 router.register(r'awards', AwardViewSet)
 router.register(r'casters', CasterViewSet)
+router.register(r'streams', StreamViewSet)
 router.register(r'events', EventViewSet)
 router.register(r'playing', PlayingViewSet)
 router.register(r'releases', ReleaseViewSet)
