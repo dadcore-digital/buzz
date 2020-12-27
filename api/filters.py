@@ -117,8 +117,19 @@ class MatchFilter(filters.FilterSet):
     home = filters.CharFilter(
         field_name='home__name', lookup_expr='icontains', label='Home Team Name'
     )
+
     away = filters.CharFilter(
         field_name='away__name', lookup_expr='icontains', label='Away Team Name'
+    )
+
+    winner = filters.CharFilter(
+        field_name='result__winner__name', lookup_expr='icontains',
+        label='Winning Team\'s Name'
+    )
+
+    loser = filters.CharFilter(
+        field_name='result__loser__name', lookup_expr='icontains',
+        label='Losing Team\'s Name'
     )
 
     league = filters.CharFilter(
@@ -165,8 +176,8 @@ class MatchFilter(filters.FilterSet):
     class Meta:
         model = Match
         fields = [
-            'hours', 'days', 'home', 'away', 'league', 'season', 'region',
-            'tier' 
+            'hours', 'days', 'home', 'away', 'winner', 'loser', 'league',
+            'season', 'region', 'tier' 
         ]
 
 
