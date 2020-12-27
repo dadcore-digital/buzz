@@ -11,12 +11,14 @@ from .serializers.casters import CasterSerializer
 from .serializers.leagues import (
     LeagueSerializer, SeasonSerializer, CircuitSerializer, RoundSerializer,
     BracketSerializer)
+from .serializers.beegame import PlayingSerializer, ReleaseSerializer
 from .serializers.matches import MatchSerializer
 from .serializers.teams import TeamSerializer
 from .serializers.players import PlayerSerializer
 from .serializers.events import EventSerializer
 from .serializers.streams import StreamSerializer
 from awards.models import Award
+from beegame.models import Playing, Release
 from events.models import Event
 from leagues.models import League, Season, Circuit, Round, Bracket
 from matches.models import Match
@@ -141,3 +143,10 @@ class StreamViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = StreamSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+class PlayingViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Playing.objects.all().order_by('-updated')
+    serializer_class = PlayingSerializer
+
+class ReleaseViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Release.objects.all().order_by('-released_on')
+    serializer_class = ReleaseSerializer
