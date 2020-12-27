@@ -41,3 +41,11 @@ class TeamSummarySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Team
         fields = ['name', '_href', 'circuit']
+
+class TeamSummaryNoCircuitSerializer(serializers.HyperlinkedModelSerializer):
+    
+    _href = serializers.HyperlinkedIdentityField(view_name='team-detail')
+
+    class Meta:
+        model = Team
+        fields = ['name', '_href']

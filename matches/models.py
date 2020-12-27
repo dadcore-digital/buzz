@@ -15,7 +15,8 @@ class Match(models.Model):
     circuit = models.ForeignKey(
         Circuit, related_name='circuit_matches', on_delete=models.CASCADE)
 
-    round = models.ForeignKey(Round, on_delete=models.CASCADE)
+    round = models.ForeignKey(
+        Round, related_name='matches', on_delete=models.CASCADE)
 
     start_time = models.DateTimeField(blank=True, null=True)
 

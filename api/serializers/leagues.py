@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
-from leagues.models import League, Season, Circuit, Round
+from leagues.models import League, Season, Circuit, Round, Bracket
 
 
 class LeagueSerializer(serializers.HyperlinkedModelSerializer):
@@ -40,7 +40,25 @@ class SeasonSerializer(serializers.HyperlinkedModelSerializer):
         read_only=True,
         view_name='circuits-detail',
         parent_lookup_kwargs={
-            'league_pk': 'league__pk', 'season_pk': 'season__pk'
+            'league_pk': 'season__league__pk', 'season_pk': 'season__pk'
+        }
+    )
+
+    rounds = NestedHyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        view_name='rounds-detail',
+        parent_lookup_kwargs={
+            'league_pk': 'season__league__pk', 'season_pk': 'season__pk'
+        }
+    )
+
+    brackets = NestedHyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        view_name='brackets-detail',
+        parent_lookup_kwargs={
+            'league_pk': 'season__league__pk', 'season_pk': 'season__pk'
         }
     )
 
@@ -48,7 +66,8 @@ class SeasonSerializer(serializers.HyperlinkedModelSerializer):
         model = Season
         fields = [
             'name', 'regular_start', 'regular_end',
-            'tournament_start', 'tournament_end', 'circuits'
+            'tournament_start', 'tournament_end', 'circuits', 'rounds',
+            'brackets'
         ]
 
 class SeasonSummarySerializer(serializers.ModelSerializer):
@@ -59,11 +78,13 @@ class SeasonSummarySerializer(serializers.ModelSerializer):
         model = Season
         fields = ['id', 'name', 'league']
 
-class CircuitSerializer(serializers.HyperlinkedModelSerializer):
+class CircuitSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = Circuit
+        depth = 2
         fields = [
-            'region', 'tier', 'name'
+            'region', 'tier', 'name', 'teams'
         ]
 
 class CircuitSummarySerializer(serializers.ModelSerializer):
@@ -73,14 +94,30 @@ class CircuitSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Circuit
         fields = ['season', 'region', 'tier', 'name']
+    
         
 
 class RoundSerializer(serializers.ModelSerializer):
     
+    matches = serializers.HyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        view_name='match-detail'
+    )
+
     class Meta:
         model = Round
-        fields = ['season', 'round_number', 'name', 'bracket']
-        
+        fields = ['round_number', 'name', 'matches']
+    
+    
+
+
+class BracketSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Bracket
+        fields = ['name']
+
 class RoundSummarySerializer(serializers.ModelSerializer):
 
     _href = serializers.HyperlinkedIdentityField(
