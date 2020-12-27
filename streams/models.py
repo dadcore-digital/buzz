@@ -7,7 +7,7 @@ class Stream(models.Model):
     username = models.CharField(max_length=255)
     user_id = models.CharField(max_length=255, blank=True, null=True)
     stream_id = models.CharField(max_length=255)
-    max_viewer_count = models.SmallIntegerField(blank=True, null=True)
+    max_viewer_count = models.SmallIntegerField(blank=True, default=0)
     thumbnail_url = models.CharField(max_length=255, blank=True, null=True)
 
     start_time = models.DateTimeField()

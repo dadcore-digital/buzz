@@ -63,7 +63,7 @@ def update_twitch_streams(timeout=120):
 
     for entry in results:
         stream, created = Stream.objects.get_or_create(
-            stream_id=entry['twitch_id'])
+            stream_id=entry['id'], start_time = entry['started_at'])
         stream.twitch_id = entry['id']
         stream.user_id = entry['user_id']
         stream.username = entry['user_name'],
@@ -72,6 +72,7 @@ def update_twitch_streams(timeout=120):
         stream.thumbnail_url = entry['thumbnail_url']
 
         current_view_count = entry['viewer_count']
+
         if current_view_count > stream.max_viewer_count:
             stream.max_viewer_count = current_view_count
         
