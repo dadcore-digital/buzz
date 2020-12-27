@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from .filters import (
-    EventFilter, LeagueFilter, MatchFilter, PlayerFilter, TeamFilter)
+    AwardFilter, EventFilter, LeagueFilter, MatchFilter, PlayerFilter, TeamFilter)
 from .serializers.awards import AwardSerializer
 from .serializers.casters import CasterSerializer
 from .serializers.leagues import (
@@ -27,8 +27,9 @@ from teams.models import Team
 
 
 class AwardViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Award.objects.all()
+    queryset = Award.objects.all().order_by('round__round_number')
     serializer_class = AwardSerializer
+    filterset_class = AwardFilter
 
 class LeagueViewSet(viewsets.ViewSet):
     serializer_class = LeagueSerializer

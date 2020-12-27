@@ -17,7 +17,7 @@ class AwardSerializer(serializers.ModelSerializer):
         fields = [
             'award_category', 'circuit', 'round', 'player', 'stats'
         ]
-        depth = 2
+        depth = 1
 
 
 class AwardSummarySerializer(serializers.ModelSerializer):
