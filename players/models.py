@@ -24,3 +24,7 @@ class Player(models.Model):
         else:
             return self.name
 
+
+class Alias(models.Model):
+    name = models.CharField(unique=True, max_length=255)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)

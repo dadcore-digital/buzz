@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from buzz.services import get_object_admin_link
-from .models import Player
+from .models import Alias, Player
 
 class PlayerAdmin(admin.ModelAdmin):
 
@@ -34,4 +34,11 @@ class PlayerAdmin(admin.ModelAdmin):
     
     readonly_fields = (member_of_teams, awards)
 
+class AliasAdmin(admin.ModelAdmin):
+
+    list_display = ('player', 'name')
+    search_fields = ('player__name', 'alias')
+
+
 admin.site.register(Player, PlayerAdmin)
+admin.site.register(Alias, AliasAdmin)
