@@ -39,6 +39,7 @@ class AliasAdmin(admin.ModelAdmin):
     list_display = ('player', 'name')
     search_fields = ('player__name', 'alias')
 
+    autocomplete_fields = ['player']
 
 admin.site.register(Player, PlayerAdmin)
 admin.site.register(Alias, AliasAdmin)
