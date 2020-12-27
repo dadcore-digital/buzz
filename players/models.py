@@ -27,4 +27,5 @@ class Player(models.Model):
 
 class Alias(models.Model):
     name = models.CharField(unique=True, max_length=255)
-    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    player = models.ForeignKey(
+        Player, related_name='aliases', on_delete=models.CASCADE)

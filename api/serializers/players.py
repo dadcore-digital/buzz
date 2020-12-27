@@ -11,10 +11,10 @@ class PlayerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Player
-        depth = 2
+        depth = 1
         fields = [
             'name', 'discord_username', 'twitch_username', 'modified', 'created',
-            'teams'
+            'teams', 'aliases'
         ]
 
 class PlayerSerializerNoDates(serializers.HyperlinkedModelSerializer):
