@@ -7,6 +7,7 @@ from events.models import Event
 from leagues.models import League
 from matches.models import Match
 from players.models import Player
+from streams.models import Stream
 from teams.models import Team
 
 
@@ -260,3 +261,12 @@ class TeamFilter(filters.FilterSet):
         fields = [
             'name', 'league', 'season', 'region', 'tier'
         ]
+
+
+class StreamFilter(filters.FilterSet):
+    username = filters.CharFilter(lookup_expr='icontains')
+    is_live = filters.BooleanFilter()
+
+    class Meta:
+        model = Stream
+        fields = ['is_live', 'username']
