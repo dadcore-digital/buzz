@@ -104,10 +104,25 @@ def bulk_import_matches(matches, season, delete_before_import=True):
         else:
             # Determine circuit, home team, and away team fields to existing
             # objects in database.
+
             circuit = season.circuits.filter(region=entry['circ'], tier=entry['tier']).first()
+            
             home_team = Team.objects.filter(circuit=circuit, name=entry['home_team']).first()
             away_team = Team.objects.filter(circuit=circuit, name=entry['away_team']).first()
-            
+
+
+            # Sometimes there are special tournament-only circuits that won't be associated
+            # with any team name. Handle this case.
+            if not home_team and not away_team:
+                if circuit:
+                    home_team = Team.objects.filter(circuit__season=season, circuit__region__icontains=circuit.region, name=entry['home_team']).first()
+                    away_team = Team.objects.filter(circuit__season=season, circuit__region__icontains=circuit.region, name=entry['away_team']).first()
+                
+                # Encountered a weird match, like Puppy Bowl etc.
+                else:                
+                    match_count['skipped'] += 1
+                    continue
+
             # Determine Round and create if does not exist
             round_data = entry['week'].lower()
             round_name = None
@@ -119,19 +134,31 @@ def bulk_import_matches(matches, season, delete_before_import=True):
             elif 'playoff' in round_data:
                 round_number = re.findall(r'\d+', round_data)[0]
                 bracket = circuit.season.brackets.filter(name__icontains='Winner').first()
-
+                    
             elif re.findall('semi|champ', round_data):      
-                round_number = re.findall(r'\d+', round_data)[0]
-                round_name = round_data.split('-')[0].capitalize()
+                # Try to extract bracket information from round name
+                try:
+                    round_number = re.findall(r'\d+', round_data)[0]
+                    round_name = round_data.split('-')[0].capitalize()
 
-                bracket_abbrev = round_data.split('-')[1][0]
-                bracket_verbose = 'winner' if bracket_abbrev.startswith('w') else 'loser'
+                    bracket_abbrev = round_data.split('-')[1][0]
+                    bracket_verbose = 'winner' if bracket_abbrev.startswith('w') else 'loser'
 
-                bracket = circuit.season.brackets.filter(
-                    name__icontains=bracket_verbose).first()
+                    bracket = circuit.season.brackets.filter(
+                        name__icontains=bracket_verbose).first()
+                
+                # No bracket name found, possibly because no brackets in season
+                except IndexError:
+                    if 'championship' in round_data:
+                        round_number = season.num_tournament_rounds
+                        round_name = round_data.capitalize()
 
+                    elif 'semi' in round_data:
+                        round_number = season.num_tournament_rounds - 1
+                        round_name = round_data.capitalize()
+                    
             elif 'bye' in round_data:                
-                round_number = 9999
+                round_number = 0
                 round_name = round_data.capitalize()
 
             round, created  = Round.objects.get_or_create(
@@ -211,8 +238,7 @@ def bulk_import_matches(matches, season, delete_before_import=True):
                         match_loser = match.home
                     
                     # Create Result object to record match details
-                    result = Result.objects.create(
-                        match=match, winner=match_winner, loser=match_loser)
+                    result = Result.objects.create(match=match, winner=match_winner, loser=match_loser)
 
                     # Create Set objects for game and assign winner and loser
                     home_sets_won = int(entry['home_sets_won'])

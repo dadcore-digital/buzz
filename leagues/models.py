@@ -41,7 +41,9 @@ class Circuit(models.Model):
     REGION_CHOICES = (
         ('W', 'West'),
         ('E', 'East'),
-        ('A', 'All')
+        ('A', 'All'),
+        ('Wa', 'West A'),
+        ('Wb', 'West B'),
     )
 
     TIER_CHOICES = (
@@ -55,8 +57,8 @@ class Circuit(models.Model):
     season = models.ForeignKey(
         Season, related_name='circuits', on_delete=models.CASCADE)
 
-    region = models.CharField(max_length=1, choices=REGION_CHOICES)
-    tier = models.CharField(max_length=1, choices=TIER_CHOICES)
+    region = models.CharField(max_length=2, choices=REGION_CHOICES)
+    tier = models.CharField(max_length=2, choices=TIER_CHOICES)
     name = models.CharField(
         max_length=255, blank=True, null=True,
         help_text='Optionally specify a manual name for this league'
