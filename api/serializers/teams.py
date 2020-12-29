@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 from .leagues import CircuitSummarySerializer
-from teams.models import Team
+from teams.models import Dynasty, Team
 
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -18,7 +18,8 @@ class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
         fields = [
-            'name', 'circuit', 'captain', 'members', 'modified', 'created'
+            'name', 'circuit', 'dynasty', 'captain', 'members', 'modified',
+            'created'
         ]
         depth = 2
 
@@ -49,3 +50,14 @@ class TeamSummaryNoCircuitSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Team
         fields = ['name', '_href']
+
+
+class DynastySerializer(serializers.ModelSerializer):
+    
+    teams = TeamSummarySerializer(many=True)
+
+    class Meta:
+        model = Dynasty
+        fields = [
+            'name', 'teams'
+        ]

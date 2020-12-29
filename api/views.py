@@ -13,7 +13,7 @@ from .serializers.leagues import (
     BracketSerializer)
 from .serializers.beegame import PlayingSerializer, ReleaseSerializer
 from .serializers.matches import MatchSerializer
-from .serializers.teams import TeamSerializer
+from .serializers.teams import DynastySerializer, TeamSerializer
 from .serializers.players import PlayerSerializer
 from .serializers.events import EventSerializer
 from .serializers.streams import StreamSerializer
@@ -25,7 +25,7 @@ from matches.models import Match
 from casters.models import Caster
 from players.models import Player
 from streams.models import Stream
-from teams.models import Team
+from teams.models import Dynasty, Team
 
 
 class AwardViewSet(viewsets.ReadOnlyModelViewSet):
@@ -122,6 +122,10 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Team.objects.all().order_by('name')
     serializer_class = TeamSerializer
     filterset_class = TeamFilter
+
+class DynastyViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Dynasty.objects.all().order_by('name')
+    serializer_class = DynastySerializer
 
 class PlayerViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Player.objects.all().order_by('name')

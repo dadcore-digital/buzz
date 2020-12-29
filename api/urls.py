@@ -2,13 +2,15 @@ from django.urls import include, path
 from rest_framework_nested import routers
 from .views import (
     AwardViewSet, LeagueViewSet, SeasonViewSet, CircuitViewSet, MatchViewSet,
-    TeamViewSet, PlayerViewSet, EventViewSet, RoundViewSet, BracketViewSet,
-    CasterViewSet, StreamViewSet, PlayingViewSet, ReleaseViewSet)
+    TeamViewSet, DynastyViewSet, PlayerViewSet, EventViewSet, RoundViewSet,
+    BracketViewSet, CasterViewSet, StreamViewSet, PlayingViewSet,
+    ReleaseViewSet)
 
 router = routers.DefaultRouter()
 router.register(r'leagues', LeagueViewSet, basename='leagues')
 router.register(r'players', PlayerViewSet)
 router.register(r'teams', TeamViewSet)
+router.register(r'dynasties', DynastyViewSet)
 router.register(r'matches', MatchViewSet)
 router.register(r'awards', AwardViewSet)
 router.register(r'casters', CasterViewSet)

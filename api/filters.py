@@ -256,10 +256,17 @@ class TeamFilter(filters.FilterSet):
         label='Circuit Tier Number'
     )
 
+    dynasty = filters.CharFilter(
+        field_name='dynasty__name',
+        lookup_expr='icontains',
+        label='Dynasty Name'
+    )
+
+
     class Meta:
         model = Team
         fields = [
-            'name', 'league', 'season', 'region', 'tier'
+            'name', 'league', 'season', 'region', 'tier', 'dynasty'
         ]
 
 
