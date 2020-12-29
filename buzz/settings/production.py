@@ -2,8 +2,6 @@ from .base import *  # noqa: F403
 DEBUG = False
 ALLOWED_HOSTS = ['kqb.buzz']
 
-DEBUG = True
-
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')
 
 SECURE_SSL_REDIRECT = True
