@@ -1,5 +1,5 @@
 from .base import *  # noqa: F403
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ['kqb.buzz']
 
 DEBUG = True
