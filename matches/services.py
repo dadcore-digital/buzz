@@ -95,6 +95,8 @@ def parse_matches_json(json_file_path, region):
                 'tier': entry['tier'],
                 'circ': entry['circ'],
                 'week': f'Week {entry["week"]}',
+                'home_team': entry['homeTeam'],
+                'away_team': entry['awayTeam'],
                 'winner': entry['winner'],
                 'loser': entry['loser'],
                 'date': 'UNAVAILABLE',
@@ -104,19 +106,6 @@ def parse_matches_json(json_file_path, region):
                 'stream_link': '',
                 'vod_link': '',
             }
-
-
-            # Temporarily setting home team to winner and away team to loser,
-            # UNLESS tehre is no winner (double forfeit). 
-            # In case of double forfeit have to split loser field on ' & '
-            # to extract team names.
-            if entry['winner']:
-                match['home_team'] = entry['winner']
-                match['away_team'] = entry['loser']
-            else:
-                match['home_team'] = entry['loser'].split(' & ')[0]
-                match['away_team'] = entry['loser'].split(' & ')[1]
-
 
             # This logic will need to change once home/away is not hardcoded
             # to winner/loser teams.
