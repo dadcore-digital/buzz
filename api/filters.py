@@ -267,11 +267,17 @@ class TeamFilter(filters.FilterSet):
         label='Dynasty Name'
     )
 
+    member = filters.CharFilter(
+        field_name='members__name',
+        lookup_expr='exact',
+        label='Team Member Name'
+    )
+
 
     class Meta:
         model = Team
         fields = [
-            'name', 'league', 'season', 'region', 'tier', 'dynasty'
+            'name', 'league', 'season', 'region', 'tier', 'dynasty', 'member'
         ]
 
 
