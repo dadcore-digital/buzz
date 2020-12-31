@@ -1,4 +1,5 @@
 import csv
+import json
 import re
 import time
 from datetime import datetime, timedelta
@@ -52,7 +53,45 @@ def parse_matches_csv(csv_data):
             
             matches.append(match)
 
+    import ipdb; ipdb.set_trace() 
+
     return matches
+
+
+def parse_matches_json(json_file_path, region):
+    """
+    Convert JSON list of matches to structure bulk_import_teams can handle.
+
+    Arguments:
+    json_file_path -- Path to a file containing JSON list of team and match
+                      data for the season. (str)
+    region -- A region abbreviation (W, E, All, etc.) these matches are for. The
+              JSON structure we have does not include this, so typically each
+              file is for all matches, all tiers, but in a single region.
+    """
+    with open(json_file_path) as f:
+        team_data = json.load(f)
+
+    match_data = []
+    for team in team_data:
+        for match in team['matches']:
+            match_data.append(match)
+    
+    matches_sorted = sorted(match_data, key=lambda k: k['winner'])
+
+    teams = []
+    for entry in team_data:
+        team = {
+            'team': entry['name'],
+            'captain': entry['captain'],    
+            'circuit': region,
+            'tier': entry['tier'],
+            'members': entry['players']
+        }
+        teams.append(team)
+    
+    return teams
+
 
 def bulk_import_matches(matches, season, delete_before_import=True):
     """

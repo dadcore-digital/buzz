@@ -1,4 +1,5 @@
 import csv
+import json
 from django.db import IntegrityError
 from buzz.services import get_sheet_csv
 from leagues.models import Circuit
@@ -52,7 +53,35 @@ def parse_teams_csv(csv_data):
         for team in teams:
             team['matches_lost'] = str(
                 int(team['matches_played']) - int(team['match_wins']))
-        
+    
+    return teams
+
+
+def parse_teams_json(json_file_path, region):
+    """
+    Convert JSON list of teams to structure bulk_import_teams can handle.
+
+    Arguments:
+    json_file_path -- Path to a file containing JSON list of team data for
+                      season. (str)
+    region -- A region abbreviation (W, E, All, etc.) these teams are for. The
+              JSON structure we have does not include this, so typically each
+              file is for all teams, all tiers, but in a single region.
+    """
+    with open(json_file_path) as f:
+        team_data = json.load(f)
+
+    teams = []
+    for entry in team_data:
+        team = {
+            'team': entry['name'],
+            'captain': entry['captain'],    
+            'circuit': region,
+            'tier': entry['tier'],
+            'members': entry['players']
+        }
+        teams.append(team)
+    
     return teams
 
 
@@ -89,7 +118,13 @@ def bulk_import_teams(teams, season, delete_before_import=False):
 
     for entry in teams:
         # Basic team object
-        circuit = season.circuits.filter(region=entry['circuit'], tier=entry['tier']).first()
+        
+        # Fix some region longhands to shorthand names
+        region = entry['circuit']
+        if region == 'All':
+            region = 'A'
+
+        circuit = season.circuits.filter(region=region, tier=entry['tier']).first()
         
 
         team, created = Team.objects.get_or_create(
@@ -104,6 +139,8 @@ def bulk_import_teams(teams, season, delete_before_import=False):
 
         # Add members to team
         for member in entry['members']:
+            member = member[:254] # Only somewhat wacky names please
+            
             player, created = Player.objects.get_or_create(name=member)
 
             if not team.members.filter(id=player.id).exists():

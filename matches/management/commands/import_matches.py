@@ -3,7 +3,8 @@ from django.conf import settings
 from buzz.services import get_sheet_csv
 from teams.services import parse_teams_csv, bulk_import_teams
 from leagues.models import League, Season, Circuit
-from matches.services import bulk_import_matches, parse_matches_csv
+from matches.services import (
+    bulk_import_matches, parse_matches_csv, parse_matches_json)
 
 class Command(BaseCommand):
     help = 'Import all team and player data fresh from KQB Almanac'
@@ -11,13 +12,21 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--league', type=str, help='Name of the league importing matches for')
         parser.add_argument('--season', type=str, help='Name of the season import matches for')
+        parser.add_argument('--json', nargs='?', default=None, type=str, help='Alternately specify a JSON file of match data to import')
+        parser.add_argument('--region', nargs='?', default=None, type=str, help='If specifying JSON file, need to also pass in a region abbreviation all matches belong to.')
         parser.add_argument('--delete', action='store_true', help='Delete all matches and re-import from scratch')
 
     def handle(self, *args, **options):
         league = League.objects.filter(name__icontains=options['league']).first()
         season = league.seasons.filter(name__icontains=options['season']).first()
-        csv_data = get_sheet_csv(season.matches_csv_url)
-        matches = parse_matches_csv(csv_data)
+
+        # Load match data from a supplied JSON file
+        if options['json'] and options['region']:
+            matches = parse_matches_json(options['json'], options['region'])
+        
+        else:               
+            csv_data = get_sheet_csv(season.matches_csv_url)
+            matches = parse_matches_csv(csv_data)
 
         result_count = bulk_import_matches(
             matches, season, delete_before_import=True)
