@@ -133,6 +133,11 @@ class MatchFilter(filters.FilterSet):
         label='Losing Team\'s Name'
     )
 
+    status = filters.CharFilter(
+        field_name='result__status', lookup_expr='icontains',
+        label='Match Status (C, SF, DF)'
+    )
+
     league = filters.CharFilter(
         field_name='circuit__season__league__name',
         lookup_expr='icontains',
@@ -177,8 +182,8 @@ class MatchFilter(filters.FilterSet):
     class Meta:
         model = Match
         fields = [
-            'hours', 'days', 'home', 'away', 'winner', 'loser', 'league',
-            'season', 'region', 'tier' 
+            'hours', 'days', 'home', 'away', 'winner', 'loser',  'status',
+            'league', 'season', 'region', 'tier' 
         ]
 
 

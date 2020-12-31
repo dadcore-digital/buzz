@@ -33,6 +33,7 @@ class ResultAdmin(admin.ModelAdmin):
         'match__away__name',
         'match__circuit__name',
         'match__circuit__season__name',
+        'status'
     )
 
     def sets(self):
