@@ -53,8 +53,6 @@ def parse_matches_csv(csv_data):
             
             matches.append(match)
 
-    import ipdb; ipdb.set_trace() 
-
     return matches
 
 
@@ -69,28 +67,70 @@ def parse_matches_json(json_file_path, region):
               JSON structure we have does not include this, so typically each
               file is for all matches, all tiers, but in a single region.
     """
+    # Change region to abbreviation if needed
+    if region.lower() == 'all':
+        region = 'A'
+
     with open(json_file_path) as f:
         team_data = json.load(f)
-
+    
     match_data = []
     for team in team_data:
         for match in team['matches']:
+            # Annotate match data with team-level details
+            match['tier'] = team['tier']
+            match['circ'] = region
             match_data.append(match)
     
     matches_sorted = sorted(match_data, key=lambda k: k['winner'])
+    matches_sorted = sorted(matches_sorted, key=lambda k: k['loser'])
+    matches_sorted = sorted(matches_sorted, key=lambda k: k['week'])
 
-    teams = []
-    for entry in team_data:
-        team = {
-            'team': entry['name'],
-            'captain': entry['captain'],    
-            'circuit': region,
-            'tier': entry['tier'],
-            'members': entry['players']
-        }
-        teams.append(team)
-    
-    return teams
+    # Weed out duplicate matches
+    matches = []
+    for idx, entry in enumerate(matches_sorted):        
+        if idx % 2 == 0:
+
+            match = {
+                'tier': entry['tier'],
+                'circ': entry['circ'],
+                'week': f'Week {entry["week"]}',
+                'winner': entry['winner'],
+                'loser': entry['loser'],
+                'date': 'UNAVAILABLE',
+                'time_(eastern)': 'UNAVAILABLE',
+                'caster': '',
+                'co-casters': '',
+                'stream_link': '',
+                'vod_link': '',
+            }
+
+
+            # Temporarily setting home team to winner and away team to loser,
+            # UNLESS tehre is no winner (double forfeit). 
+            # In case of double forfeit have to split loser field on ' & '
+            # to extract team names.
+            if entry['winner']:
+                match['home_team'] = entry['winner']
+                match['away_team'] = entry['loser']
+            else:
+                match['home_team'] = entry['loser'].split(' & ')[0]
+                match['away_team'] = entry['loser'].split(' & ')[1]
+
+
+            # This logic will need to change once home/away is not hardcoded
+            # to winner/loser teams.
+            sets_won = [
+                entry['setsWon'],
+                matches_sorted[idx + 1]['setsWon']
+            ]
+            sets_won.sort(reverse=True)
+            match['home_sets_won'] = sets_won[0]
+            match['away_sets_won'] = sets_won[1]
+
+            matches.append(match)
+
+    return matches
 
 
 def bulk_import_matches(matches, season, delete_before_import=True):
@@ -134,6 +174,7 @@ def bulk_import_matches(matches, season, delete_before_import=True):
 
     
     for entry in matches:
+            
         # Skip any matches that don't have a date
         match_date = entry['date']
         if ('TBD' in match_date
@@ -158,7 +199,7 @@ def bulk_import_matches(matches, season, delete_before_import=True):
                     away_team = Team.objects.filter(circuit__season=season, circuit__region__icontains=circuit.region, name=entry['away_team']).first()
                 
                 # Encountered a weird match, like Puppy Bowl etc.
-                else:                
+                else:
                     match_count['skipped'] += 1
                     continue
 
@@ -210,20 +251,25 @@ def bulk_import_matches(matches, season, delete_before_import=True):
             # Set all invalid/TDB times to midnight
             match_time = entry['time_(eastern)']
 
-            # We don't need seconds                            
-            match_time = match_time.replace(':00:00', ':00')
-            match_time = match_time.replace(':30:00', ':30')
+            if match_time != 'UNAVAILABLE':
+                # We don't need seconds                            
+                match_time = match_time.replace(':00:00', ':00')
+                match_time = match_time.replace(':30:00', ':30')
 
-            try:
-                match_time = datetime.strptime(match_time, '%I:%M %p').strftime('%H:%M') 
+                try:
+                    match_time = datetime.strptime(match_time, '%I:%M %p').strftime('%H:%M') 
+                
+                # Set invalid match times to midnight
+                except ValueError:
+                    match_time = '00:00'
+
+            # Convert match time from ET to UTC, handle case where match occured
+            # but we don't know when it was shceduled (pre-almanac matches)
+            utc_match_start = None
             
-            # Set invalid match times to midnight
-            except ValueError:
-                match_time = '00:00'
-
-            # Convert match time from ET to UTC
-            et_match_start = datetime.strptime(f'{match_date} {match_time}', '%Y-%m-%d %H:%M')
-            utc_match_start = convert_et_to_utc(et_match_start)
+            if match_date != 'UNAVAILABLE':
+                et_match_start = datetime.strptime(f'{match_date} {match_time}', '%Y-%m-%d %H:%M')
+                utc_match_start = convert_et_to_utc(et_match_start)
 
             # Get Casters and Co-Casters
             caster = Caster.objects.filter(
@@ -256,7 +302,7 @@ def bulk_import_matches(matches, season, delete_before_import=True):
                     co_casters.append(co_caster)
 
 
-            try:
+            try:                    
                 match = Match.objects.create(
                     home=home_team, away=away_team, circuit=circuit,
                     round=round, start_time=utc_match_start,
@@ -268,16 +314,29 @@ def bulk_import_matches(matches, season, delete_before_import=True):
                 match_count['created'] += 1
 
                 # Create Result and Set Objects if Winner defined
-                if entry['winner']:
+                if entry['winner'] or 'loser' in entry.keys():
+                    
+                    # Home team won
                     if entry['winner'] == match.home.name:
                         match_winner = match.home
                         match_loser = match.away
-                    else:
+                        status = Result.COMPLETED
+                    
+                    # Away team won
+                    elif entry['winner'] != '':
                         match_winner = match.away
                         match_loser = match.home
+                        status = Result.COMPLETED
                     
+                    # Double forfeit
+                    elif entry['winner'] == '':
+                        status = Result.DOUBLE_FORFEIT
+
                     # Create Result object to record match details
-                    result = Result.objects.create(match=match, winner=match_winner, loser=match_loser)
+                    result = Result.objects.create(
+                        match=match, status=status, winner=match_winner,
+                        loser=match_loser
+                    )
 
                     # Create Set objects for game and assign winner and loser
                     home_sets_won = int(entry['home_sets_won'])

@@ -85,7 +85,8 @@ def parse_teams_json(json_file_path, region):
     return teams
 
 
-def bulk_import_teams(teams, season, delete_before_import=False):
+def bulk_import_teams(
+    teams, season, delete_before_import=False, delete_region=None):
     """
     Given a list of team data, bulk import into database.
 
@@ -103,9 +104,11 @@ def bulk_import_teams(teams, season, delete_before_import=False):
     Arguments:
     team_list -- List of team data derived from team CSV sheet. (list)
     season -- A Season model instance to associate these teams with.
-    delete_before_import -- Delete all existing Teams then initiate
+    delete_before_import -- Delete all existing !Teams then initiate
                             import process. A way to start clean with
                             new data. (bool) (optional)
+    delete_region -- Only delete a specifc region when `delete_before_import`
+                     param passed, not all regions in circuit
     """
     team_count = {'created': 0, 'updated': 0, 'deleted': 0}
     player_count = {'created': 0, 'updated': 0, 'deleted': 0}
@@ -113,6 +116,9 @@ def bulk_import_teams(teams, season, delete_before_import=False):
     # Clear out all old data
     if delete_before_import:
         existing_teams = Team.objects.filter(circuit__in=season.circuits.all())
+        if delete_region:
+            existing_teams = existing_teams.filter(circuit__region=delete_region)
+        
         team_count['deleted'] = existing_teams.count()
         existing_teams.delete()
 

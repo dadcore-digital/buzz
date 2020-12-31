@@ -46,10 +46,14 @@ class Result(models.Model):
         Match, related_name='result', on_delete=models.CASCADE, blank=True,
         null=True)    
 
+    COMPLETED = 'C'
+    SINGLE_FORFEIT = 'SF'
+    DOUBLE_FORFEIT = 'DF'
+    
     STATUS_CHOICES = (
-        ('C', 'Completed'),
-        ('SF', 'Single Forfeit'),
-        ('DF', 'Double Forfeit'),
+        (COMPLETED, 'Completed'),
+        (SINGLE_FORFEIT, 'Single Forfeit'),
+        (DOUBLE_FORFEIT, 'Double Forfeit'),
     )
 
     status = models.CharField(

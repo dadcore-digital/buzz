@@ -28,7 +28,9 @@ class Command(BaseCommand):
             teams = parse_teams_csv(csv_data)
         
         result_count = bulk_import_teams(
-            teams, season, delete_before_import=options['delete'])
+            teams, season, delete_before_import=options['delete'],
+            delete_region=options['region']
+        )
 
         
         self.stdout.write(self.style.SUCCESS(
