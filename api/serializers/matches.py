@@ -20,10 +20,12 @@ class ResultSerializer(serializers.ModelSerializer):
     loser = TeamSummaryNoCircuitSerializer()
     sets = SetSerializer(many=True)
 
+    status = serializers.CharField(source='get_status_display')
+    
     class Meta:
         model = Result
         fields = [
-            'winner', 'loser', 'sets'
+            'status', 'winner', 'loser', 'sets'
         ]
 
 class MatchSerializer(serializers.HyperlinkedModelSerializer):

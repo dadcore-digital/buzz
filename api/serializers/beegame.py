@@ -3,6 +3,8 @@ from beegame.models import Playing, Release
 
 class PlayingSerializer(serializers.ModelSerializer):
     
+    platform = serializers.CharField(source='get_platform_display')
+
     class Meta:
         model = Playing
         fields = [

@@ -26,6 +26,15 @@ class Stream(models.Model):
     service = models.CharField(
         max_length=2, choices=SERVICE_CHOICES, default='TW')
 
+    @property
+    def link(self):
+        if self.service == 'TW':
+            return f'https://www.twitch.tv/{self.username}'
+        elif self.service == 'YT':
+            return f'https://www.youtube.com/watch?v={stream_id}'
+
+        return ''
+
     def __str__(self):
         return f'{self.name}'
 

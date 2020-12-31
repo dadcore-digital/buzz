@@ -46,18 +46,31 @@ class Result(models.Model):
         Match, related_name='result', on_delete=models.CASCADE, blank=True,
         null=True)    
 
-    modified = models.DateTimeField(auto_now=True)
-    created = models.DateTimeField(auto_now_add=True)
+    STATUS_CHOICES = (
+        ('C', 'Completed'),
+        ('SF', 'Single Forfeit'),
+        ('DF', 'Double Forfeit'),
+    )
+
+    status = models.CharField(
+        max_length=2, choices=STATUS_CHOICES)
 
     winner = models.ForeignKey(
         Team, related_name='won_match_results', on_delete=models.CASCADE,
+        blank=True, null=True
     )
 
     loser = models.ForeignKey(
-        Team, related_name='lost_match_results', on_delete=models.CASCADE)
+        Team, related_name='lost_match_results', on_delete=models.CASCADE,
+        blank=True, null=True)
+
+    modified = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f'{self.winner.name} over {self.loser.name} in {self.sets.count()} sets'
+
+    
 
 class Set(models.Model):
     """A series of games played in a Match."""
