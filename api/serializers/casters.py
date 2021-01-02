@@ -9,5 +9,14 @@ class CasterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Caster
         fields = [
-            'player', 'bio_link', 'is_active', 'does_solo_casts'
+            'player', 'bio_link', 'is_active', 'does_solo_casts', 'stream_link'
+        ]
+
+
+class CasterSummarySerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Caster
+        fields = [
+            'bio_link', 'stream_link'
         ]

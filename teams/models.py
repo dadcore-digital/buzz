@@ -39,6 +39,12 @@ class Team(models.Model):
     modified = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
+    def losses(self):
+        return self.lost_match_results.all().count()
+
+    def wins(self):
+        return self.won_match_results.all().count()
+
     def __str__(self):
         if self.captain:
             return f'{self.name} (captained by {self.captain.name})'

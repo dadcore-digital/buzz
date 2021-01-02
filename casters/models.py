@@ -9,6 +9,15 @@ class Caster(models.Model):
 
     is_active = models.BooleanField(default=True)
     does_solo_casts = models.BooleanField(default=True)
+    
+    @property
+    def stream_link(self):
+        if self.player:
+            if self.player.twitch_username:
+                return f'https://twitch.tv/{self.player.twitch_username}'
+        
+        return ''
+                
 
     def __str__(self):
         return self.player.name

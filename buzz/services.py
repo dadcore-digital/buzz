@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import pytz
+import re
 import requests
 from django.urls import reverse
 
@@ -49,4 +50,19 @@ def get_object_admin_link(obj, link_text):
     
     link = f'<a href="{url}">{link_text}</a>'
     return link
-    
+
+
+def trim_humanize(humanized_time):
+    """Given humanized time from arrow, chop off leading 0 hours / 0 minutes."""
+    humanized_time = humanized_time.replace('in ', '')
+    humanized_time = re.sub(r'^0 weeks and ', '', humanized_time)
+    humanized_time = re.sub(r'^0 weeks ', '', humanized_time)
+    humanized_time = re.sub(r'^0 days and ', '', humanized_time)
+    humanized_time = re.sub(r'^0 hours and ', '', humanized_time)
+    humanized_time = re.sub(r'^0 days and ', '', humanized_time)
+    humanized_time = re.sub(r'^0 days 0 hours and ', '', humanized_time)    
+    humanized_time = re.sub(r'^ 0 days', '', humanized_time)
+    humanized_time = re.sub(r'^0 days', '', humanized_time)
+    humanized_time = humanized_time.lstrip()
+
+    return humanized_time

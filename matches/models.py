@@ -1,4 +1,6 @@
+import arrow
 from django.db import models
+from buzz.services import trim_humanize
 from casters.models import Caster
 from leagues.models import Circuit, Round
 from teams.models import Team
@@ -35,6 +37,16 @@ class Match(models.Model):
 
     class Meta:
         verbose_name_plural = 'Matches'
+
+    @property
+    def time_until(self):
+        if self.start_time:
+            arrow_start_time = arrow.get(self.start_time)
+            humanized_start = arrow_start_time.humanize(
+                granularity=['week', 'day', 'hour', 'minute'])
+
+            return trim_humanize(humanized_start)
+        return self.start_time
 
     def __str__(self):
         return f'{self.away.name} @ {self.home.name}'

@@ -3,8 +3,10 @@ from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 from .leagues import CircuitSummarySerializer
 from teams.models import Dynasty, Team
 
-
 class TeamSerializer(serializers.ModelSerializer):
+
+    wins = serializers.IntegerField()
+    losses = serializers.IntegerField()
 
     circuit = NestedHyperlinkedRelatedField(
             many=False,
@@ -19,14 +21,13 @@ class TeamSerializer(serializers.ModelSerializer):
         model = Team
         fields = [
             'name', 'circuit', 'dynasty', 'captain', 'members', 'modified',
-            'created'
+            'created', 'wins', 'losses'
         ]
         depth = 2
 
 class TeamSummarySerializer(serializers.HyperlinkedModelSerializer):
     
     _href = serializers.HyperlinkedIdentityField(view_name='team-detail')
-
     # circuit = CircuitSummarySerializer(many=False, read_only=True)
 
     circuit = NestedHyperlinkedRelatedField(
@@ -46,10 +47,12 @@ class TeamSummarySerializer(serializers.HyperlinkedModelSerializer):
 class TeamSummaryNoCircuitSerializer(serializers.HyperlinkedModelSerializer):
     
     _href = serializers.HyperlinkedIdentityField(view_name='team-detail')
+    members = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field='name')
 
     class Meta:
         model = Team
-        fields = ['name', '_href']
+        fields = ['name', '_href', 'wins', 'losses', 'members']
 
 
 class DynastySerializer(serializers.ModelSerializer):

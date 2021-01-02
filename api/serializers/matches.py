@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from matches.models import Match, Result, Set
+from .casters import CasterSummarySerializer
 from .leagues import CircuitSummarySerializer
 from .teams import TeamSummaryNoCircuitSerializer
 
@@ -34,9 +35,11 @@ class MatchSerializer(serializers.HyperlinkedModelSerializer):
     home = TeamSummaryNoCircuitSerializer()
     away = TeamSummaryNoCircuitSerializer()
     result = ResultSerializer()
-    
+    primary_caster = CasterSummarySerializer()
+
     class Meta:
         model = Match
         fields = [
-            'home', 'away', 'circuit', 'start_time', 'primary_caster', 'result'
+            'home', 'away', 'circuit', 'start_time', 'time_until',
+            'primary_caster', 'secondary_casters', 'result'
         ]

@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from rest_framework import filters
 from rest_framework.response import Response
 from django.contrib.auth.models import User
+from django.db.models import Count, Sum
 from django.shortcuts import get_object_or_404
 from .filters import (
     AwardFilter, EventFilter, LeagueFilter, MatchFilter, PlayerFilter,
@@ -119,7 +120,12 @@ class MatchViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = MatchFilter
 
 class TeamViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Team.objects.all().order_by('name')
+    queryset = Team.objects.annotate(
+        wins=Count('won_match_results', distinct=True),
+        losses=Count('lost_match_results', distinct=True),
+        
+    )
+
     serializer_class = TeamSerializer
     filterset_class = TeamFilter
 
