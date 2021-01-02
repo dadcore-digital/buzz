@@ -18,6 +18,9 @@ class Caster(models.Model):
         
         return ''
                 
+    @property
+    def name(self):
+        return self.player.name
 
     def __str__(self):
         return self.player.name

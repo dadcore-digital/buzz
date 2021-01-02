@@ -36,7 +36,9 @@ class MatchSerializer(serializers.HyperlinkedModelSerializer):
     away = TeamSummaryNoCircuitSerializer()
     result = ResultSerializer()
     primary_caster = CasterSummarySerializer()
-
+    secondary_casters = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field='name')
+    
     class Meta:
         model = Match
         fields = [
