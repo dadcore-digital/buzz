@@ -64,6 +64,12 @@ class EventFilter(filters.FilterSet):
     name = filters.CharFilter(lookup_expr='icontains')
     organizer = filters.CharFilter(
         field_name='organizers__name', lookup_expr='icontains')
+
+    minutes = filters.NumberFilter(
+        field_name='start_time', method='get_next_n_hours',
+        label='Get next n hours'
+    )
+
     hours = filters.NumberFilter(
         field_name='start_time', method='get_next_n_hours',
         label='Get next n hours'
@@ -74,6 +80,14 @@ class EventFilter(filters.FilterSet):
     )
 
     now = pytz.utc.localize(datetime.utcnow())
+
+    def get_next_n_minutes(self, queryset, field_name, value):
+        time_threshold = timezone.now() + timedelta(minutes=int(value))
+
+        return queryset.filter(
+            start_time__gte=datetime.now(),
+            start_time__lte=time_threshold
+        )
 
     def get_next_n_hours(self, queryset, field_name, value):
         time_threshold = timezone.now() + timedelta(hours=int(value))
@@ -92,7 +106,7 @@ class EventFilter(filters.FilterSet):
         )
     class Meta:
         model = Event
-        fields = ['name', 'hours', 'days', 'organizer']
+        fields = ['name', 'minutes', 'hours', 'days', 'organizer']
 
 
 class LeagueFilter(filters.FilterSet):
@@ -105,6 +119,11 @@ class LeagueFilter(filters.FilterSet):
 
 
 class MatchFilter(filters.FilterSet):
+
+    minutes = filters.NumberFilter(
+        field_name='start_time', method='get_next_n_minutes',
+        label='Get next n minutes'
+    )
 
     hours = filters.NumberFilter(
         field_name='start_time', method='get_next_n_hours',
@@ -164,6 +183,14 @@ class MatchFilter(filters.FilterSet):
 
     now = pytz.utc.localize(datetime.utcnow())
 
+    def get_next_n_minutes(self, queryset, field_name, value):
+        time_threshold = timezone.now() + timedelta(minutes=int(value))
+
+        return queryset.filter(
+            start_time__gte=datetime.now(),
+            start_time__lte=time_threshold
+        )
+
     def get_next_n_hours(self, queryset, field_name, value):
         time_threshold = timezone.now() + timedelta(hours=int(value))
 
@@ -182,7 +209,7 @@ class MatchFilter(filters.FilterSet):
     class Meta:
         model = Match
         fields = [
-            'hours', 'days', 'home', 'away', 'winner', 'loser',  'status',
+            'minutes', 'hours', 'days', 'home', 'away', 'winner', 'loser',  'status',
             'league', 'season', 'region', 'tier' 
         ]
 
