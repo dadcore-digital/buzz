@@ -181,6 +181,12 @@ class MatchFilter(filters.FilterSet):
         label='Circuit Tier Number'
     )
 
+    round = filters.CharFilter(
+        field_name='round__round_number',
+        lookup_expr='exact',
+        label='Round/Week Number'
+    )
+
     now = pytz.utc.localize(datetime.utcnow())
 
     def get_next_n_minutes(self, queryset, field_name, value):
@@ -209,8 +215,8 @@ class MatchFilter(filters.FilterSet):
     class Meta:
         model = Match
         fields = [
-            'minutes', 'hours', 'days', 'home', 'away', 'winner', 'loser',  'status',
-            'league', 'season', 'region', 'tier' 
+            'round', 'minutes', 'hours', 'days', 'home', 'away', 'winner',
+            'loser',  'status', 'league', 'season', 'region', 'tier' 
         ]
 
 
