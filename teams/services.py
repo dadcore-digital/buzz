@@ -132,6 +132,10 @@ def bulk_import_teams(
 
         circuit = season.circuits.filter(region=region, tier=entry['tier']).first()
         
+        # There may be dummy teams with bogus circuits, skip if no circuit found
+        if not circuit:
+            continue
+
 
         team, created = Team.objects.get_or_create(
             name__icontains=entry['team'], circuit=circuit)

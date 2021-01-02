@@ -39,7 +39,7 @@ def parse_matches_csv(csv_data):
     }
 
     for idx, row in enumerate(rows):
-    
+                
         # Set Row Header Positions
         if idx == 0:
             for key in headers.keys():
@@ -51,6 +51,11 @@ def parse_matches_csv(csv_data):
             for key, val in headers.items():
                 match[key.lower().replace(' ', '_')] = row[val]
             
+
+            # Replace TBD match times with empty value
+            if 'tbd' in  match['time_(eastern)'].lower(): 
+                match['time_(eastern)'] = ''
+
             matches.append(match)
 
     return matches
@@ -166,192 +171,185 @@ def bulk_import_matches(matches, season, delete_before_import=True):
             
         # Skip any matches that don't have a date
         match_date = entry['date']
-        if ('TBD' in match_date
-            or not match_date):
-            match_count['skipped'] += 1
-            continue
-        else:
-            # Determine circuit, home team, and away team fields to existing
-            # objects in database.
+        # Determine circuit, home team, and away team fields to existing
+        # objects in database.
 
-            circuit = season.circuits.filter(region=entry['circ'], tier=entry['tier']).first()
+        circuit = season.circuits.filter(region=entry['circ'], tier=entry['tier']).first()
+        
+        home_team = Team.objects.filter(circuit=circuit, name=entry['home_team']).first()
+        away_team = Team.objects.filter(circuit=circuit, name=entry['away_team']).first()
+
+
+        # Sometimes there are special tournament-only circuits that won't be associated
+        # with any team name. Handle this case.
+        if not home_team and not away_team:
+            if circuit:
+                home_team = Team.objects.filter(circuit__season=season, circuit__region__icontains=circuit.region, name=entry['home_team']).first()
+                away_team = Team.objects.filter(circuit__season=season, circuit__region__icontains=circuit.region, name=entry['away_team']).first()
             
-            home_team = Team.objects.filter(circuit=circuit, name=entry['home_team']).first()
-            away_team = Team.objects.filter(circuit=circuit, name=entry['away_team']).first()
+            # Encountered a weird match, like Puppy Bowl etc.
+            else:
+                match_count['skipped'] += 1
+                continue
 
+        # Determine Round and create if does not exist
+        round_data = entry['week'].lower()
+        round_name = None
+        bracket = None
 
-            # Sometimes there are special tournament-only circuits that won't be associated
-            # with any team name. Handle this case.
-            if not home_team and not away_team:
-                if circuit:
-                    home_team = Team.objects.filter(circuit__season=season, circuit__region__icontains=circuit.region, name=entry['home_team']).first()
-                    away_team = Team.objects.filter(circuit__season=season, circuit__region__icontains=circuit.region, name=entry['away_team']).first()
+        if 'week' in round_data:
+            round_number = re.findall(r'\d+', round_data)[0]
+                        
+        elif 'playoff' in round_data:
+            round_number = re.findall(r'\d+', round_data)[0]
+            bracket = circuit.season.brackets.filter(name__icontains='Winner').first()
                 
-                # Encountered a weird match, like Puppy Bowl etc.
-                else:
-                    match_count['skipped'] += 1
-                    continue
-
-            # Determine Round and create if does not exist
-            round_data = entry['week'].lower()
-            round_name = None
-            bracket = None
-
-            if 'week' in round_data:
+        elif re.findall('semi|champ', round_data):      
+            # Try to extract bracket information from round name
+            try:
                 round_number = re.findall(r'\d+', round_data)[0]
-                            
-            elif 'playoff' in round_data:
-                round_number = re.findall(r'\d+', round_data)[0]
-                bracket = circuit.season.brackets.filter(name__icontains='Winner').first()
-                    
-            elif re.findall('semi|champ', round_data):      
-                # Try to extract bracket information from round name
-                try:
-                    round_number = re.findall(r'\d+', round_data)[0]
-                    round_name = round_data.split('-')[0].capitalize()
+                round_name = round_data.split('-')[0].capitalize()
 
-                    bracket_abbrev = round_data.split('-')[1][0]
-                    bracket_verbose = 'winner' if bracket_abbrev.startswith('w') else 'loser'
+                bracket_abbrev = round_data.split('-')[1][0]
+                bracket_verbose = 'winner' if bracket_abbrev.startswith('w') else 'loser'
 
-                    bracket = circuit.season.brackets.filter(
-                        name__icontains=bracket_verbose).first()
+                bracket = circuit.season.brackets.filter(
+                    name__icontains=bracket_verbose).first()
+            
+            # No bracket name found, possibly because no brackets in season
+            except IndexError:
+                if 'championship' in round_data:
+                    round_number = season.num_tournament_rounds
+                    round_name = round_data.capitalize()
+
+                elif 'semi' in round_data:
+                    round_number = season.num_tournament_rounds - 1
+                    round_name = round_data.capitalize()
                 
-                # No bracket name found, possibly because no brackets in season
-                except IndexError:
-                    if 'championship' in round_data:
-                        round_number = season.num_tournament_rounds
-                        round_name = round_data.capitalize()
+        elif 'bye' in round_data:                
+            round_number = 0
+            round_name = round_data.capitalize()
 
-                    elif 'semi' in round_data:
-                        round_number = season.num_tournament_rounds - 1
-                        round_name = round_data.capitalize()
-                    
-            elif 'bye' in round_data:                
-                round_number = 0
-                round_name = round_data.capitalize()
+        round, created  = Round.objects.get_or_create(
+            season=season,
+            round_number=round_number,
+            name=round_name,
+            bracket=bracket
+        )
 
-            round, created  = Round.objects.get_or_create(
-                season=season,
-                round_number=round_number,
-                name=round_name,
-                bracket=bracket
-            )
+        # Set all invalid/TDB times to midnight
+        match_time = entry['time_(eastern)']
+        utc_match_start = None
 
-            # Set all invalid/TDB times to midnight
-            match_time = entry['time_(eastern)']
+        if (match_time and match_time != 'UNAVAILABLE'):
+            # We don't need seconds                            
+            match_time = match_time.replace(':00:00', ':00')
+            match_time = match_time.replace(':30:00', ':30')
 
-            if match_time != 'UNAVAILABLE':
-                # We don't need seconds                            
-                match_time = match_time.replace(':00:00', ':00')
-                match_time = match_time.replace(':30:00', ':30')
-
-                try:
-                    match_time = datetime.strptime(match_time, '%I:%M %p').strftime('%H:%M') 
-                
-                # Set invalid match times to midnight
-                except ValueError:
-                    match_time = '00:00'
+            try:
+                match_time = datetime.strptime(match_time, '%I:%M %p').strftime('%H:%M') 
+            
+            # Set invalid match times to midnight
+            except ValueError:
+                match_time = '00:00'
 
             # Convert match time from ET to UTC, handle case where match occured
-            # but we don't know when it was shceduled (pre-almanac matches)
-            utc_match_start = None
+            # but we don't know when it was shceduled (pre-almanac matches)        
+            et_match_start = datetime.strptime(f'{match_date} {match_time}', '%Y-%m-%d %H:%M')
+            utc_match_start = convert_et_to_utc(et_match_start)
+
+        # Get Casters and Co-Casters
+        caster = Caster.objects.filter(
+            player__name__icontains=entry['caster']).first()
+
+        # Co-casters often don't have casting profiles, so auto-generate
+        # one for them.
+        co_casters = []
+        if entry['co-casters']:
+            co_caster_names =  entry['co-casters'].split(',')
+
+            for co_caster_name in co_caster_names:
+                co_caster_name = co_caster_name.strip()
+                co_caster = Caster.objects.filter(
+                    player__name__icontains=co_caster_name).first()
+
+                if not co_caster:
+                    player = Player.objects.filter(
+                        name__icontains=co_caster_name).first()
+                    if player:
+                        co_caster, created = Caster.objects.get_or_create(
+                            player=player, does_solo_casts=False)
+                    else:
+                        player, created = Player.objects.get_or_create(
+                            name=co_caster_name
+                        )
+                        co_caster, created = Caster.objects.get_or_create(
+                            player=player, does_solo_casts=False)
             
-            if match_date != 'UNAVAILABLE':
-                et_match_start = datetime.strptime(f'{match_date} {match_time}', '%Y-%m-%d %H:%M')
-                utc_match_start = convert_et_to_utc(et_match_start)
+                co_casters.append(co_caster)
 
-            # Get Casters and Co-Casters
-            caster = Caster.objects.filter(
-                player__name__icontains=entry['caster']).first()
 
-            # Co-casters often don't have casting profiles, so auto-generate
-            # one for them.
-            co_casters = []
-            if entry['co-casters']:
-                co_caster_names =  entry['co-casters'].split(',')
+        try:                    
+            match = Match.objects.create(
+                home=home_team, away=away_team, circuit=circuit,
+                round=round, start_time=utc_match_start,
+                primary_caster=caster,vod_link=entry['vod_link']
+            )            
+            for secondary_caster in co_casters:
+                match.secondary_casters.add(secondary_caster)
 
-                for co_caster_name in co_caster_names:
-                    co_caster_name = co_caster_name.strip()
-                    co_caster = Caster.objects.filter(
-                        player__name__icontains=co_caster_name).first()
+            match_count['created'] += 1
 
-                    if not co_caster:
-                        player = Player.objects.filter(
-                            name__icontains=co_caster_name).first()
-                        if player:
-                            co_caster, created = Caster.objects.get_or_create(
-                                player=player, does_solo_casts=False)
-                        else:
-                            player, created = Player.objects.get_or_create(
-                                name=co_caster_name
-                            )
-                            co_caster, created = Caster.objects.get_or_create(
-                                player=player, does_solo_casts=False)
+            # Create Result and Set Objects if Winner defined
+            if entry['winner'] or 'loser' in entry.keys():
                 
-                    co_casters.append(co_caster)
+                # Home team won
+                if entry['winner'] == match.home.name:
+                    match_winner = match.home
+                    match_loser = match.away
+                    status = Result.COMPLETED
+                
+                # Away team won
+                elif entry['winner'] != '':
+                    match_winner = match.away
+                    match_loser = match.home
+                    status = Result.COMPLETED
+                
+                # Double forfeit
+                elif entry['winner'] == '':
+                    status = Result.DOUBLE_FORFEIT
 
+                # Create Result object to record match details
+                result = Result.objects.create(
+                    match=match, status=status, winner=match_winner,
+                    loser=match_loser
+                )
 
-            try:                    
-                match = Match.objects.create(
-                    home=home_team, away=away_team, circuit=circuit,
-                    round=round, start_time=utc_match_start,
-                    primary_caster=caster,vod_link=entry['vod_link']
-                )            
-                for secondary_caster in co_casters:
-                    match.secondary_casters.add(secondary_caster)
+                # Create Set objects for game and assign winner and loser
+                home_sets_won = int(entry['home_sets_won'])
+                away_sets_won = int(entry['away_sets_won'])
 
-                match_count['created'] += 1
-
-                # Create Result and Set Objects if Winner defined
-                if entry['winner'] or 'loser' in entry.keys():
-                    
-                    # Home team won
-                    if entry['winner'] == match.home.name:
-                        match_winner = match.home
-                        match_loser = match.away
-                        status = Result.COMPLETED
-                    
-                    # Away team won
-                    elif entry['winner'] != '':
-                        match_winner = match.away
-                        match_loser = match.home
-                        status = Result.COMPLETED
-                    
-                    # Double forfeit
-                    elif entry['winner'] == '':
-                        status = Result.DOUBLE_FORFEIT
-
-                    # Create Result object to record match details
-                    result = Result.objects.create(
-                        match=match, status=status, winner=match_winner,
-                        loser=match_loser
+                # Sets for home team
+                for number in range(1, home_sets_won + 1):
+                    Set.objects.create(
+                        result=result,
+                        number = number,
+                        winner = match.home,
+                        loser = match.away
                     )
+                
+                # Sets for away team
+                for number in range(1, away_sets_won + 1):
+                    Set.objects.create(
+                        result=result,
+                        number = number,
+                        winner = match.away,
+                        loser = match.home
+                    )
+                
+        # Encountered some error/missing field
+        except IntegrityError:
+            match_count['skipped'] += 1
 
-                    # Create Set objects for game and assign winner and loser
-                    home_sets_won = int(entry['home_sets_won'])
-                    away_sets_won = int(entry['away_sets_won'])
-
-                    # Sets for home team
-                    for number in range(1, home_sets_won + 1):
-                        Set.objects.create(
-                            result=result,
-                            number = number,
-                            winner = match.home,
-                            loser = match.away
-                        )
-                    
-                    # Sets for away team
-                    for number in range(1, away_sets_won + 1):
-                        Set.objects.create(
-                            result=result,
-                            number = number,
-                            winner = match.away,
-                            loser = match.home
-                        )
-                    
-            # Encountered some error/missing field
-            except IntegrityError:
-                match_count['skipped'] += 1
-    
     return {'matches': match_count }
         
