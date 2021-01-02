@@ -34,6 +34,10 @@ class MatchSerializer(serializers.HyperlinkedModelSerializer):
     circuit = CircuitSummarySerializer()
     home = TeamSummaryNoCircuitSerializer()
     away = TeamSummaryNoCircuitSerializer()
+
+    round = serializers.SlugRelatedField(
+        many=False, read_only=True, slug_field='round_number')
+
     result = ResultSerializer()
     primary_caster = CasterSummarySerializer()
     secondary_casters = serializers.SlugRelatedField(
@@ -42,6 +46,6 @@ class MatchSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Match
         fields = [
-            'home', 'away', 'circuit', 'start_time', 'time_until',
+            'home', 'away', 'circuit', 'round', 'start_time', 'time_until',
             'primary_caster', 'secondary_casters', 'result'
         ]
