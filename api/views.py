@@ -125,7 +125,6 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
         losses=Count('lost_match_results', distinct=True),
         
     )
-
     serializer_class = TeamSerializer
     filterset_class = TeamFilter
 

@@ -48,6 +48,12 @@ class Match(models.Model):
             return trim_humanize(humanized_start)
         return self.start_time
 
+    @property
+    def scheduled(self):
+        if self.start_time:
+            return True
+        return False
+        
     def __str__(self):
         return f'{self.away.name} @ {self.home.name}'
 

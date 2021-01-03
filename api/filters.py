@@ -66,7 +66,7 @@ class EventFilter(filters.FilterSet):
         field_name='organizers__name', lookup_expr='icontains')
 
     minutes = filters.NumberFilter(
-        field_name='start_time', method='get_next_n_hours',
+        field_name='start_time', method='get_next_n_minutes',
         label='Get next n hours'
     )
 
@@ -134,6 +134,16 @@ class MatchFilter(filters.FilterSet):
         label='Get next n days'
     )
 
+    minutes = filters.NumberFilter(
+        field_name='start_time', method='get_next_n_hours',
+        label='Get next n hours'
+    )
+
+    starts_in_minutes = filters.NumberFilter(
+        field_name='start_time', method='get_starts_in_minutes',
+        label='Starting in exact number of minutes'
+    )
+
     home = filters.CharFilter(
         field_name='home__name', lookup_expr='icontains', label='Home Team Name'
     )
@@ -151,6 +161,12 @@ class MatchFilter(filters.FilterSet):
         field_name='result__loser__name', lookup_expr='icontains',
         label='Losing Team\'s Name'
     )
+
+    scheduled = filters.BooleanFilter(
+        field_name="start_time",
+        lookup_expr='isnull',
+        exclude=True,
+        label='Has Been Scheduled',)
 
     status = filters.CharFilter(
         field_name='result__status', lookup_expr='icontains',
@@ -212,11 +228,23 @@ class MatchFilter(filters.FilterSet):
             start_time__gte=datetime.now(),
             start_time__lte=time_threshold
         )
+
+    def get_starts_in_minutes(self, queryset, field_name, value):
+        # Add a bit of wiggle room/bufer to start time in seconds
+        time_floor = timezone.now() + timedelta(minutes=int(value)) - timedelta(seconds=10)
+        time_ceiling = timezone.now() + timedelta(days=int(value)) + timedelta(seconds=10)
+
+        return queryset.filter(
+            start_time__gte=time_floor,
+            start_time__lte=time_ceiling
+        )
+
     class Meta:
         model = Match
         fields = [
-            'round', 'minutes', 'hours', 'days', 'home', 'away', 'winner',
-            'loser',  'status', 'league', 'season', 'region', 'tier' 
+            'round', 'minutes', 'hours', 'days', 'starts_in_minutes', 'home',
+            'away', 'winner', 'loser',  'scheduled', 'status', 'league',
+            'season', 'region', 'tier' 
         ]
 
 
