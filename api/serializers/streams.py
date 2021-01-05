@@ -11,5 +11,5 @@ class StreamSerializer(serializers.ModelSerializer):
         model = Stream
         fields = [
             'name', 'username', 'user_id', 'player', 'stream_id', 'service',
-            'is_live', 'start_time', 'end_time', 'link'
+            'is_live', 'start_time', 'end_time', 'link', 'max_viewer_count'
         ]
