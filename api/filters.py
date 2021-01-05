@@ -232,7 +232,7 @@ class MatchFilter(filters.FilterSet):
     def get_starts_in_minutes(self, queryset, field_name, value):
         # Add a bit of wiggle room/bufer to start time in seconds
         time_floor = timezone.now() + timedelta(minutes=int(value)) - timedelta(seconds=10)
-        time_ceiling = timezone.now() + timedelta(days=int(value)) + timedelta(seconds=10)
+        time_ceiling = timezone.now() + timedelta(minutes=int(value)) + timedelta(seconds=10)
 
         return queryset.filter(
             start_time__gte=time_floor,
