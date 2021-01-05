@@ -35,6 +35,15 @@ class Stream(models.Model):
 
         return ''
 
+    @property
+    def thumbnail(self):
+        if self.thumbnail_url:
+            if self.service == 'TW':
+                return self.thumbnail_url.replace('{width}x{height}', '320x240')
+            else:
+                return self.thumbnail_url
+        return ''
+    
     def __str__(self):
         return f'{self.name}'
 
