@@ -7,7 +7,7 @@ from events.models import Event
 from leagues.models import League
 from matches.models import Match
 from players.models import Player
-from streams.models import Stream
+from streams.models import Stream, StreamerBlacklist
 from teams.models import Team
 
 
@@ -346,6 +346,37 @@ class StreamFilter(filters.FilterSet):
     username = filters.CharFilter(lookup_expr='icontains')
     is_live = filters.BooleanFilter()
 
+    def get_started_n_minutes_ago(self, queryset, field_name, value):
+        # Add a bit of wiggle room/bufer to start time in seconds
+        time_floor = timezone.now() - timedelta(minutes=int(value)) - timedelta(seconds=10)
+        time_ceiling = timezone.now() + timedelta(seconds=10)
+
+        return queryset.filter(
+            start_time__gte=time_floor,
+            start_time__lte=time_ceiling
+        )
+
+    def get_blessed_streams(self, queryset, field_name, value):
+        if value == True:
+            blacklisted_streamers = StreamerBlacklist.objects.all().values_list(
+                'username', flat=True)
+
+            return queryset.exclude(username__in=blacklisted_streamers)
+
+        return queryset.all()
+
+
+    started_n_minutes_ago = filters.NumberFilter(
+        field_name='start_time', method='get_started_n_minutes_ago',
+        label='Started in exactly n number of minutes ago'
+    )
+
+    blessed = filters.BooleanFilter(
+        field_name='blessed', method='get_blessed_streams',
+        label='Include only "blessed" streams'
+    )
+
     class Meta:
         model = Stream
-        fields = ['is_live', 'username']
+        fields = [
+            'is_live', 'username', 'started_n_minutes_ago', 'blessed']
