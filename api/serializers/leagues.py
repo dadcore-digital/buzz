@@ -84,7 +84,7 @@ class CircuitSerializer(serializers.ModelSerializer):
         model = Circuit
         depth = 2
         fields = [
-            'region', 'tier', 'name', 'teams'
+            'region', 'tier', 'name', 'teams', 'verbose_name'
         ]
 
 class CircuitSummarySerializer(serializers.ModelSerializer):
@@ -93,7 +93,7 @@ class CircuitSummarySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Circuit
-        fields = ['season', 'region', 'tier', 'name']
+        fields = ['season', 'region', 'tier', 'name', 'verbose_name']
     
         
 

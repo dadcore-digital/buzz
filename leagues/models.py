@@ -65,6 +65,11 @@ class Circuit(models.Model):
     )
 
     @property
+    def verbose_name(self):
+        """Full name of circuit, e.g. Tier 2 East."""
+        return f'{self.get_tier_display()} {self.get_region_display()}'
+
+    @property
     def league(self):
         return self.season.league
 
