@@ -231,8 +231,9 @@ class MatchFilter(filters.FilterSet):
 
     def get_starts_in_minutes(self, queryset, field_name, value):
         # Add a bit of wiggle room/bufer to start time in seconds
-        time_floor = timezone.now() + timedelta(minutes=int(value)) - timedelta(seconds=10)
-        time_ceiling = timezone.now() + timedelta(minutes=int(value)) + timedelta(seconds=10)
+        current_minute = timezone.now().replace(second=0).replace(microsecond=0)
+        time_floor = current_minute + timedelta(minutes=int(value)) 
+        time_ceiling = time_floor + timedelta(seconds=59)
 
         return queryset.filter(
             start_time__gte=time_floor,
@@ -348,15 +349,17 @@ class StreamFilter(filters.FilterSet):
 
     def get_started_n_minutes_ago(self, queryset, field_name, value):
         # Add a bit of wiggle room/bufer to start time in seconds
-        time_floor = timezone.now() - timedelta(minutes=int(value)) - timedelta(seconds=10)
-        time_ceiling = timezone.now() + timedelta(seconds=10)
-
+        current_minute = timezone.now().replace(second=0).replace(microsecond=0)
+        time_floor = current_minute - timedelta(minutes=int(value)) 
+        time_ceiling = time_floor + timedelta(seconds=59)
+        
         return queryset.filter(
             start_time__gte=time_floor,
             start_time__lte=time_ceiling
         )
 
     def get_blessed_streams(self, queryset, field_name, value):
+        
         if value == True:
             blacklisted_streamers = StreamerBlacklist.objects.all().values_list(
                 'username', flat=True)
