@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from buzz.services import get_object_admin_link
-from .models import Alias, Player
+from .models import Alias, Player, PlayerSettings
 
 class PlayerAdmin(admin.ModelAdmin):
 
@@ -36,10 +36,11 @@ class PlayerAdmin(admin.ModelAdmin):
 
 class AliasAdmin(admin.ModelAdmin):
 
-    list_display = ('player', 'name')
+    list_display = ('player', 'name', 'is_primary')
     search_fields = ('player__name', 'alias')
 
     autocomplete_fields = ['player']
 
 admin.site.register(Player, PlayerAdmin)
 admin.site.register(Alias, AliasAdmin)
+admin.site.register(PlayerSettings)

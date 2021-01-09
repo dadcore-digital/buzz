@@ -26,5 +26,25 @@ class Player(models.Model):
 
 class Alias(models.Model):
     name = models.CharField(unique=True, max_length=255)
+    is_primary = models.BooleanField(default=False)
     player = models.ForeignKey(
         Player, related_name='aliases', on_delete=models.CASCADE)
+
+    verbose_name_plural = 'Aliases'
+
+    def __str__(self):
+        alias_type = 'secondary'
+        
+        if self.is_primary:
+            alias_type = 'primary'
+
+        return f'{self.name} {alias_type} alias of {self.player.name}'
+
+class PlayerSettings(models.Model):
+    """
+    Global settings related to players.
+    """
+    players_csv_url = models.URLField(blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = 'Settings'
