@@ -12,7 +12,7 @@ class MatchAdmin(admin.ModelAdmin):
         'away__name',
         'circuit__name',
         'circuit__season__name',
-        'primary_caster__player__name'
+        'primary_caster__player__name',
     )
 
     def result(self):

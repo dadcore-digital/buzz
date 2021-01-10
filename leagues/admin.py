@@ -57,8 +57,19 @@ class CircuitAdmin(admin.ModelAdmin):
     
     readonly_fields = (teams,)  
 
+class RoundAdmin(admin.ModelAdmin):
+    
+    list_display = (
+        'season',
+        'round_number',
+        'name',
+    )   
+
+    search_fields = ('season__name',)
+
+
 admin.site.register(League, LeagueAdmin)
 admin.site.register(Season, SeasonAdmin)
 admin.site.register(Circuit, CircuitAdmin)
 admin.site.register(Bracket)
-admin.site.register(Round)
+admin.site.register(Round, RoundAdmin)

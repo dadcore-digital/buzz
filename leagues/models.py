@@ -1,6 +1,31 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+ROUND_LOOKUP = {
+    'Week 0': 0,
+    'Week 1': 1, 
+    'Week 2': 2, 
+    'Week 3': 3, 
+    'Week 4': 4, 
+    'Week 5': 5, 
+    'Week 6': 6, 
+    'Week 7': 7,
+    'Week 8': 8,
+    'Week 9': 9,
+    'Week 10': 10,            
+    'Playoffs 1': 7, 
+    'Playoffs 2': 8, 
+    'Bye-Match': 0, 
+    'Semifinals': 9, 
+    'Semifinals-W1': 9.1, 
+    'Semifinals-L1': 9.1, 
+    'Semifinals-L2': 9.2, 
+    'Championships': 10, 
+    'Championships-L1': 10.1, 
+    'Championships-W1': 10.2, 
+    'Championships-W2': 10.3,
+}
+
 
 class League(models.Model):
     """Organize Teams within a League."""
@@ -92,7 +117,8 @@ class Round(models.Model):
     """A period of play in which matches can take place, usually a week."""
     season = models.ForeignKey(
         Season, related_name='rounds', on_delete=models.CASCADE)
-    round_number = models.PositiveSmallIntegerField(default=1)
+    round_number = models.DecimalField(
+        max_digits=4, decimal_places=2, default=1.0, blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)
     bracket = models.ForeignKey(
         Bracket, blank=True, null=True, on_delete=models.CASCADE)

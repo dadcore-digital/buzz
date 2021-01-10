@@ -14,8 +14,10 @@ class AwardAdmin(admin.ModelAdmin):
         'round',
     )   
 
-    search_fields = ('award_category__name', 'player__name')
-
+    search_fields = (
+        'award_category__name', 'player__name', 'circuit__season__name',
+        'round__name'
+    )
 
 class StatAdmin(admin.ModelAdmin):
 

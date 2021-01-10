@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from django.db import IntegrityError
 from buzz.services import convert_et_to_utc
 from casters.models import Caster
-from leagues.models import League, Season, Circuit, Round
+from leagues.models import League, Season, Circuit, Round, ROUND_LOOKUP
 from players.models import Player
 from teams.models import Team
 from .models import Match, Result, Set
@@ -123,7 +123,7 @@ def parse_matches_json(json_file_path, region):
             match['away_sets_won'] = sets_won[1]
 
             matches.append(match)
-
+    
     return matches
 
 
@@ -157,6 +157,7 @@ def bulk_import_matches(matches, season, delete_before_import=True):
         'deleted': 0,
         'skipped': 0
     }
+    skipped_entries =[]
 
     # Currently deleting before import as we don't have a unique way to
     # identify matches, so no way to update them in place. This functionality
@@ -190,51 +191,17 @@ def bulk_import_matches(matches, season, delete_before_import=True):
             # Encountered a weird match, like Puppy Bowl etc.
             else:
                 match_count['skipped'] += 1
+                skipped_entries.append(entry)
                 continue
 
         # Determine Round and create if does not exist
-        round_data = entry['week'].lower()
-        round_name = None
-        bracket = None
-
-        if 'week' in round_data:
-            round_number = re.findall(r'\d+', round_data)[0]
-                        
-        elif 'playoff' in round_data:
-            round_number = re.findall(r'\d+', round_data)[0]
-            bracket = circuit.season.brackets.filter(name__icontains='Winner').first()
-                
-        elif re.findall('semi|champ', round_data):      
-            # Try to extract bracket information from round name
-            try:
-                round_number = re.findall(r'\d+', round_data)[0]
-                round_name = round_data.split('-')[0].capitalize()
-
-                bracket_abbrev = round_data.split('-')[1][0]
-                bracket_verbose = 'winner' if bracket_abbrev.startswith('w') else 'loser'
-
-                bracket = circuit.season.brackets.filter(
-                    name__icontains=bracket_verbose).first()
-            
-            # No bracket name found, possibly because no brackets in season
-            except IndexError:
-                if 'championship' in round_data:
-                    round_number = season.num_tournament_rounds
-                    round_name = round_data.capitalize()
-
-                elif 'semi' in round_data:
-                    round_number = season.num_tournament_rounds - 1
-                    round_name = round_data.capitalize()
-                
-        elif 'bye' in round_data:                
-            round_number = 0
-            round_name = round_data.capitalize()
-
+        round_name = entry['week']
+        round_number = ROUND_LOOKUP[round_name]
+        
         round, created  = Round.objects.get_or_create(
             season=season,
             round_number=round_number,
             name=round_name,
-            bracket=bracket
         )
 
         # Set all invalid/TDB times to midnight
@@ -350,6 +317,7 @@ def bulk_import_matches(matches, season, delete_before_import=True):
         # Encountered some error/missing field
         except IntegrityError:
             match_count['skipped'] += 1
+            skipped_entries.append(entry)
 
     return {'matches': match_count }
         
