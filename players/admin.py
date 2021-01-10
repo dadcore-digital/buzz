@@ -37,7 +37,7 @@ class PlayerAdmin(admin.ModelAdmin):
 class AliasAdmin(admin.ModelAdmin):
 
     list_display = ('player', 'name', 'is_primary')
-    search_fields = ('player__name', 'alias')
+    search_fields = ('name', 'player__name')
 
     autocomplete_fields = ['player']
 

@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Count, Case, When, IntegerField
 from django.contrib.auth.models import User
 
 class Player(models.Model):
@@ -22,6 +23,24 @@ class Player(models.Model):
             return f'{self.name} (@{self.discord_username})'
         else:
             return self.name
+
+    @property
+    def award_summary(self):
+        from awards.models import AwardCategory
+
+        categories = AwardCategory.objects.filter(
+            awards__player__name=self.name).distinct()
+        
+        awards = []
+        
+        for category in categories:
+            awards.append({
+                'name': category.name,
+                'discord_emoji': category.discord_emoji,
+                'count': self.awards.filter(award_category=category).count()
+            })
+        
+        return awards
 
 
 class Alias(models.Model):

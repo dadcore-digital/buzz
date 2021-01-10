@@ -4,6 +4,7 @@ from players.models import Player
 
 class AwardCategory(models.Model):
     name = models.CharField(max_length=255)
+    discord_emoji = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         verbose_name_plural = 'Award Categories'
