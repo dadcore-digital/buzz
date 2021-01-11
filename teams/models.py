@@ -45,6 +45,18 @@ class Team(models.Model):
     def wins(self):
         return self.won_match_results.all().count()
 
+    def is_active(self):
+        """
+        Return True if season associated with this Team is marked active.
+        """
+        return self.circuit.season.is_active
+
+    def circuit_abbrev(self):
+        """
+        Return abbrevatied of circuit, such as '2W'
+        """
+        return f'{self.circuit.tier}{self.circuit.region}'
+
     def __str__(self):
         if self.captain:
             return f'{self.name} (captained by {self.captain.name})'

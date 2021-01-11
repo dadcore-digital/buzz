@@ -135,11 +135,10 @@ def bulk_import_teams(
         # There may be dummy teams with bogus circuits, skip if no circuit found
         if not circuit:
             continue
-
-
+        
         team, created = Team.objects.get_or_create(
-            name__icontains=entry['team'], circuit=circuit)
-
+            name__iexact=entry['team'], circuit=circuit)
+        
         if created:        
             team_count['created'] += 1
             team.name = entry['team']

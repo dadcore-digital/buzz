@@ -28,7 +28,6 @@ class TeamSerializer(serializers.ModelSerializer):
 class TeamSummarySerializer(serializers.HyperlinkedModelSerializer):
     
     _href = serializers.HyperlinkedIdentityField(view_name='team-detail')
-    # circuit = CircuitSummarySerializer(many=False, read_only=True)
 
     circuit = NestedHyperlinkedRelatedField(
         many=False,
@@ -39,10 +38,9 @@ class TeamSummarySerializer(serializers.HyperlinkedModelSerializer):
         }
     )
 
-
     class Meta:
         model = Team
-        fields = ['name', '_href', 'circuit']
+        fields = ['name', '_href', 'circuit', 'is_active', 'circuit_abbrev']
 
 class TeamSummaryNoCircuitSerializer(serializers.HyperlinkedModelSerializer):
     
