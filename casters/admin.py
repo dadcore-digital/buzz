@@ -11,7 +11,7 @@ class CasterAdmin(admin.ModelAdmin):
         'player__name',
     )
 
-    autocomplete_fields = ['player']
+    autocomplete_fields = ['player', 'alias']
 
 
 

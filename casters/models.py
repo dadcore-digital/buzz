@@ -1,15 +1,24 @@
 from django.db import models, IntegrityError
-from players.models import Player
+from players.models import Alias, Player
 
 class Caster(models.Model):
     """A community member who provides live game commentary."""
     player = models.OneToOneField(
-        Player, related_name='caster_profile', on_delete=models.CASCADE)    
+        Player, related_name='caster_profile', on_delete=models.CASCADE)
+    alias = models.ForeignKey(
+        Alias, blank=True, null=True, on_delete=models.deletion.SET_NULL,
+        related_name='casters')
     bio_link = models.URLField(blank=True, null=True)
 
     is_active = models.BooleanField(default=True)
     does_solo_casts = models.BooleanField(default=True)
     
+    @property
+    def name(self):
+        if self.alias:
+            return self.alias.name
+        return self.player.name
+
     @property
     def stream_link(self):
         if self.player:
@@ -17,10 +26,6 @@ class Caster(models.Model):
                 return f'https://twitch.tv/{self.player.twitch_username}'
         
         return ''
-                
-    @property
-    def name(self):
-        return self.player.name
 
     def __str__(self):
         return self.player.name

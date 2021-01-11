@@ -203,6 +203,12 @@ class MatchFilter(filters.FilterSet):
         label='Round/Week Number'
     )
 
+    primary_caster = filters.CharFilter(
+        field_name='primary_caster__player__name',
+        lookup_expr='icontains',
+        label='Primary Caster Name'
+    )
+
     now = pytz.utc.localize(datetime.utcnow())
 
     def get_next_n_minutes(self, queryset, field_name, value):
