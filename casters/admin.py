@@ -11,6 +11,8 @@ class CasterAdmin(admin.ModelAdmin):
         'player__name',
     )
 
+    autocomplete_fields = ['player']
+
 
 
 admin.site.register(Caster, CasterAdmin)
