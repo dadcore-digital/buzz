@@ -215,12 +215,9 @@ def bulk_import_awards(awards, delete_before_import=True):
         if not round:
             round = season.rounds.filter(name=entry['week_name']).first()
 
-        try:
-            award, award_created = Award.objects.get_or_create(
-                award_category=category, circuit=circuit, round=round, player=player
-            )  
-        except:
-            import ipdb; ipdb.set_trace() 
+        award, award_created = Award.objects.get_or_create(
+            award_category=category, circuit=circuit, round=round, player=player
+        )  
 
         for record in entry['stats']:
             stat_category, stat_cat_created = StatCategory.objects.get_or_create(
