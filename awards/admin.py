@@ -19,6 +19,8 @@ class AwardAdmin(admin.ModelAdmin):
         'round__name'
     )
 
+    autocomplete_fields = ['player']
+
 class StatAdmin(admin.ModelAdmin):
 
     def player(self):
