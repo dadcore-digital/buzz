@@ -17,7 +17,7 @@ class TeamAdmin(admin.ModelAdmin):
     list_display = ('name', 'dynasty', 'captain', members, 'circuit')
     search_fields = ('name', 'dynasty__name', 'members__name')
     
-    autocomplete_fields = ['members', 'dynasty']
+    autocomplete_fields = ['members', 'dynasty',  'captain']
 
 
 class TeamInline(admin.StackedInline):
