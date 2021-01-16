@@ -226,8 +226,10 @@ def bulk_import_matches(matches, season, delete_before_import=True):
             utc_match_start = convert_et_to_utc(et_match_start)
 
         # Get Casters and Co-Casters
-        caster = Caster.objects.filter(
-            player__name__icontains=entry['caster']).first()
+        caster = None
+        
+        if entry['caster']:            
+            caster = Caster.objects.filter(player__name__icontains=entry['caster']).first()
 
         # Co-casters often don't have casting profiles, so auto-generate
         # one for them.
