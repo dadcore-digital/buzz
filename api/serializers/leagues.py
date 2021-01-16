@@ -109,9 +109,6 @@ class RoundSerializer(serializers.ModelSerializer):
         model = Round
         fields = ['round_number', 'name', 'matches']
     
-    
-
-
 class BracketSerializer(serializers.ModelSerializer):
     
     class Meta:
@@ -120,10 +117,10 @@ class BracketSerializer(serializers.ModelSerializer):
 
 class RoundSummarySerializer(serializers.ModelSerializer):
 
-    _href = serializers.HyperlinkedIdentityField(
-        view_name='round-detail')
+    number = serializers.DecimalField(
+        source='round_number', max_digits=4, decimal_places=2)
 
     class Meta:
         model = Round
-        fields = ['round_number', '_href']
+        fields = ['number', 'name']
         

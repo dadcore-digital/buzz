@@ -1,14 +1,14 @@
 from rest_framework import serializers
 from matches.models import Match, Result, Set
 from .casters import CasterSummarySerializer
-from .leagues import CircuitSummarySerializer
-from .teams import TeamSummaryNoCircuitSerializer
+from .leagues import CircuitSummarySerializer, RoundSummarySerializer
+from .teams import TeamSummaryNoCircuitSerializer, TeamSummaryBriefSerializer
 
 
 class SetSerializer(serializers.ModelSerializer):
 
-    winner = TeamSummaryNoCircuitSerializer()
-    loser = TeamSummaryNoCircuitSerializer()
+    winner = TeamSummaryBriefSerializer()
+    loser = TeamSummaryBriefSerializer()
 
     class Meta:
         model = Set
@@ -17,8 +17,8 @@ class SetSerializer(serializers.ModelSerializer):
         ]
 
 class ResultSerializer(serializers.ModelSerializer):
-    winner = TeamSummaryNoCircuitSerializer()
-    loser = TeamSummaryNoCircuitSerializer()
+    winner = TeamSummaryBriefSerializer()
+    loser = TeamSummaryBriefSerializer()
     sets = SetSerializer(many=True)
 
     status = serializers.CharField(source='get_status_display')
@@ -26,7 +26,7 @@ class ResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = Result
         fields = [
-            'status', 'winner', 'loser', 'sets'
+            'status', 'winner', 'loser', 'sets', 'set_count'
         ]
 
 class MatchSerializer(serializers.HyperlinkedModelSerializer):
@@ -35,8 +35,7 @@ class MatchSerializer(serializers.HyperlinkedModelSerializer):
     home = TeamSummaryNoCircuitSerializer()
     away = TeamSummaryNoCircuitSerializer()
     
-    round = serializers.SlugRelatedField(
-        many=False, read_only=True, slug_field='round_number')
+    round = RoundSummarySerializer()
 
     result = ResultSerializer()
     primary_caster = CasterSummarySerializer()
@@ -47,5 +46,6 @@ class MatchSerializer(serializers.HyperlinkedModelSerializer):
         model = Match
         fields = [
             'home', 'away', 'circuit', 'round', 'start_time', 'time_until',
-            'scheduled', 'primary_caster', 'secondary_casters', 'result'
+            'scheduled', 'primary_caster', 'secondary_casters', 'result',
+            'vod_link'
         ]

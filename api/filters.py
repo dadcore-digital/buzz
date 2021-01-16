@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.utils import timezone
 from datetime import datetime, timedelta
 import pytz
@@ -152,6 +153,11 @@ class MatchFilter(filters.FilterSet):
         field_name='away__name', lookup_expr='icontains', label='Away Team Name'
     )
 
+    team = filters.CharFilter(
+        field_name='away__name', method='get_by_team_name',
+        label='Home OR Away Team Name'
+    )
+
     winner = filters.CharFilter(
         field_name='result__winner__name', lookup_expr='icontains',
         label='Winning Team\'s Name'
@@ -246,12 +252,19 @@ class MatchFilter(filters.FilterSet):
             start_time__lte=time_ceiling
         )
 
+    def get_by_team_name(self, queryset, field_name, value):
+
+        return queryset.filter(
+            Q(home__name__icontains=value) |
+            Q(away__name__icontains=value)
+        )
+
     class Meta:
         model = Match
         fields = [
             'round', 'minutes', 'hours', 'days', 'starts_in_minutes', 'home',
-            'away', 'winner', 'loser',  'scheduled', 'status', 'league',
-            'season', 'region', 'tier' 
+            'away', 'team', 'winner', 'loser',  'scheduled', 'status', 'league',
+            'season', 'region', 'tier'
         ]
 
 

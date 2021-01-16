@@ -115,7 +115,7 @@ class BracketViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 class MatchViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Match.objects.all().order_by('start_time')
+    queryset = Match.objects.all().order_by('round__round_number')
     serializer_class = MatchSerializer
     filterset_class = MatchFilter
 

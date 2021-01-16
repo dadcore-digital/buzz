@@ -53,6 +53,15 @@ class TeamSummaryNoCircuitSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['name', '_href', 'wins', 'losses', 'members']
 
 
+class TeamSummaryBriefSerializer(serializers.HyperlinkedModelSerializer):
+    
+    _href = serializers.HyperlinkedIdentityField(view_name='team-detail')
+
+    class Meta:
+        model = Team
+        fields = ['name', '_href', 'wins', 'losses']
+
+
 class DynastySerializer(serializers.ModelSerializer):
     
     teams = TeamSummarySerializer(many=True)
