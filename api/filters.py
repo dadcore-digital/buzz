@@ -68,7 +68,7 @@ class EventFilter(filters.FilterSet):
 
     minutes = filters.NumberFilter(
         field_name='start_time', method='get_next_n_minutes',
-        label='Get next n hours'
+        label='Get next n minutes'
     )
 
     hours = filters.NumberFilter(
@@ -137,7 +137,7 @@ class MatchFilter(filters.FilterSet):
 
     minutes = filters.NumberFilter(
         field_name='start_time', method='get_next_n_hours',
-        label='Get next n hours'
+        label='Get next n minutes'
     )
 
     starts_in_minutes = filters.NumberFilter(
