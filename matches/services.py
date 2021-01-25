@@ -279,13 +279,13 @@ def bulk_import_matches(matches, season, delete_before_import=True):
                     status = Result.COMPLETED
                 
                 # Away team won
-                elif entry['winner'] != '':
+                elif entry['winner'] != '' and 'double forfeit' not in entry['winnner']:
                     match_winner = match.away
                     match_loser = match.home
                     status = Result.COMPLETED
                 
                 # Double forfeit
-                elif entry['winner'] == '':
+                elif entry['winner'] == '' or 'double forfeit' in entry['winner'].lower():
                     status = Result.DOUBLE_FORFEIT
 
                 # Create Result object to record match details
@@ -295,8 +295,15 @@ def bulk_import_matches(matches, season, delete_before_import=True):
                 )
 
                 # Create Set objects for game and assign winner and loser
-                home_sets_won = int(entry['home_sets_won'])
-                away_sets_won = int(entry['away_sets_won'])
+                if not status == Result.DOUBLE_FORFEIT:
+                    try:
+                        home_sets_won = int(entry['home_sets_won'])
+                        away_sets_won = int(entry['away_sets_won'])
+                    except:
+                        import ipdb; ipdb.set_trace() 
+                else:
+                    home_sets_won = 0
+                    away_sets_won = 0
 
                 # Sets for home team
                 for number in range(1, home_sets_won + 1):
