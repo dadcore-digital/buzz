@@ -279,7 +279,7 @@ def bulk_import_matches(matches, season, delete_before_import=True):
                     status = Result.COMPLETED
                 
                 # Away team won
-                elif entry['winner'] != '' and 'double forfeit' not in entry['winnner']:
+                elif entry['winner'] != '' and 'double forfeit' not in entry['winner']:
                     match_winner = match.away
                     match_loser = match.home
                     status = Result.COMPLETED
