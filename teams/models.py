@@ -40,7 +40,7 @@ class Team(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     def losses(self):
-        return self.lost_match_results.all().count()
+        return self.lost_match_results.filter().count()
 
     def wins(self):
         return self.won_match_results.all().count()

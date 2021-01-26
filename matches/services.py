@@ -180,7 +180,6 @@ def bulk_import_matches(matches, season, delete_before_import=True):
         home_team = Team.objects.filter(circuit=circuit, name=entry['home_team']).first()
         away_team = Team.objects.filter(circuit=circuit, name=entry['away_team']).first()
 
-
         # Sometimes there are special tournament-only circuits that won't be associated
         # with any team name. Handle this case.
         if not home_team and not away_team:
@@ -277,16 +276,17 @@ def bulk_import_matches(matches, season, delete_before_import=True):
                     match_winner = match.home
                     match_loser = match.away
                     status = Result.COMPLETED
-                
-                # Away team won
-                elif entry['winner'] != '' and not 'double forfeit' not in entry['winner']:
+
+                elif entry['winner'] == match.away.name:
                     match_winner = match.away
                     match_loser = match.home
-                    status = Result.COMPLETED
-                
+                    status = Result.COMPLETED                
+
                 # Double forfeit
-                elif entry['winner'] == '' or 'double forfeit' in entry['winner'].lower():
+                elif 'double forfeit' in entry['winner'].lower():
                     status = Result.DOUBLE_FORFEIT
+                    match_winner = None
+                    match_loser = None
 
                 # Create Result object to record match details
                 result = Result.objects.create(
@@ -319,7 +319,7 @@ def bulk_import_matches(matches, season, delete_before_import=True):
                         winner = match.away,
                         loser = match.home
                     )
-                
+        
         # Encountered some error/missing field
         except IntegrityError:
             match_count['skipped'] += 1
