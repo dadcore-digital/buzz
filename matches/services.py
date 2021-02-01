@@ -272,12 +272,12 @@ def bulk_import_matches(matches, season, delete_before_import=True):
             if entry['winner'] or 'loser' in entry.keys():
                 
                 # Home team won
-                if entry['winner'] == match.home.name:
+                if entry['winner'].lower() == match.home.name.lower():
                     match_winner = match.home
                     match_loser = match.away
                     status = Result.COMPLETED
 
-                elif entry['winner'] == match.away.name:
+                elif entry['winner'].lower() == match.away.name.lower():
                     match_winner = match.away
                     match_loser = match.home
                     status = Result.COMPLETED                
@@ -288,7 +288,6 @@ def bulk_import_matches(matches, season, delete_before_import=True):
                     match_winner = None
                     match_loser = None
 
-                # Create Result object to record match details
                 result = Result.objects.create(
                     match=match, status=status, winner=match_winner,
                     loser=match_loser
