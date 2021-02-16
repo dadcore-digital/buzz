@@ -129,7 +129,7 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = TeamFilter
 
 class DynastyViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Dynasty.objects.all().order_by('name')
+    queryset = Dynasty.objects.all().order_by('name').distinct()
     serializer_class = DynastySerializer
     filterset_class = DynastyFilter
 
