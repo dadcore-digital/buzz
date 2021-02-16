@@ -158,6 +158,11 @@ class MatchFilter(filters.FilterSet):
         label='Home OR Away Team Name'
     )
 
+    teams = filters.CharFilter(
+        field_name='away__name', method='get_by_team_names',
+        label='Home AND Away Team Name'
+    )
+
     winner = filters.CharFilter(
         field_name='result__winner__name', lookup_expr='icontains',
         label='Winning Team\'s Name'
@@ -259,12 +264,38 @@ class MatchFilter(filters.FilterSet):
             Q(away__name__icontains=value)
         )
 
+    def get_by_team_names(self, queryset, field_name, value):
+        """
+        Return match queryset for two team names.
+
+        Takes two names separated by comma. Return queryset for case where
+        either team name can be home or team.
+        """
+        try:
+            team_a, team_b = value.split(',')
+        
+        # Return all matches for just single team if only one valid team passed
+        except ValueError:
+            return queryset.filter(
+                Q(home__name__icontains=value) |
+                Q(away__name__icontains=value) 
+        )
+
+        # Remove extra whitespace and form query
+        team_a = team_a.strip().replace('%2c', ',')
+        team_b = team_b.strip().replace('%2c', ',')
+
+        return queryset.filter(
+            Q(home__name__icontains=team_a, away__name__icontains=team_b) |
+            Q(home__name__icontains=team_b, away__name__icontains=team_a) 
+        ).distinct()
+
     class Meta:
         model = Match
         fields = [
             'round', 'minutes', 'hours', 'days', 'starts_in_minutes', 'home',
-            'away', 'team', 'winner', 'loser',  'scheduled', 'status', 'league',
-            'season', 'region', 'tier'
+            'away', 'team', 'teams', 'winner', 'loser',  'scheduled', 'status',
+            'league', 'season', 'region', 'tier'
         ]
 
 
@@ -371,11 +402,8 @@ class StreamFilter(filters.FilterSet):
         current_minute = timezone.now().replace(second=0).replace(microsecond=0)
         time_floor = current_minute - timedelta(minutes=int(value)) 
         time_ceiling = time_floor + timedelta(seconds=59)
-        
-        return queryset.filter(
-            start_time__gte=time_floor,
-            start_time__lte=time_ceiling
-        )
+
+        return queryset.filter(start_time__gte=time_floor,start_time__lte=time_ceiling)
 
     def get_blessed_streams(self, queryset, field_name, value):
         
