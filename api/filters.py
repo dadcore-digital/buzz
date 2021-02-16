@@ -271,6 +271,12 @@ class MatchFilter(filters.FilterSet):
         Takes two names separated by comma. Return queryset for case where
         either team name can be home or team.
         """
+        teams_in_quotes = value.split('"')[1::2]        
+        for team in teams_in_quotes:
+            if ',' in team: 
+                escaped_team = team.replace(',', '%2C').replace('"', '')
+                value = value.replace(f'"{team}"', escaped_team)
+
         try:
             team_a, team_b = value.split(',')
         
@@ -281,9 +287,9 @@ class MatchFilter(filters.FilterSet):
                 Q(away__name__icontains=value) 
         )
 
-        # Remove extra whitespace and form query
-        team_a = team_a.strip().replace('%2c', ',')
-        team_b = team_b.strip().replace('%2c', ',')
+        # Remove extra whitespace, restore stripped values
+        team_a = team_a.strip().replace('%2C', ',')
+        team_b = team_b.strip().replace('%2C', ',')
 
         return queryset.filter(
             Q(home__name__icontains=team_a, away__name__icontains=team_b) |
