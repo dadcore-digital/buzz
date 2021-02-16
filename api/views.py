@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.db.models import Count, Sum
 from django.shortcuts import get_object_or_404
 from .filters import (
-    AwardFilter, EventFilter, LeagueFilter, MatchFilter, PlayerFilter,
+    AwardFilter, DynastyFilter, EventFilter, LeagueFilter, MatchFilter, PlayerFilter,
     TeamFilter, StreamFilter)
 from .serializers.awards import AwardSerializer
 from .serializers.casters import CasterSerializer
@@ -131,6 +131,7 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
 class DynastyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Dynasty.objects.all().order_by('name')
     serializer_class = DynastySerializer
+    filterset_class = DynastyFilter
 
 class PlayerViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Player.objects.all().order_by('name')
