@@ -9,7 +9,7 @@ from leagues.models import League
 from matches.models import Match
 from players.models import Player
 from streams.models import Stream, StreamerBlacklist
-from teams.models import Team
+from teams.models import Dynasty, Team
 
 
 class AwardFilter(filters.FilterSet):
@@ -60,6 +60,19 @@ class AwardFilter(filters.FilterSet):
             'category_name', 'player_name', 'league', 'season', 'round',
             'region', 'tier'
         ]
+
+class DynastyFilter(filters.FilterSet):
+    name = filters.CharFilter(lookup_expr='icontains')
+
+    team = filters.CharFilter(
+        field_name='teams__name',
+        lookup_expr='icontains',
+        label='Team Name'
+    )
+    class Meta:
+        model = Dynasty
+        fields = ['name', 'team']
+
 
 class EventFilter(filters.FilterSet):
     name = filters.CharFilter(lookup_expr='icontains')
