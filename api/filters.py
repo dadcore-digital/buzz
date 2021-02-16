@@ -66,7 +66,7 @@ class DynastyFilter(filter.FilterSet):
 
     team = filters.CharFilter(
         field_name='teams__name',
-        lookup_expr='contains',
+        lookup_expr='icontains',
         label='Team Name'
     )
     class Meta:
