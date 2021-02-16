@@ -61,7 +61,7 @@ class AwardFilter(filters.FilterSet):
             'region', 'tier'
         ]
 
-class DynastyFilter(filter.FilterSet):
+class DynastyFilter(filters.FilterSet):
     name = filters.CharFilter(lookup_expr='icontains')
 
     team = filters.CharFilter(
