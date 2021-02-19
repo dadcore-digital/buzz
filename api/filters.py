@@ -186,6 +186,16 @@ class MatchFilter(filters.FilterSet):
         label='Losing Team\'s Name'
     )
 
+    dynasty = filters.CharFilter(
+        field_name='away__dynasty__name', method='get_by_dynasty_name',
+        label='Home OR Away Dynasty Name'
+    )
+
+    dynasties = filters.CharFilter(
+        field_name='away__dynasty__name', method='get_by_dynasty_names',
+        label='Home AND Away Dynasty Name'
+    )
+
     scheduled = filters.BooleanFilter(
         field_name="start_time",
         lookup_expr='isnull',
@@ -277,12 +287,19 @@ class MatchFilter(filters.FilterSet):
             Q(away__name__icontains=value)
         )
 
+    def get_by_dynasty_name(self, queryset, field_name, value):
+
+        return queryset.filter(
+            Q(home__dynasty__name__icontains=value) |
+            Q(away__dynasty__name__icontains=value)
+        )
+
     def get_by_team_names(self, queryset, field_name, value):
         """
         Return match queryset for two team names.
 
         Takes two names separated by comma. Return queryset for case where
-        either team name can be home or team.
+        either team name can be home or away.
         """
         teams_in_quotes = value.split('"')[1::2]        
         for team in teams_in_quotes:
@@ -307,6 +324,38 @@ class MatchFilter(filters.FilterSet):
         return queryset.filter(
             Q(home__name__icontains=team_a, away__name__icontains=team_b) |
             Q(home__name__icontains=team_b, away__name__icontains=team_a) 
+        ).distinct()
+
+    def get_by_dynasty_names(self, queryset, field_name, value):
+        """
+        Return match queryset for two team's dynasty names.
+
+        Takes two dynasty names separated by comma. Return queryset for case where
+        either team's dynasty name can be home or away.
+        """
+        dynasty_in_quotes = value.split('"')[1::2]        
+        for dynasty in dynasty_in_quotes:
+            if ',' in dynasty: 
+                escaped_dynasty = dynasty.replace(',', '%2C').replace('"', '')
+                value = value.replace(f'"{dynasty}"', escaped_dynasty)
+
+        try:
+            dynasty_a, dynasty_b = value.split(',')
+        
+        # Return all matches for just single team if only one valid team passed
+        except ValueError:
+            return queryset.filter(
+                Q(home__dynasty__name__icontains=value) |
+                Q(away__dynasty__name__icontains=value) 
+        )
+
+        # Remove extra whitespace, restore stripped values
+        dynasty_a = dynasty_a.strip().replace('%2C', ',')
+        dynasty_b = dynasty_b.strip().replace('%2C', ',')
+
+        return queryset.filter(
+            Q(home__dynasty__name__icontains=dynasty_a, away__dynasty__name__icontains=dynasty_b) |
+            Q(home__dynasty__name__icontains=dynasty_b, away__dynasty__name__icontains=dynasty_a) 
         ).distinct()
 
     class Meta:
