@@ -219,6 +219,12 @@ class MatchFilter(filters.FilterSet):
         label='Season Name'
     )
 
+    circuit = filters.CharFilter(
+        field_name='circuit__id',
+        lookup_expr='exact',
+        label='Circuit ID Number'
+    )
+
     region = filters.CharFilter(
         field_name='circuit__region',
         lookup_expr='icontains',
@@ -363,7 +369,7 @@ class MatchFilter(filters.FilterSet):
         fields = [
             'round', 'minutes', 'hours', 'days', 'starts_in_minutes', 'home',
             'away', 'team', 'teams', 'winner', 'loser',  'scheduled', 'status',
-            'league', 'season', 'region', 'tier'
+            'league', 'season', 'circuit', 'region', 'tier'
         ]
 
 
@@ -441,6 +447,13 @@ class TeamFilter(filters.FilterSet):
         label='Circuit Tier Number'
     )
 
+    circuit = filters.CharFilter(
+        field_name='circuit__id',
+        lookup_expr='exact',
+        label='Circuit ID Number'
+    )
+
+
     dynasty = filters.CharFilter(
         field_name='dynasty__name',
         lookup_expr='icontains',
@@ -457,7 +470,8 @@ class TeamFilter(filters.FilterSet):
     class Meta:
         model = Team
         fields = [
-            'name', 'league', 'season', 'region', 'tier', 'dynasty', 'member'
+            'name', 'league', 'season', 'circuit', 'region', 'tier', 'dynasty',
+            'member'
         ]
 
 
