@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
-from .leagues import CircuitSummarySerializer
 from teams.models import Dynasty, Team
 
 

@@ -4,7 +4,6 @@ from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from leagues.models import League, Season, Circuit, Round, Bracket
 
-
 class LeagueSerializer(serializers.HyperlinkedModelSerializer):
     
     seasons = NestedHyperlinkedRelatedField(
@@ -33,16 +32,23 @@ class LeagueSummarySerializer(serializers.HyperlinkedModelSerializer):
             'name', '_href'
         ]
 
+class CircuitSummaryNoSeasonSerializer(serializers.ModelSerializer):
+    """
+    1. Must come before SeasonSerializer
+    2. Get around circular imports by importing team serializer in class
+    """
+    from .teams import TeamSummaryNoCircuitSerializer
+
+    teams = TeamSummaryNoCircuitSerializer(many=True)
+
+    class Meta:
+        model = Circuit
+        fields = ['id', 'region', 'tier', 'name', 'verbose_name', 'teams']
+
+
 class SeasonSerializer(serializers.HyperlinkedModelSerializer):
 
-    circuits = NestedHyperlinkedRelatedField(
-        many=True,
-        read_only=True,
-        view_name='circuits-detail',
-        parent_lookup_kwargs={
-            'league_pk': 'season__league__pk', 'season_pk': 'season__pk'
-        }
-    )
+    circuits = CircuitSummaryNoSeasonSerializer(many=True)
 
     rounds = NestedHyperlinkedRelatedField(
         many=True,
@@ -53,26 +59,15 @@ class SeasonSerializer(serializers.HyperlinkedModelSerializer):
         }
     )
 
-    brackets = NestedHyperlinkedRelatedField(
-        many=True,
-        read_only=True,
-        view_name='brackets-detail',
-        parent_lookup_kwargs={
-            'league_pk': 'season__league__pk', 'season_pk': 'season__pk'
-        }
-    )
-
     class Meta:
         model = Season
         fields = [
             'name', 'regular_start', 'regular_end',
             'tournament_start', 'tournament_end', 'circuits', 'rounds',
-            'brackets'
         ]
 
 class SeasonSummarySerializer(serializers.ModelSerializer):
     league = LeagueSummarySerializer()
-    
 
     class Meta:
         model = Season
@@ -94,7 +89,6 @@ class CircuitSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Circuit
         fields = ['season', 'region', 'tier', 'name', 'verbose_name']
-    
         
 
 class RoundSerializer(serializers.ModelSerializer):
