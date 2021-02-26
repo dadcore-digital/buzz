@@ -18,7 +18,9 @@ class TeamSummarySerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Team
-        fields = ['name', '_href', 'circuit', 'is_active', 'circuit_abbrev']
+        fields = [
+            'id', 'name', '_href', 'circuit', 'is_active', 'circuit_abbrev'
+        ]
 
 class DynastySerializer(serializers.ModelSerializer):
     
@@ -55,8 +57,8 @@ class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
         fields = [
-            'name', 'circuit', 'dynasty', 'captain', 'members', 'modified',
-            'created', 'wins', 'losses'
+            'id', 'name', 'circuit', 'dynasty', 'captain', 'members',
+            'modified', 'created', 'wins', 'losses'
         ]
         depth = 2
 
@@ -69,7 +71,9 @@ class TeamSummaryNoCircuitSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Team
-        fields = ['name', '_href', 'wins', 'losses', 'members', 'dynasty']
+        fields = [
+            'id', 'name', '_href', 'wins', 'losses', 'members', 'dynasty'
+        ]
 
 
 class TeamSummaryBriefSerializer(serializers.HyperlinkedModelSerializer):
@@ -78,6 +82,6 @@ class TeamSummaryBriefSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Team
-        fields = ['name', '_href', 'wins', 'losses']
+        fields = ['id', 'name', '_href', 'wins', 'losses']
 
 
