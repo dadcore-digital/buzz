@@ -460,6 +460,11 @@ class TeamFilter(filters.FilterSet):
         label='Dynasty Name'
     )
 
+    is_active = filters.BooleanFilter(
+        field_name='circuit__season__is_active',
+        label='Active'        
+    )
+
     member = filters.CharFilter(
         field_name='members__name',
         lookup_expr='exact',
@@ -471,7 +476,7 @@ class TeamFilter(filters.FilterSet):
         model = Team
         fields = [
             'name', 'league', 'season', 'circuit', 'region', 'tier', 'dynasty',
-            'member'
+            'is_active', 'member'
         ]
 
 

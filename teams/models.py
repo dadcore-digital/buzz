@@ -45,6 +45,7 @@ class Team(models.Model):
     def wins(self):
         return self.won_match_results.all().count()
 
+    @property
     def is_active(self):
         """
         Return True if season associated with this Team is marked active.

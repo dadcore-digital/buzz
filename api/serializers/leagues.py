@@ -74,7 +74,8 @@ class SeasonSummarySerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'league']
 
 class CircuitSerializer(serializers.ModelSerializer):
-    
+    from .teams import TeamSummaryNoCircuitMemberDetailSerializer
+    teams = TeamSummaryNoCircuitMemberDetailSerializer(many=True)
     class Meta:
         model = Circuit
         depth = 2
