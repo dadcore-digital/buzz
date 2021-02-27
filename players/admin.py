@@ -32,6 +32,8 @@ class PlayerAdmin(admin.ModelAdmin):
     list_display = ('name', member_of_teams, 'discord_username', 'twitch_username')
     search_fields = ('name', 'teams__name')
     
+    autocomplete_fields = ['user']
+
     readonly_fields = (member_of_teams, awards)
 
 class AliasAdmin(admin.ModelAdmin):

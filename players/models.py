@@ -4,16 +4,21 @@ from django.contrib.auth.models import User
 
 class Player(models.Model):
     name = models.CharField(unique=True, max_length=255)
+    user = models.OneToOneField(
+        User, related_name='player', on_delete=models.SET_NULL,
+        blank=True, null=True
+    )
+
     name_phonetic = models.CharField(max_length=255, blank=True, null=True)
     pronouns = models.CharField(max_length=255, blank=True, null=True)
 
     discord_username = models.CharField(blank=True, null=True, max_length=255)
+    avatar_url = models.URLField(blank=True, null=True)
+
     twitch_username = models.CharField(blank=True, null=True, max_length=255)
 
-    user = models.ForeignKey(
-        User, related_name='captained_teams', on_delete=models.CASCADE,
-        blank=True, null=True
-    )
+    bio = models.CharField(blank=True, null=True, max_length=1000)
+    emoji = models.CharField(blank=True, null=True, max_length=32)
     
     modified = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
