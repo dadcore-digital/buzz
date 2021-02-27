@@ -5,8 +5,6 @@ from teams.models import Dynasty, Team
 
 class TeamSummarySerializer(serializers.HyperlinkedModelSerializer):
     
-    _href = serializers.HyperlinkedIdentityField(view_name='team-detail')
-
     circuit = NestedHyperlinkedRelatedField(
         many=False,
         read_only=True,
@@ -19,7 +17,7 @@ class TeamSummarySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Team
         fields = [
-            'id', 'name', '_href', 'circuit', 'is_active', 'circuit_abbrev',
+            'id', 'name', 'circuit', 'is_active', 'circuit_abbrev',
             'wins', 'losses'
         ]
 
@@ -65,7 +63,6 @@ class TeamSerializer(serializers.ModelSerializer):
 
 class TeamSummaryNoCircuitSerializer(serializers.HyperlinkedModelSerializer):
     
-    _href = serializers.HyperlinkedIdentityField(view_name='team-detail')
     members = serializers.SlugRelatedField(
         many=True, read_only=True, slug_field='name')
     dynasty = DynastyNoTeamsSerializer()
@@ -73,19 +70,18 @@ class TeamSummaryNoCircuitSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Team
         fields = [
-            'id', 'name', 'is_active', '_href', 'wins', 'losses', 'members',
+            'id', 'name', 'is_active', 'wins', 'losses', 'members',
             'dynasty', 'wins', 'losses'
         ]
 
-class TeamSummaryNoCircuitMemberDetailSerializer(serializers.HyperlinkedModelSerializer):
+class TeamSummaryNoCircuitMemberDetailSerializer(serializers.ModelSerializer):
     
-    _href = serializers.HyperlinkedIdentityField(view_name='team-detail')
     dynasty = DynastyNoTeamsSerializer()
 
     class Meta:
         model = Team
         fields = [
-            'id', 'name', 'is_active', '_href', 'wins', 'losses', 'members',
+            'id', 'name', 'is_active', 'wins', 'losses', 'members',
             'dynasty', 'wins', 'losses'
         ]
 
@@ -93,12 +89,10 @@ class TeamSummaryNoCircuitMemberDetailSerializer(serializers.HyperlinkedModelSer
 
 class TeamSummaryBriefSerializer(serializers.HyperlinkedModelSerializer):
     
-    _href = serializers.HyperlinkedIdentityField(view_name='team-detail')
-
     class Meta:
         model = Team
         fields = [
-            'id', 'name', '_href', 'is_active', 'wins', 'losses', 'wins',
+            'id', 'name', 'is_active', 'wins', 'losses', 'wins',
             'losses'
         ]
 

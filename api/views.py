@@ -21,7 +21,7 @@ from .serializers.teams import DynastySerializer, TeamSerializer
 from .serializers.players import PlayerSerializer
 from .serializers.events import EventSerializer
 from .serializers.streams import StreamSerializer
-from .serializers.users import UserSerializer
+from .serializers.users import MeSerializer, UserSerializer
 from awards.models import Award
 from beegame.models import Playing, Release
 from events.models import Event
@@ -171,5 +171,5 @@ class MeViewSet(viewsets.ViewSet):
 
     def list(self, request):
         
-        serializer = UserSerializer(request.user)
+        serializer = MeSerializer(request.user, context={'request': request})
         return Response(serializer.data)
