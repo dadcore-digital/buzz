@@ -1,4 +1,17 @@
-from django.views.generic import TemplateView
+from django.conf import settings
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import redirect
+from django.views.generic import TemplateView, View
+from rest_framework.authtoken.models import Token
 
 class Home(TemplateView):
     template_name = 'home.html'
+
+
+class DispatchAfterLogin(View):
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_anonymous:
+            token, created = Token.objects.get_or_create(user=request.user)
+            url = settings.BGL_AUTH_HANDOFF_URL + f'/?token={token}'
+            return redirect(url)
+        raise PermissionDenied

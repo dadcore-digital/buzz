@@ -46,13 +46,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
+    'rest_framework',
+    'rest_framework.authtoken',
     'django.contrib.sites',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',    
     'allauth.socialaccount.providers.discord',
-    'django_extensions',
-    'rest_framework',
     'django_filters',
     'buzz',
     'players',
@@ -133,7 +134,7 @@ USE_L10N = True
 USE_TZ = True
 
 # Login & Account Related
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/dispatch/'
 ACCOUNT_MAX_EMAIL_ADDRESSES = 1
 ACCOUNT_EMAIL_VERIFICATION = False
 
@@ -156,6 +157,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'api.paginators.StandardResultsSetPagination'
 }
 
+
 # Steam Settings
 STEAM_GAME_ID = '663670'
 
@@ -163,3 +165,6 @@ STEAM_GAME_ID = '663670'
 TWITCH_CLIENT_ID = get_secret('TWITCH_CLIENT_ID')
 TWITCH_CLIENT_SECRET = get_secret('TWITCH_CLIENT_SECRET')
 TWITCH_GAME_ID = '506455'
+
+# BGL Website 
+BGL_AUTH_HANDOFF_URL = 'https://league-beegame-gg.web.app'

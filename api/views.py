@@ -1,3 +1,4 @@
+from allauth.socialaccount.providers.discord.views import DiscordOAuth2Adapter
 from rest_framework import viewsets
 from rest_framework import filters
 from rest_framework.response import Response
