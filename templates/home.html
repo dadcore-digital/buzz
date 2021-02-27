@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% load socialaccount %}
+
+{% block body %}
+<div class="content">
+    <h1>Buzz API</h1>
+    {% if user.is_authenticated %}
+        <p>Welcome {{ user.username }} !!!</p>
+        <p><a href="{% url "account_logout" %}">Logout</a></p>
+    {% else %}
+    <p>
+        <a href="{% provider_login_url 'discord' %}" class="btn btn-primary">Sign In</a>
+    </p>
+    {% endif %}
+
+</div>
+{% endblock %}
