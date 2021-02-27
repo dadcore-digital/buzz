@@ -1,6 +1,8 @@
 from allauth.socialaccount.providers.discord.views import DiscordOAuth2Adapter
 from rest_framework import viewsets
 from rest_framework import filters
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.db.models import Count, Sum
@@ -19,6 +21,7 @@ from .serializers.teams import DynastySerializer, TeamSerializer
 from .serializers.players import PlayerSerializer
 from .serializers.events import EventSerializer
 from .serializers.streams import StreamSerializer
+from .serializers.users import UserSerializer
 from awards.models import Award
 from beegame.models import Playing, Release
 from events.models import Event
@@ -160,3 +163,13 @@ class PlayingViewSet(viewsets.ReadOnlyModelViewSet):
 class ReleaseViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Release.objects.all().order_by('-released_on')
     serializer_class = ReleaseSerializer
+
+
+class MeViewSet(viewsets.ViewSet):
+    
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)

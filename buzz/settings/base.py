@@ -154,7 +154,11 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Django Rest Framework Settings
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    'DEFAULT_PAGINATION_CLASS': 'api.paginators.StandardResultsSetPagination'
+    'DEFAULT_PAGINATION_CLASS': 'api.paginators.StandardResultsSetPagination',
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ]
 }
 
 

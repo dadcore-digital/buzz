@@ -4,7 +4,7 @@ from .views import (
     AwardViewSet, LeagueViewSet, SeasonViewSet, CircuitViewSet, MatchViewSet,
     TeamViewSet, DynastyViewSet, PlayerViewSet, EventViewSet, RoundViewSet,
     BracketViewSet, CasterViewSet, StreamViewSet, PlayingViewSet,
-    ReleaseViewSet)
+    ReleaseViewSet, MeViewSet)
 
 router = routers.DefaultRouter()
 router.register(r'leagues', LeagueViewSet, basename='leagues')
@@ -18,7 +18,7 @@ router.register(r'streams', StreamViewSet)
 router.register(r'events', EventViewSet)
 router.register(r'playing', PlayingViewSet)
 router.register(r'releases', ReleaseViewSet)
-
+router.register(r'me', MeViewSet, basename='me')
 
 leagues_router = routers.NestedSimpleRouter(router, r'leagues', lookup='league')
 leagues_router.register(r'seasons', SeasonViewSet, basename='seasons')
