@@ -13,14 +13,10 @@ class PlayerSerializer(serializers.ModelSerializer):
         depth = 1
         fields = [
             'name', 'name_phonetic', 'pronouns', 'discord_username',
-            'twitch_username', 'bio', 'modified', 'created', 'teams'
+            'twitch_username', 'bio', 'emoji', 'avatar_url', 'modified',
+            'created', 'teams', 'award_summary'
         ]
 
-        # fields = [
-        #     'name', 'name_phonetic', 'pronouns', 'discord_username',
-        #     'twitch_username', 'bio', 'modified', 'created', 'teams', 'aliases',
-        #     'award_summary'
-        # ]
 
 class PlayerSerializerNoDates(serializers.HyperlinkedModelSerializer):
     
