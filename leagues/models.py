@@ -45,7 +45,10 @@ class Season(models.Model):
         League, related_name='seasons', on_delete=models.CASCADE)
     
     is_active = models.BooleanField(default=False, null=False)
+    registration_open = models.BooleanField(default=False, null=False)
 
+    registration_start = models.DateTimeField(blank=True, null=True)
+    registration_end = models.DateTimeField(blank=True, null=True)
     regular_start = models.DateTimeField(blank=True, null=True)
     regular_end = models.DateTimeField(blank=True, null=True)
     tournament_start = models.DateTimeField(blank=True, null=True)
