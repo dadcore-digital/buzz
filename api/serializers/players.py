@@ -36,4 +36,3 @@ class PlayerSerializerFullTeam(serializers.ModelSerializer):
             'created', 'teams', 'award_summary'
         ]
 
-

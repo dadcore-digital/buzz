@@ -15,7 +15,7 @@ from .serializers.casters import CasterSerializer
 from .serializers.leagues import (
     LeagueSerializer, SeasonSerializer, CircuitSerializer, RoundSerializer,
     BracketSerializer)
-from .permissions import CanAccessPlayer
+from .permissions import CanAccessPlayer, CanAccessTeam
 from .serializers.beegame import PlayingSerializer, ReleaseSerializer
 from .serializers.matches import MatchSerializer
 from .serializers.teams import DynastySerializer, TeamSerializer
@@ -124,12 +124,13 @@ class MatchViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = MatchSerializer
     filterset_class = MatchFilter
 
-class TeamViewSet(viewsets.ReadOnlyModelViewSet):
+class TeamViewSet(viewsets.ModelViewSet):
     queryset = Team.objects.annotate(
         wins=Count('won_match_results', distinct=True),
         losses=Count('lost_match_results', distinct=True),
         
     )
+    permission_classes = [CanAccessTeam]
     serializer_class = TeamSerializer
     filterset_class = TeamFilter
 

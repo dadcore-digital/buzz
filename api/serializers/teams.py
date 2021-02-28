@@ -41,10 +41,8 @@ class DynastyNoTeamsSerializer(serializers.ModelSerializer):
 
 class TeamSerializer(serializers.ModelSerializer):
 
-    wins = serializers.IntegerField()
-    losses = serializers.IntegerField()
-    members = PlayerSerializerSummary(many=True)
-    captain = PlayerSerializerSummary(many=False)
+    members = PlayerSerializerSummary(many=True, read_only=True)
+    captain = PlayerSerializerSummary(many=False, read_only=True)
 
     circuit = NestedHyperlinkedRelatedField(
             many=False,
@@ -62,6 +60,11 @@ class TeamSerializer(serializers.ModelSerializer):
             'members', 'modified', 'created', 'wins', 'losses'
         ]
         depth = 2
+
+        read_only_fields = [
+            'id', 'circuit', 'is_active', 'dynasty', 'captain',
+            'members', 'modified', 'created', 'wins', 'losses'
+        ]
 
 class TeamSummaryNoCircuitSerializer(serializers.HyperlinkedModelSerializer):
     
