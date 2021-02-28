@@ -4,6 +4,8 @@
 *.log
 **/.sass-cache
 **/.sass-cache/*
+config.codekit
+codekit-config.json
 nohup.out
 __pycache__/
 .cache/
