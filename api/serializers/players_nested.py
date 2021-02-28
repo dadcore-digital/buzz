@@ -6,7 +6,7 @@ class PlayerSerializerSummary(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Player
         fields = [
-            'name', 'name_phonetic', 'pronouns', 'discord_username',
+            'id', 'name', 'name_phonetic', 'pronouns', 'discord_username',
             'twitch_username', 'bio', 'emoji', 'avatar_url', 'modified',
             'created', 'award_summary'
         ]
