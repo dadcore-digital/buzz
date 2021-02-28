@@ -9,12 +9,13 @@ class CanAccessPlayer(permissions.BasePermission):
             return True
 
         # Requesting User must be connected to Player object for write access
-        try:
-            if obj.user == request.user:
-                return True
+        if request.method == 'PUT':
+            try:
+                if obj.user == request.user:
+                    return True
 
-        # No user associated with player.
-        except AttributeError:
-            pass
+            # No user associated with player.
+            except AttributeError:
+                pass
         
         return False
