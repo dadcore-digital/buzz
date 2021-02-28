@@ -62,8 +62,9 @@ class SeasonSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Season
         fields = [
-            'name', 'registration_start', 'registration_end', 'regular_start', 'regular_end',
-            'tournament_start', 'tournament_end', 'circuits', 'rounds',
+            'name', 'registration_open', 'registration_start',
+            'registration_end', 'regular_start', 'regular_end',
+            'tournament_start', 'tournament_end', 'circuits', 'rounds'
         ]
 
 class SeasonSummarySerializer(serializers.ModelSerializer):

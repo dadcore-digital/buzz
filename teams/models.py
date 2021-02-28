@@ -52,6 +52,7 @@ class Team(models.Model):
         """
         return self.circuit.season.is_active
 
+    @property
     def circuit_abbrev(self):
         """
         Return abbrevatied of circuit, such as '2W'
