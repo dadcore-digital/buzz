@@ -1,10 +1,10 @@
 from rest_framework import serializers
 from casters.models import Caster
-from .players import PlayerSerializerNoDates
+from .players_nested import PlayerSerializerSummary
 
 class CasterSerializer(serializers.ModelSerializer):
     
-    player = PlayerSerializerNoDates()
+    player = PlayerSerializerSummary()
 
     class Meta:
         model = Caster

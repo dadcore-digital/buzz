@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from events.models import Event, EventLink
-from .players import PlayerSerializerNoDates
+from .players_nested import PlayerSerializerSummary
 
 class EventLinkSerializer(serializers.ModelSerializer):
     
@@ -11,7 +11,7 @@ class EventLinkSerializer(serializers.ModelSerializer):
 
 class EventSerializer(serializers.ModelSerializer):
     links = EventLinkSerializer(many=True)
-    organizers = PlayerSerializerNoDates(many=True)
+    organizers = PlayerSerializerSummary(many=True)
     
     class Meta:
         model = Event

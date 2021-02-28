@@ -1,10 +1,10 @@
 from rest_framework import serializers
 from streams.models import Stream
-from .players import PlayerSerializerNoDates
+from .players_nested import PlayerSerializerSummary
 
 class StreamSerializer(serializers.ModelSerializer):
 
-    player = PlayerSerializerNoDates()
+    player = PlayerSerializerSummary()
     service = serializers.CharField(source='get_service_display')
     
     class Meta:

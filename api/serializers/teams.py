@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 from teams.models import Dynasty, Team
-
+from .players_nested import PlayerSerializerSummary
 
 class TeamSummarySerializer(serializers.HyperlinkedModelSerializer):
     
@@ -43,6 +43,8 @@ class TeamSerializer(serializers.ModelSerializer):
 
     wins = serializers.IntegerField()
     losses = serializers.IntegerField()
+    members = PlayerSerializerSummary(many=True)
+    captain = PlayerSerializerSummary(many=False)
 
     circuit = NestedHyperlinkedRelatedField(
             many=False,
@@ -77,6 +79,7 @@ class TeamSummaryNoCircuitSerializer(serializers.HyperlinkedModelSerializer):
 class TeamSummaryNoCircuitMemberDetailSerializer(serializers.ModelSerializer):
     
     dynasty = DynastyNoTeamsSerializer()
+    members = PlayerSerializerSummary(many=True)
 
     class Meta:
         model = Team
@@ -88,7 +91,6 @@ class TeamSummaryNoCircuitMemberDetailSerializer(serializers.ModelSerializer):
         depth = 2
 
 class TeamSummaryBriefSerializer(serializers.HyperlinkedModelSerializer):
-    
     class Meta:
         model = Team
         fields = [
