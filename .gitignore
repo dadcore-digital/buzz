@@ -9,7 +9,6 @@ codekit-config.json
 nohup.out
 __pycache__/
 .cache/
-debug.png
 secrets.json
 data/
 env/
