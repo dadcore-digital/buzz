@@ -39,12 +39,6 @@ class Team(models.Model):
     modified = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
-    def losses(self):
-        return self.lost_match_results.filter().count()
-
-    def wins(self):
-        return self.won_match_results.all().count()
-
     @property
     def is_active(self):
         """
@@ -53,11 +47,31 @@ class Team(models.Model):
         return self.circuit.season.is_active
 
     @property
+    def can_add_members(self):
+        """
+        Return True if rosters for season open and not at max players on team.
+        """
+        if (
+            self.circuit.season.rosters_open and
+            self.members.count() < self.circuit.season.max_team_members
+        ):
+            return True
+        return False
+
+    @property
     def circuit_abbrev(self):
         """
         Return abbrevatied of circuit, such as '2W'
         """
         return f'{self.circuit.tier}{self.circuit.region}'
+
+    @property
+    def losses(self):
+        return self.lost_match_results.filter().count()
+
+    @property
+    def wins(self):
+        return self.won_match_results.all().count()
 
     def __str__(self):
         if self.captain:

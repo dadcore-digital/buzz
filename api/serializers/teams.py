@@ -56,14 +56,14 @@ class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
         fields = [
-            'id', 'name', 'circuit', 'is_active', 'dynasty', 'captain',
-            'members', 'modified', 'created', 'wins', 'losses'
+            'id', 'name', 'circuit', 'is_active', 'can_add_members', 'dynasty',
+            'captain', 'members', 'modified', 'created', 'wins', 'losses' 
         ]
         depth = 2
 
         read_only_fields = [
-            'id', 'circuit', 'is_active', 'dynasty', 'captain',
-            'members', 'modified', 'created', 'wins', 'losses'
+            'id', 'circuit', 'is_active', 'can_add_members', 'dynasty',
+            'captain', 'members', 'modified', 'created', 'wins', 'losses'
         ]
 
 class TeamSummaryNoCircuitSerializer(serializers.HyperlinkedModelSerializer):

@@ -62,9 +62,10 @@ class SeasonSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Season
         fields = [
-            'name', 'registration_open', 'registration_start',
-            'registration_end', 'regular_start', 'regular_end',
-            'tournament_start', 'tournament_end', 'circuits', 'rounds'
+            'id', 'name', 'registration_open', 'rosters_open',
+            'max_team_members', 'registration_start', 'registration_end',
+            'regular_start', 'regular_end', 'tournament_start',
+            'tournament_end', 'circuits', 'rounds'
         ]
 
 class SeasonSummarySerializer(serializers.ModelSerializer):
@@ -81,7 +82,7 @@ class CircuitSerializer(serializers.ModelSerializer):
         model = Circuit
         depth = 2
         fields = [
-            'region', 'tier', 'name', 'teams', 'verbose_name'
+            'id', 'region', 'tier', 'name', 'teams', 'verbose_name'
         ]
 
 class CircuitSummarySerializer(serializers.ModelSerializer):
@@ -90,7 +91,7 @@ class CircuitSummarySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Circuit
-        fields = ['season', 'region', 'tier', 'name', 'verbose_name']
+        fields = ['id', 'season', 'region', 'tier', 'name', 'verbose_name']
         
 
 class RoundSerializer(serializers.ModelSerializer):

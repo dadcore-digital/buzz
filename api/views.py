@@ -125,11 +125,8 @@ class MatchViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = MatchFilter
 
 class TeamViewSet(viewsets.ModelViewSet):
-    queryset = Team.objects.annotate(
-        wins=Count('won_match_results', distinct=True),
-        losses=Count('lost_match_results', distinct=True),
-        
-    )
+    queryset = Team.objects.all()
+    
     permission_classes = [CanAccessTeam]
     serializer_class = TeamSerializer
     filterset_class = TeamFilter

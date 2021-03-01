@@ -46,6 +46,8 @@ class Season(models.Model):
     
     is_active = models.BooleanField(default=False, null=False)
     registration_open = models.BooleanField(default=False, null=False)
+    rosters_open = models.BooleanField(default=False, null=False)
+    max_team_members = models.PositiveIntegerField(default=7) 
 
     registration_start = models.DateTimeField(blank=True, null=True)
     registration_end = models.DateTimeField(blank=True, null=True)

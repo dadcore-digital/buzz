@@ -170,5 +170,5 @@ TWITCH_CLIENT_ID = get_secret('TWITCH_CLIENT_ID')
 TWITCH_CLIENT_SECRET = get_secret('TWITCH_CLIENT_SECRET')
 TWITCH_GAME_ID = '506455'
 
-# BGL Website 
+# BGL
 BGL_AUTH_HANDOFF_URL = 'https://league-beegame-gg.web.app'
