@@ -1,5 +1,7 @@
+import nanoid
 from datetime import datetime
 from django.apps import apps
+from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from leagues.models import Circuit
@@ -18,6 +20,20 @@ class Dynasty(models.Model):
     def __str__(self):
         return self.name
 
+def _generate_invite_code():
+    """
+    Using Nano ID to generate a URL-friendly, unique invite code.
+
+    We are using an 8-char length code, which has a 1% collision chance
+    over 27 years. Assuming one invite generated an hour. We are using
+    a custom library with characters that do not like similar.
+
+    This function must live outside the class so it can be used as a default
+    function to populate Team.access_code field.
+    """
+    return nanoid.generate(settings.NANOID_LIBRARY, size=8)
+
+
 class Team(models.Model):
     """
     A group of Member players within a League.
@@ -29,6 +45,8 @@ class Team(models.Model):
         Player, related_name='captained_teams', on_delete=models.CASCADE,
         blank=True, null=True
     )
+    invite_code = models.CharField(
+        max_length=8, unique=True, blank=True, default=_generate_invite_code)
 
     members = models.ManyToManyField(
         Player, related_name='teams', blank=True)
@@ -72,6 +90,15 @@ class Team(models.Model):
     @property
     def wins(self):
         return self.won_match_results.all().count()
+
+    def generate_invite_code(self):
+        """
+        Using Nano ID to generate a URL-friendly, unique invite code.
+
+        See doc string for generate_invite_code function (outside of this 
+        model) for further details. 
+        """
+        return _generate_invite_code()
 
     def __str__(self):
         if self.captain:

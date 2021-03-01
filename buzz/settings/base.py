@@ -172,3 +172,5 @@ TWITCH_GAME_ID = '506455'
 
 # BGL
 BGL_AUTH_HANDOFF_URL = 'https://league-beegame-gg.web.app'
+
+NANOID_LIBRARY = '6789BCDFGHJKLMNPQRTWbcdfghjkmnpqrtwz'
