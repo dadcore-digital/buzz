@@ -1,13 +1,12 @@
 from rest_framework import serializers
-from .teams import TeamSummaryNoCircuitMemberDetailSerializer
+from .teams import TeamSummaryNoCircuitMemberDetailSerializer, TeamSummaryBriefSerializer
 from players.models import Player
 
 
 
 class PlayerSerializer(serializers.ModelSerializer):
     
-    teams = serializers.SlugRelatedField(
-        many=True, read_only=True, slug_field='name')
+    teams = TeamSummaryBriefSerializer(many=True)
 
     class Meta:
         model = Player
@@ -15,11 +14,12 @@ class PlayerSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'name_phonetic', 'pronouns', 'discord_username',
             'twitch_username', 'bio', 'emoji', 'avatar_url', 'modified',
-            'created', 'teams', 'award_summary'
+            'created', 'teams', 'award_summary', 'aliases'
         ]
 
         read_only_fields = [
-            'id', 'discord_username', 'avatar_url', 'modified', 'created'
+            'id', 'discord_username', 'avatar_url', 'modified', 'created',
+            'aliases'
         ]
         
 

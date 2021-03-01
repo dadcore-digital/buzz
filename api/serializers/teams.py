@@ -98,7 +98,7 @@ class TeamSummaryBriefSerializer(serializers.HyperlinkedModelSerializer):
         model = Team
         fields = [
             'id', 'name', 'is_active', 'wins', 'losses', 'wins',
-            'losses'
+            'losses', 'circuit_abbrev'
         ]
 
 
