@@ -15,3 +15,7 @@ class DispatchAfterLogin(View):
             url = settings.BGL_AUTH_HANDOFF_URL + f'/?token={token}'
             return redirect(url)
         raise PermissionDenied
+
+def trigger_error(request):
+    """Used for testing error reporting to 3rd party logging services."""
+    division_by_zero = 1 / 0

@@ -1,4 +1,7 @@
 from .base import *  # noqa: F403
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
 DEBUG = False
 ALLOWED_HOSTS = ['kqb.buzz']
 
@@ -24,3 +27,14 @@ DATABASES = {
 
 STATIC_ROOT = '/home/ianfitzpatrick/apps/buzz_static'
 MEDIA_ROOT = '/home/ianfitzpatrick/apps/buzz_media'
+
+
+sentry_sdk.init(
+    dsn="https://4dad2ef9e2e94a3aaec714b7138abd28@o541952.ingest.sentry.io/5660900",
+    integrations=[DjangoIntegration()],
+    traces_sample_rate=1.0,
+
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True
+)
