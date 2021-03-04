@@ -15,3 +15,4 @@ data/
 env/
 .vscode/
 *.json
+newrelic.ini
