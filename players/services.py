@@ -94,11 +94,18 @@ def bulk_import_players(players):
 
         # If primary in game name field completed, set as main alias
         elif entry['primary_in-game_name']:
-            Alias.objects.create(
-                player=player,
-                name=entry['primary_in-game_name'],
-                is_primary=True
-            )
+            try:
+                Alias.objects.create(
+                    player=player,
+                    name=entry['primary_in-game_name'],
+                    is_primary=True
+                )
+            
+            # Trying to set more than one user's primary alias to the same
+            # alias...possibly due to player rename
+            except IntegrityError:
+                pass
+
             alias_count['created'] += 1
         
         # If not, just use player name record as primary alias
