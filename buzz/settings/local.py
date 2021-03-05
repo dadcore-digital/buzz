@@ -10,6 +10,11 @@ MEDIA_ROOT = '/var/www/buzz_media/'
 REQUEST_TIME_DELAY = 0
 MIDDLEWARE += ['buzz.middleware.TimeDelayMiddleware']
 
+INSTALLED_APPS += [
+    'debug_toolbar'
+]
+
+MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
 
 # Database
 DATABASES = {
