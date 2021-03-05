@@ -28,6 +28,13 @@ DATABASES = {
 STATIC_ROOT = '/home/ianfitzpatrick/apps/buzz_static'
 MEDIA_ROOT = '/home/ianfitzpatrick/apps/buzz_media'
 
+# Releases
+try:
+    import git
+    repo = git.Repo(search_parent_directories=True)
+    RELEASE_ID = repo.head.object.hexsha
+except:
+    RELEASE_ID = ''
 
 sentry_sdk.init(
     dsn="https://4dad2ef9e2e94a3aaec714b7138abd28@o541952.ingest.sentry.io/5660900",
@@ -36,5 +43,6 @@ sentry_sdk.init(
 
     # If you wish to associate users to errors (assuming you are using
     # django.contrib.auth) you may enable sending PII data.
-    send_default_pii=True
+    send_default_pii=True,
+    release=RELEASE_ID
 )
