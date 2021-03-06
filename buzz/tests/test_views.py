@@ -7,4 +7,4 @@ def test_homepage(django_app):
     """
     resp = django_app.get('/')
     resp.mustcontain('Buzz API')
-    
+
