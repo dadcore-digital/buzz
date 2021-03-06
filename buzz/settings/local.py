@@ -33,5 +33,7 @@ DATABASES = {
 SHELL_PLUS_IMPORTS = [
     'from buzz.tests.factories import UserFactory',
     'from players.tests.factories import PlayerFactory',
-    'from leagues.tests.factories import *'
+    'from leagues.tests.factories import *',
+    'from teams.tests.factories import *',
+    'from matches.tests.factories import *'
 ]

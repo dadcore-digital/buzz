@@ -12,7 +12,8 @@ class PlayerFactory(DjangoModelFactory):
         model = Player
 
     user = factory.SubFactory('buzz.tests.factories.UserFactory')
-    name_phonetic = factory.LazyAttribute(lambda obj: f'{obj.user.username} how it sounds')
+    name = factory.Faker('user_name')
+    name_phonetic = factory.LazyAttribute(lambda obj: f'{obj.name} how it sounds')
     pronouns = factory.LazyAttribute(lambda x: random.choice(pronoun_list))
     twitch_username = factory.LazyAttribute(lambda obj: obj.user.username)
     discord_username = factory.LazyAttribute(lambda obj: obj.user.username)
