@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from django.utils.timezone import make_aware
+from django.utils import timezone
 import random
 import factory
 from factory.django import DjangoModelFactory
@@ -55,7 +55,7 @@ class SeasonFactory(DjangoModelFactory):
     num_tournament_rounds = 4
 
     registration_start = factory.LazyAttribute(
-        lambda n: make_aware(datetime.now()))
+        lambda n: timezone.now())
     registration_end = factory.LazyAttribute(
         lambda obj: obj.registration_start + timedelta(days=30))
     regular_start = factory.LazyAttribute(

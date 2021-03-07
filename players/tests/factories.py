@@ -18,6 +18,7 @@ class PlayerFactory(DjangoModelFactory):
     twitch_username = factory.LazyAttribute(lambda obj: obj.user.username)
     discord_username = factory.LazyAttribute(lambda obj: obj.user.username)
     bio = factory.Faker('sentence', nb_words=20)
+    avatar_url = factory.Faker('image_url')
     emoji = factory.LazyAttribute(lambda a: random.choice(emoji_list))
                 
 
