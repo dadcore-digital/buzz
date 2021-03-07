@@ -1,4 +1,5 @@
 from pytest import mark
+from dateutil import parser
 from django.utils import timezone
 from datetime import datetime, timedelta
 from players.tests.factories import PlayerFactory
@@ -21,16 +22,20 @@ def test_get_matches_next_24_hours(django_app):
     match_2 = MatchFactory(circuit=circuit, start_time=now + timedelta(hours=23))
 
     # These should not show up in results
-    match_3 = MatchFactory(circuit=circuit, start_time=now + timedelta(hours=26))
-    match_4 = MatchFactory(circuit=circuit, start_time=now - timedelta(hours=1))
+    MatchFactory(circuit=circuit, start_time=now + timedelta(hours=26))
+    MatchFactory(circuit=circuit, start_time=now - timedelta(hours=1))
 
     params = 'hours=24'
     resp = client.matches(params)    
 
     assert resp['count'] == 2
-    
+
     matches = resp['results']
+
+    # Sort Order
+    assert parser.parse(matches[0]['start_time']) < parser.parse(matches[1]['start_time'])
     
+    # Basic field presence check
     assert matches[0]['home']['id'] == match_1.home.id
     assert matches[0]['away']['id'] == match_1.away.id
     assert matches[0]['circuit']
