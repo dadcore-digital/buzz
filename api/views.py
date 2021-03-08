@@ -15,7 +15,7 @@ from .serializers.casters import CasterSerializer
 from .serializers.leagues import (
     LeagueSerializer, SeasonSerializer, CircuitSerializer, RoundSerializer,
     BracketSerializer)
-from .permissions import CanAccessPlayer, CanAccessTeam
+from api import permissions
 from .serializers.beegame import PlayingSerializer, ReleaseSerializer
 from .serializers.matches import MatchSerializer
 from .serializers.teams import DynastySerializer, TeamSerializer
@@ -127,7 +127,7 @@ class MatchViewSet(viewsets.ReadOnlyModelViewSet):
 class TeamViewSet(viewsets.ModelViewSet):
     queryset = Team.objects.all()
     
-    permission_classes = [CanAccessTeam]
+    permission_classes = [permissions.CanReadTeam|permissions.CanEditTeam]
     serializer_class = TeamSerializer
     filterset_class = TeamFilter
 
@@ -138,7 +138,7 @@ class DynastyViewSet(viewsets.ReadOnlyModelViewSet):
 
 class PlayerViewSet(viewsets.ModelViewSet):
     queryset = Player.objects.all().order_by('name')
-    permission_classes = [CanAccessPlayer]
+    permission_classes = [permissions.CanReadPlayer|permissions.CanEditPlayer]
     serializer_class = PlayerSerializer
     filterset_class = PlayerFilter
 
@@ -173,3 +173,4 @@ class MeViewSet(viewsets.ViewSet):
         
         serializer = MeSerializer(request.user, context={'request': request})
         return Response(serializer.data)
+

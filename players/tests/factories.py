@@ -22,3 +22,6 @@ class PlayerFactory(DjangoModelFactory):
     emoji = factory.LazyAttribute(lambda a: random.choice(emoji_list))
                 
 
+    @factory.post_generation
+    def generate_token(obj, create, extracted, **kwargs):
+        obj.get_or_create_token()

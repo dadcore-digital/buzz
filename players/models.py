@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Count, Case, When, IntegerField
 from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 
 class Player(models.Model):
     name = models.CharField(unique=True, max_length=255)
@@ -47,6 +48,13 @@ class Player(models.Model):
         
         return awards
 
+    def get_or_create_token(self):
+        """
+        Return DRF auth token. Create if not present.
+        """
+        if self.user:
+            return Token.objects.get_or_create(user=self.user)[0]
+        return None
 
 class Alias(models.Model):
     name = models.CharField(unique=True, max_length=255)

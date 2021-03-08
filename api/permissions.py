@@ -1,12 +1,19 @@
 from rest_framework import permissions
 
-class CanAccessPlayer(permissions.BasePermission):
+class CanReadPlayer(permissions.BasePermission):
 
     def has_object_permission(self, request, view, player):
         # Read permissions are allowed to any request,
         # so we'll always allow GET, HEAD or OPTIONS requests.
         if request.method in permissions.SAFE_METHODS:
             return True
+
+        return False
+
+
+class CanEditPlayer(permissions.BasePermission):
+    
+    def has_object_permission(self, request, view, player):
 
         # Requesting User must be connected to Player object for write access
         if request.method in ['PUT', 'PATCH']:
@@ -21,7 +28,7 @@ class CanAccessPlayer(permissions.BasePermission):
         return False
 
 
-class CanAccessTeam(permissions.BasePermission):
+class CanReadTeam(permissions.BasePermission):
     
     def has_object_permission(self, request, view, team):
         # Read permissions are allowed to any request,
@@ -29,7 +36,13 @@ class CanAccessTeam(permissions.BasePermission):
 
         if request.method in permissions.SAFE_METHODS:
             return True
+        
+        return False
 
+
+class CanEditTeam(permissions.BasePermission):
+    
+    def has_object_permission(self, request, view, team):
         # Requesting User must be connected to Player object for write access
         if request.method in ['PUT', 'PATCH']:
             try:
