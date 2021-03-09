@@ -206,7 +206,7 @@ def test_delete_player_other_permission_denied(django_app):
 
 
 @mark.django_db
-def test_update_player_permission_denied(django_app):
+def test_create_player_permission_denied(django_app):
     """
     Player cannot create arbitrary additional Players.
     """
@@ -224,6 +224,6 @@ def test_update_player_permission_denied(django_app):
         'emoji': 'testmoji'
     }
     
-    resp = client.players(player.id, method='POST', data=data, expect_errors=True)
+    resp = client.players(None, method='POST', data=data, expect_errors=True)
     assert resp.status_code == 400
 

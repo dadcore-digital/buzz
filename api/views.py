@@ -1,6 +1,5 @@
 from allauth.socialaccount.providers.discord.views import DiscordOAuth2Adapter
-from rest_framework import viewsets
-from rest_framework import filters
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -77,12 +76,12 @@ class CircuitViewSet(viewsets.ViewSet):
     serializer_class = CircuitSerializer
 
     def list(self, request, league_pk=None, season_pk=None):
-        queryset = Circuit.objects.filter(league=league_pk, season=season_pk)
+        queryset = Circuit.objects.filter(season__league=league_pk, season=season_pk)
         serializer = CircuitSerializer(queryset, many=True, context={'request': request})
         return Response(serializer.data)
     
     def retrieve(self, request, pk=None, league_pk=None, season_pk=None):
-        queryset = Circuit.objects.filter(pk=pk, season=season_pk)
+        queryset = Circuit.objects.filter(season__league=league_pk, pk=pk, season=season_pk)
         circuit = get_object_or_404(queryset, pk=pk)
         serializer = CircuitSerializer(circuit, context={'request': request})
         return Response(serializer.data)
@@ -127,9 +126,16 @@ class MatchViewSet(viewsets.ReadOnlyModelViewSet):
 class TeamViewSet(viewsets.ModelViewSet):
     queryset = Team.objects.all().order_by('id')
     
-    permission_classes = [permissions.CanReadTeam|permissions.CanEditTeam]
+    permission_classes = [
+        permissions.CanReadTeam|permissions.CanUpdateTeam
+    ]
     serializer_class = TeamSerializer
     filterset_class = TeamFilter
+
+    def perform_create(self, serializer):
+        player, created = Player.objects.get_or_create(user=self.request.user)
+        team = serializer.save(captain=player)
+        team.members.add(player)
 
 class DynastyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Dynasty.objects.all().order_by('name').distinct()

@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
+from leagues.models import Circuit
 from teams.models import Dynasty, Team
 from .players_nested import PlayerSerializerSummary
+from teams.permissions import can_create_team
 
 class TeamSummarySerializer(serializers.HyperlinkedModelSerializer):
     
@@ -44,14 +46,8 @@ class TeamSerializer(serializers.ModelSerializer):
     members = PlayerSerializerSummary(many=True, read_only=True)
     captain = PlayerSerializerSummary(many=False, read_only=True)
 
-    circuit = NestedHyperlinkedRelatedField(
-            many=False,
-            read_only=True,
-            view_name='circuits-detail',
-            parent_lookup_kwargs={
-                'league_pk': 'league__pk', 'season_pk': 'season__pk'
-            },
-        )
+    circuit = serializers.PrimaryKeyRelatedField(
+        many=False, queryset=Circuit.objects.filter(season__is_active=True))
 
     class Meta:
         model = Team
@@ -62,9 +58,18 @@ class TeamSerializer(serializers.ModelSerializer):
         depth = 2
 
         read_only_fields = [
-            'id', 'circuit', 'is_active', 'can_add_members', 'dynasty',
+            'id',  'is_active', 'can_add_members', 'dynasty',
             'captain', 'members', 'modified', 'created', 'wins', 'losses'
         ]
+    
+    def validate(self, data):
+        user = self.context['request'].user
+        has_permission = can_create_team(data.get('circuit'), user)
+        
+        if has_permission:
+            return data
+
+        raise serializers.ValidationError('Permission Denied')
 
 class TeamSummaryNoCircuitSerializer(serializers.HyperlinkedModelSerializer):
     

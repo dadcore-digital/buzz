@@ -1,4 +1,5 @@
 from rest_framework import permissions
+from teams.permissions import can_create_team
 
 class CanReadPlayer(permissions.BasePermission):
 
@@ -40,7 +41,7 @@ class CanReadTeam(permissions.BasePermission):
         return False
 
 
-class CanEditTeam(permissions.BasePermission):
+class CanUpdateTeam(permissions.BasePermission):
     
     def has_object_permission(self, request, view, team):
         # Requesting User must be connected to Player object for write access
@@ -54,6 +55,6 @@ class CanEditTeam(permissions.BasePermission):
 
             # No user associated with player.
             except AttributeError:
-                pass
+                pass        
         
         return False

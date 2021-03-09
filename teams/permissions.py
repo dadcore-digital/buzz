@@ -1,6 +1,6 @@
 from django.db.models import Q
 
-def can_create_team(circuit, player):
+def can_create_team(circuit, user):
     """
     Can a requesting player create a Team in a given circuit?
 
@@ -12,8 +12,12 @@ def can_create_team(circuit, player):
            Region field must be set different. Tiers are not relevant.
     """
     from teams.models import Team  # Avoid circular import
-    
-    
+    try:
+        player = user.player
+
+    except user._meta.model.player.RelatedObjectDoesNotExist:
+        return False
+
     if circuit.season.registration_open:
 
         existing_teams = Team.objects.filter(

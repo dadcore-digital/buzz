@@ -6,13 +6,14 @@ from leagues.models import League, Season, Circuit, Round, Bracket
 
 class LeagueSerializer(serializers.HyperlinkedModelSerializer):
     
-    seasons = NestedHyperlinkedRelatedField(
-        many=True,
-        read_only=True,
-        view_name='seasons-detail',
-        parent_lookup_kwargs={'league_pk': 'league__pk'}
-    )
+    # seasons = NestedHyperlinkedRelatedField(
+    #     many=True,
+    #     read_only=True,
+    #     view_name='seasons-detail',
+    #     parent_lookup_kwargs={'league_pk': 'league__pk'}
+    # )
 
+    seasons = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     class Meta:
         model = League
         fields = [
@@ -62,7 +63,7 @@ class SeasonSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Season
         fields = [
-            'id', 'name', 'registration_open', 'rosters_open',
+            'id', 'is_active', 'name', 'registration_open', 'rosters_open',
             'max_team_members', 'registration_start', 'registration_end',
             'regular_start', 'regular_end', 'tournament_start',
             'tournament_end', 'circuits', 'rounds'
