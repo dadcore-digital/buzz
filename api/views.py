@@ -125,7 +125,7 @@ class MatchViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = MatchFilter
 
 class TeamViewSet(viewsets.ModelViewSet):
-    queryset = Team.objects.all()
+    queryset = Team.objects.all().order_by('id')
     
     permission_classes = [permissions.CanReadTeam|permissions.CanEditTeam]
     serializer_class = TeamSerializer

@@ -45,7 +45,7 @@ class MatchSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Match
         fields = [
-            'home', 'away', 'circuit', 'round', 'start_time', 'time_until',
-            'scheduled', 'primary_caster', 'secondary_casters', 'result',
-            'vod_link'
+            'id', 'home', 'away', 'circuit', 'round', 'start_time',
+            'time_until', 'scheduled', 'primary_caster', 'secondary_casters',
+            'result', 'vod_link'
         ]

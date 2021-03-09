@@ -5,7 +5,7 @@ from api.tests.services import BuzzClient
 from buzz.tests.factories import UserFactory
 
 @mark.django_db
-def test_get_player_by_name(django_app):
+def test_get_teams_by_name(django_app):
     """
     Get basic player data by player name
     """
@@ -52,7 +52,7 @@ def test_get_player_by_name(django_app):
 @mark.django_db
 def test_get_player_detail(django_app):
     """
-    Get basic player data by player name
+    Get player detail view by object id
     """
     client = BuzzClient(django_app)
     
