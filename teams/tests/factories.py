@@ -37,6 +37,10 @@ class TeamFactory(DjangoModelFactory):
         if not create:
             return
 
+        self.members.add(self.captain)
+
         if extracted:
+            
+
             for member in extracted:
                 self.members.add(member)
