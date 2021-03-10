@@ -46,3 +46,11 @@ sentry_sdk.init(
     send_default_pii=True,
     release=RELEASE_ID
 )
+
+SHELL_PLUS_IMPORTS = [
+    'from buzz.tests.factories import *',
+    'from players.tests.factories import *',
+    'from leagues.tests.factories import *',
+    'from teams.tests.factories import *',
+    'from matches.tests.factories import *'
+]
