@@ -3,7 +3,7 @@ import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
 DEBUG = False
-ALLOWED_HOSTS = ['staging.api.beegame.gg']
+ALLOWED_HOSTS = ['api-staging.beegame.gg']
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')
 
