@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from buzz.services import get_object_admin_link
-from .models import League, Season, Circuit, Bracket, Round
+from .models import League, Season, Circuit, Round
 
 
 class LeagueAdmin(admin.ModelAdmin):
@@ -71,5 +71,4 @@ class RoundAdmin(admin.ModelAdmin):
 admin.site.register(League, LeagueAdmin)
 admin.site.register(Season, SeasonAdmin)
 admin.site.register(Circuit, CircuitAdmin)
-admin.site.register(Bracket)
 admin.site.register(Round, RoundAdmin)

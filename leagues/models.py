@@ -116,15 +116,6 @@ class Circuit(models.Model):
         else:
             return f'{self.league.name} {self.season.name} {self.get_region_display()} {self.get_tier_display()}'
 
-class Bracket(models.Model):
-    """A bracket of tournament play within a circuit."""
-    season = models.ForeignKey(
-        Season, related_name='brackets', on_delete=models.CASCADE)
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return f'{self.name} Bracket for {self.season}'
-
 class Round(models.Model):
     """A period of play in which matches can take place, usually a week."""
     season = models.ForeignKey(
@@ -132,19 +123,12 @@ class Round(models.Model):
     round_number = models.DecimalField(
         max_digits=4, decimal_places=2, default=1.0, blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)
-    bracket = models.ForeignKey(
-        Bracket, blank=True, null=True, on_delete=models.CASCADE)
 
     class Meta:
-        ordering = ['bracket', 'round_number', '-name']
+        ordering = ['round_number', '-name']
 
     def __str__(self):
         prepend_text =  ''
         if self.name:
-            prepend_text = f'{self.name} ' 
-
-        append_text = ''
-        if self.bracket:
-            append_text = f' {self.bracket.name} Bracket'
-        
-        return f'{self.season} {prepend_text}Round {self.round_number}' + append_text
+            prepend_text = f'{self.name} '         
+        return f'{self.season} {prepend_text}Round {self.round_number}'

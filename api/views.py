@@ -26,7 +26,7 @@ from .serializers.users import MeSerializer, UserSerializer
 from awards.models import Award
 from beegame.models import Playing, Release
 from events.models import Event
-from leagues.models import League, Season, Circuit, Round, Bracket
+from leagues.models import League, Season, Circuit, Round
 from matches.models import Game, Match, Result, Set
 from casters.models import Caster
 from players.models import Player

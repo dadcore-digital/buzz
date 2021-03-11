@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-from leagues.models import League, Season, Circuit, Round, Bracket
+from leagues.models import League, Season, Circuit, Round
 
 
 ###################
