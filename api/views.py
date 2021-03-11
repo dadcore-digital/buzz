@@ -7,16 +7,17 @@ from django.contrib.auth.models import User
 from django.db.models import Count, Sum
 from django.shortcuts import get_object_or_404
 from .filters import (
-    AwardFilter, DynastyFilter, EventFilter, LeagueFilter, MatchFilter, PlayerFilter,
-    TeamFilter, StreamFilter)
+    AwardFilter, CircuitFilter, DynastyFilter, EventFilter, LeagueFilter,
+    MatchFilter, PlayerFilter, SeasonFilter, TeamFilter, StreamFilter)
 from .serializers.awards import AwardSerializer
 from .serializers.casters import CasterSerializer
 from .serializers.leagues import (
-    LeagueSerializer, SeasonSerializer, CircuitSerializer, RoundSerializer,
-    BracketSerializer)
+    LeagueSerializer, SeasonSerializer, CircuitSerializer,
+    RoundSerializer)
 from api import permissions
 from .serializers.beegame import PlayingSerializer, ReleaseSerializer
-from .serializers.matches import MatchSerializer
+from .serializers.matches import (
+    GameSerializer, MatchSerializer, ResultSerializer, SetSerializer)
 from .serializers.teams import DynastySerializer, TeamSerializer
 from .serializers.players import PlayerSerializer
 from .serializers.events import EventSerializer
@@ -26,7 +27,7 @@ from awards.models import Award
 from beegame.models import Playing, Release
 from events.models import Event
 from leagues.models import League, Season, Circuit, Round, Bracket
-from matches.models import Match
+from matches.models import Game, Match, Result, Set
 from casters.models import Caster
 from players.models import Player
 from streams.models import Stream
@@ -38,90 +39,41 @@ class AwardViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = AwardSerializer
     filterset_class = AwardFilter
 
-class LeagueViewSet(viewsets.ViewSet):
+class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = League.objects.all().order_by('name')
+    filterset_class = LeagueFilter
     serializer_class = LeagueSerializer
 
-    def list(self, request):
-        queryset = League.objects.filter()
-        serializer = LeagueSerializer(queryset, many=True, context={'request': request})
-
-        return Response(serializer.data)
-    
-    def retrieve(self, request, pk=None):
-        queryset = League.objects.filter()
-
-        league = get_object_or_404(queryset, pk=pk)
-        serializer = LeagueSerializer(league, context={'request': request})
-        return Response(serializer.data)
-
-
-class SeasonViewSet(viewsets.ViewSet):
-    
+class SeasonViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Season.objects.all().order_by('name')
+    filterset_class = SeasonFilter
     serializer_class = SeasonSerializer
 
-    def list(self, request, league_pk=None):
-        queryset = Season.objects.filter(league=league_pk)
-        serializer = SeasonSerializer(queryset, many=True, context={'request': request})
-        return Response(serializer.data)
-    
-    def retrieve(self, request, pk=None, league_pk=None):
-        queryset = Season.objects.filter(pk=pk, league=league_pk)
-        season = get_object_or_404(queryset, pk=pk)
-        serializer = SeasonSerializer(season, context={'request': request})
-        return Response(serializer.data)
-
-
-class CircuitViewSet(viewsets.ViewSet):
-    
+class CircuitViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Circuit.objects.all().order_by('name')
+    filterset_class = CircuitFilter
     serializer_class = CircuitSerializer
 
-    def list(self, request, league_pk=None, season_pk=None):
-        queryset = Circuit.objects.filter(season__league=league_pk, season=season_pk)
-        serializer = CircuitSerializer(queryset, many=True, context={'request': request})
-        return Response(serializer.data)
-    
-    def retrieve(self, request, pk=None, league_pk=None, season_pk=None):
-        queryset = Circuit.objects.filter(season__league=league_pk, pk=pk, season=season_pk)
-        circuit = get_object_or_404(queryset, pk=pk)
-        serializer = CircuitSerializer(circuit, context={'request': request})
-        return Response(serializer.data)
-
-
-class RoundViewSet(viewsets.ViewSet):
-    
+class RoundViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Round.objects.all().order_by('name')
     serializer_class = RoundSerializer
-
-    def list(self, request, league_pk=None, season_pk=None):
-        queryset = Round.objects.filter(league=league_pk, season=season_pk)
-        serializer = RoundSerializer(queryset, many=True, context={'request': request})
-        return Response(serializer.data)
-    
-    def retrieve(self, request, pk=None, league_pk=None, season_pk=None):
-        queryset = Round.objects.filter(pk=pk, season=season_pk)
-        round = get_object_or_404(queryset, pk=pk)
-        serializer = RoundSerializer(round, context={'request': request})
-        return Response(serializer.data)
-
-
-class BracketViewSet(viewsets.ViewSet):
-    
-    serializer_class = BracketSerializer
-
-    def list(self, request, league_pk=None, season_pk=None):
-        queryset = Bracket.objects.filter(league=league_pk, season=season_pk)
-        serializer = BracketSerializer(queryset, many=True, context={'request': request})
-        return Response(serializer.data)
-    
-    def retrieve(self, request, pk=None, league_pk=None, season_pk=None):
-        queryset = Bracket.objects.filter(pk=pk, season=season_pk)
-        bracket = get_object_or_404(queryset, pk=pk)
-        serializer = BracketSerializer(bracket, context={'request': request})
-        return Response(serializer.data)
 
 class MatchViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Match.objects.all().order_by('round__round_number', 'start_time')
     serializer_class = MatchSerializer
     filterset_class = MatchFilter
+
+class ResultViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Result.objects.all().order_by('id')
+    serializer_class = ResultSerializer
+
+class SetViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Set.objects.all().order_by('id')
+    serializer_class = SetSerializer
+
+class GameViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Game.objects.all().order_by('id')
+    serializer_class = GameSerializer
 
 class TeamViewSet(viewsets.ModelViewSet):
     queryset = Team.objects.all().order_by('id')
@@ -169,7 +121,6 @@ class PlayingViewSet(viewsets.ReadOnlyModelViewSet):
 class ReleaseViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Release.objects.all().order_by('-released_on')
     serializer_class = ReleaseSerializer
-
 
 class MeViewSet(viewsets.ViewSet):
     

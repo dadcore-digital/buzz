@@ -12,12 +12,3 @@ class CasterSerializer(serializers.ModelSerializer):
             'name', 'player', 'bio_link', 'is_active', 'does_solo_casts',
             'stream_link'
         ]
-
-
-class CasterSummarySerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = Caster
-        fields = [
-            'name', 'bio_link', 'stream_link'
-        ]

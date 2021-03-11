@@ -3,7 +3,7 @@ class BuzzClient:
     A client for connecting to the buzz API.
     """
     def __init__(self, app, token=None, return_json=True):
-        self.API_BASE = '/api'
+        self.API_BASE = ''
         self.app = app
         self.return_json = return_json
         self.headers = []

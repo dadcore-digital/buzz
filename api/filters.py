@@ -5,7 +5,7 @@ import pytz
 from django_filters import rest_framework as filters
 from awards.models import Award
 from events.models import Event
-from leagues.models import League
+from leagues.models import League, Season, Circuit
 from matches.models import Match
 from players.models import Player
 from streams.models import Stream, StreamerBlacklist
@@ -130,7 +130,23 @@ class LeagueFilter(filters.FilterSet):
         model = League
         fields = ['name',]
 
+class SeasonFilter(filters.FilterSet):
+    name = filters.CharFilter(lookup_expr='icontains', label='Circuit Name')
+    is_active = filters.BooleanFilter(
+        field_name='is_active', label='Is Active?')
 
+    class Meta:
+        model = Season
+        fields = ['name', 'is_active']
+
+class CircuitFilter(filters.FilterSet):
+    name = filters.CharFilter(lookup_expr='icontains', label='Circuit Name')
+    is_active = filters.BooleanFilter(
+        field_name='season__is_active', label='Is Active?')
+
+    class Meta:
+        model = Circuit
+        fields = ['name', 'is_active']
 
 class MatchFilter(filters.FilterSet):
 
@@ -462,7 +478,7 @@ class TeamFilter(filters.FilterSet):
 
     is_active = filters.BooleanFilter(
         field_name='circuit__season__is_active',
-        label='Active'        
+        label='Is Active?'        
     )
 
     member = filters.CharFilter(

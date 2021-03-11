@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .players import PlayerSerializer, PlayerSerializerFullTeam
 
 class UserSerializer(serializers.ModelSerializer):
     
@@ -10,9 +9,21 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['first_name']
 
 
+class MePlayerSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        from players.models import Player
+        model = Player
+        depth = 2
+        fields = [
+            'id', 'name', 'name_phonetic', 'pronouns', 'discord_username',
+            'twitch_username', 'bio', 'emoji', 'avatar_url', 'modified',
+            'created', 'teams', 'award_summary'
+        ]
+
 class MeSerializer(serializers.ModelSerializer):
 
-    player = PlayerSerializerFullTeam()
+    player = MePlayerSerializer()
             
     class Meta:
         model = User

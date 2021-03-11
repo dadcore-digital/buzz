@@ -1,21 +1,12 @@
 from rest_framework import serializers
-from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 from leagues.models import Circuit
 from teams.models import Dynasty, Team
+
 from .players_nested import PlayerSerializerSummary
 from teams.permissions import can_create_team
 
-class TeamSummarySerializer(serializers.HyperlinkedModelSerializer):
+class TeamSummarySerializer(serializers.ModelSerializer):
     
-    circuit = NestedHyperlinkedRelatedField(
-        many=False,
-        read_only=True,
-        view_name='circuits-detail',
-        parent_lookup_kwargs={
-            'league_pk': 'league__pk', 'season_pk': 'season__pk'
-        }
-    )
-
     class Meta:
         model = Team
         fields = [
@@ -71,7 +62,7 @@ class TeamSerializer(serializers.ModelSerializer):
 
         raise serializers.ValidationError('Permission Denied')
 
-class TeamSummaryNoCircuitSerializer(serializers.HyperlinkedModelSerializer):
+class TeamSummaryNoCircuitSerializer(serializers.ModelSerializer):
     
     members = serializers.SlugRelatedField(
         many=True, read_only=True, slug_field='name')
@@ -98,7 +89,7 @@ class TeamSummaryNoCircuitMemberDetailSerializer(serializers.ModelSerializer):
 
         depth = 2
 
-class TeamSummaryBriefSerializer(serializers.HyperlinkedModelSerializer):
+class TeamSummaryBriefSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
         fields = [

@@ -8,7 +8,6 @@ STATIC_ROOT = '/var/www/buzz_static/'
 MEDIA_ROOT = '/var/www/buzz_media/'
 
 REQUEST_TIME_DELAY = 0
-MIDDLEWARE += ['buzz.middleware.TimeDelayMiddleware']
 
 INSTALLED_APPS += [
     'debug_toolbar'

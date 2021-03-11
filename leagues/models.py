@@ -95,6 +95,13 @@ class Circuit(models.Model):
     )
 
     @property
+    def is_active(self):
+        """
+        Return True if season associated with this Cricuit is marked active.
+        """
+        return self.season.is_active
+
+    @property
     def verbose_name(self):
         """Full name of circuit, e.g. Tier 2 East."""
         return f'{self.get_tier_display()} {self.get_region_display()}'
