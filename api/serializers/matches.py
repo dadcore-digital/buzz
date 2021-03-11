@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from matches.models import Game, Match, Result, Set
-from .teams import TeamSummaryNoCircuitSerializer, TeamSummaryBriefSerializer
+from .teams import TeamSummaryBriefSerializer
 
 
 #################

@@ -18,7 +18,8 @@ from api import permissions
 from .serializers.beegame import PlayingSerializer, ReleaseSerializer
 from .serializers.matches import (
     GameSerializer, MatchSerializer, ResultSerializer, SetSerializer)
-from .serializers.teams import DynastySerializer, TeamSerializer
+from .serializers.teams import (
+    DynastySerializer, TeamSerializer, TeamDetailSerializer)
 from .serializers.players import PlayerSerializer
 from .serializers.events import EventSerializer
 from .serializers.streams import StreamSerializer
@@ -83,6 +84,11 @@ class TeamViewSet(viewsets.ModelViewSet):
     ]
     serializer_class = TeamSerializer
     filterset_class = TeamFilter
+
+    def retrieve(self, request, pk=None):
+        team = Team.objects.filter(id=pk).first()
+        serializer = TeamDetailSerializer(team)
+        return Response(serializer.data)
 
     def perform_create(self, serializer):
         player, created = Player.objects.get_or_create(user=self.request.user)
