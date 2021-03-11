@@ -187,6 +187,11 @@ class MatchFilter(filters.FilterSet):
         label='Home OR Away Team Name'
     )
 
+    team_id = filters.CharFilter(
+        field_name='away__id', method='get_by_team_id',
+        label='Home OR Away Team ID'
+    )
+
     teams = filters.CharFilter(
         field_name='away__name', method='get_by_team_names',
         label='Home AND Away Team Name'
@@ -302,6 +307,13 @@ class MatchFilter(filters.FilterSet):
             start_time__lte=time_ceiling
         )
 
+    def get_by_team_id(self, queryset, field_name, value):
+    
+        return queryset.filter(
+            Q(home__id=value) |
+            Q(away__id=value)
+        )
+
     def get_by_team_name(self, queryset, field_name, value):
 
         return queryset.filter(
@@ -384,8 +396,8 @@ class MatchFilter(filters.FilterSet):
         model = Match
         fields = [
             'round', 'minutes', 'hours', 'days', 'starts_in_minutes', 'home',
-            'away', 'team', 'teams', 'winner', 'loser',  'scheduled', 'status',
-            'league', 'season', 'circuit', 'region', 'tier'
+            'away', 'team', 'team_id', 'teams', 'winner', 'loser',  'scheduled',
+            'status', 'league', 'season', 'circuit', 'region', 'tier'
         ]
 
 
@@ -469,7 +481,6 @@ class TeamFilter(filters.FilterSet):
         label='Circuit ID Number'
     )
 
-
     dynasty = filters.CharFilter(
         field_name='dynasty__name',
         lookup_expr='icontains',
@@ -494,7 +505,6 @@ class TeamFilter(filters.FilterSet):
             'name', 'league', 'season', 'circuit', 'region', 'tier', 'dynasty',
             'is_active', 'member'
         ]
-
 
 class StreamFilter(filters.FilterSet):
     username = filters.CharFilter(lookup_expr='icontains')
