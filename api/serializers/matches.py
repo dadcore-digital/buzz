@@ -1,15 +1,26 @@
 from rest_framework import serializers
 from matches.models import Game, Match, Result, Set
-from .teams import TeamSummaryBriefSerializer
 
+class MatchTeamSummary(serializers.ModelSerializer):
+    """
+    Used in multiple match endpoints.
+    """
+    class Meta:
+        from teams.models import Team
+        model = Team
+
+        fields = [
+            'id', 'name', 'is_active', 'wins', 'losses', 'wins',
+            'losses', 'circuit_abbrev'
+        ]
 
 #################
 # Game Endpoint #
 #################
 class GameSerializer(serializers.ModelSerializer):
     
-    winner = TeamSummaryBriefSerializer()
-    loser = TeamSummaryBriefSerializer()
+    winner = MatchTeamSummary()
+    loser = MatchTeamSummary()
 
     class Meta:
         model = Game
@@ -24,8 +35,8 @@ class GameSerializer(serializers.ModelSerializer):
 ################
 class SetSerializer(serializers.ModelSerializer):
 
-    winner = TeamSummaryBriefSerializer()
-    loser = TeamSummaryBriefSerializer()
+    winner = MatchTeamSummary()
+    loser = MatchTeamSummary()
 
     class Meta:
         model = Set
@@ -37,8 +48,8 @@ class SetSerializer(serializers.ModelSerializer):
 # Result Endpoint #
 ###################
 class ResultSerializer(serializers.ModelSerializer):
-    winner = TeamSummaryBriefSerializer()
-    loser = TeamSummaryBriefSerializer()
+    winner = MatchTeamSummary()
+    loser = MatchTeamSummary()
     sets = SetSerializer(many=True)
 
     status = serializers.CharField(source='get_status_display')

@@ -168,12 +168,5 @@ class TeamDetailSerializer(serializers.ModelSerializer):
 
         raise serializers.ValidationError('Permission Denied')
 
-class TeamSummaryBriefSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Team
-        fields = [
-            'id', 'name', 'is_active', 'wins', 'losses', 'wins',
-            'losses', 'circuit_abbrev'
-        ]
 
 
