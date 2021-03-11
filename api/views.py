@@ -6,9 +6,13 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.db.models import Count, Sum
 from django.shortcuts import get_object_or_404
-from .filters import (
-    AwardFilter, CircuitFilter, DynastyFilter, EventFilter, LeagueFilter,
-    MatchFilter, PlayerFilter, SeasonFilter, TeamFilter, StreamFilter)
+from .filters.awards import AwardFilter
+from .filters.events import EventFilter    
+from .filters.leagues import CircuitFilter, LeagueFilter, SeasonFilter
+from .filters.matches import MatchFilter
+from .filters.players import PlayerFilter
+from .filters.streams import StreamFilter
+from .filters.teams import DynastyFilter, TeamFilter
 from .serializers.awards import AwardSerializer
 from .serializers.casters import CasterSerializer
 from .serializers.leagues import (
