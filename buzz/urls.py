@@ -9,12 +9,11 @@ from .views import Home, DispatchAfterLogin, trigger_error
 admin.site.site_header = 'Buzz Administration'
 
 urlpatterns = [
-    re_path(r'^api/', include('api.urls')),
+    path('login/', Home.as_view(), name='home'),
     path('dispatch/', DispatchAfterLogin.as_view(), name='dispatch'),
-    path('', Home.as_view(), name='home'),
     path('logging-debug/', trigger_error),
     re_path(r'^accounts/', include('allauth.urls')),
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls)
 ]
 
 if settings.DEBUG:
@@ -22,3 +21,9 @@ if settings.DEBUG:
     urlpatterns += [
         path('__debug__/', include(debug_toolbar.urls)),        
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+urlpatterns += [        
+
+    # This MUST be last or it will break all other endpoints
+    re_path(r'^', include('api.urls'))
+]
