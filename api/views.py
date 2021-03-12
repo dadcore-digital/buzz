@@ -73,6 +73,21 @@ class RoundViewSet(viewsets.ReadOnlyModelViewSet):
 
 class MatchViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Match.objects.all().order_by('round__round_number', 'start_time')
+    queryset = queryset.select_related('circuit')
+    queryset = queryset.select_related('home')
+    queryset = queryset.select_related('away')
+    queryset = queryset.select_related('round')
+    queryset = queryset.select_related('result')
+    queryset = queryset.select_related('primary_caster__player')
+    queryset = queryset.prefetch_related('secondary_casters__player')
+    queryset = queryset.prefetch_related('home__members')
+    queryset = queryset.prefetch_related('away__members')
+    queryset = queryset.prefetch_related('circuit__season')
+    queryset = queryset.prefetch_related('result__sets')
+    queryset = queryset.prefetch_related('result__winner')
+    queryset = queryset.prefetch_related('result__loser')
+    
+
     serializer_class = MatchSerializer
     filterset_class = MatchFilter
 
