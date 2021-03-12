@@ -62,7 +62,7 @@ class CircuitViewSet(viewsets.ReadOnlyModelViewSet):
         Prefetch('teams', queryset=Team.objects.annotate(
             wins=Count('won_match_results', distinct=True)).annotate(losses=Count('lost_match_results', distinct=True))),
         Prefetch('teams__members')            
-    )
+    ).order_by('id')
     
     filterset_class = CircuitFilter
     serializer_class = CircuitSerializer
@@ -90,7 +90,15 @@ class GameViewSet(viewsets.ReadOnlyModelViewSet):
 
 class TeamViewSet(viewsets.ModelViewSet):
     queryset = Team.objects.all().order_by('id')
-    
+    queryset = queryset.select_related('captain')
+    queryset = queryset.select_related('circuit')
+    queryset = queryset.select_related('dynasty')
+    queryset = queryset.prefetch_related('members')
+    queryset = queryset.select_related('circuit__season')
+    queryset = queryset.annotate(wins=Count('won_match_results', distinct=True))
+    queryset = queryset.annotate(losses=Count('lost_match_results', distinct=True))
+
+
     permission_classes = [
         permissions.CanReadTeam|permissions.CanUpdateTeam
     ]

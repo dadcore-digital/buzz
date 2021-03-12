@@ -6,6 +6,16 @@ from .players_nested import PlayerSerializerSummary
 from teams.permissions import can_create_team
 
 
+class TeamPlayerSerializer(serializers.ModelSerializer):
+    class Meta:
+        from players.models import Player
+        model = Player
+        fields = [
+            'id', 'name', 'name_phonetic', 'pronouns', 'discord_username',
+            'twitch_username', 'bio', 'emoji', 'avatar_url', 'modified',
+            'created'
+        ]
+
 ######################
 # Team List Endpoint #
 ######################
@@ -36,11 +46,14 @@ class DynastyNoTeamsSerializer(serializers.ModelSerializer):
 
 class TeamSerializer(serializers.ModelSerializer):
 
-    members = PlayerSerializerSummary(many=True, read_only=True)
-    captain = PlayerSerializerSummary(many=False, read_only=True)
+    members = TeamPlayerSerializer(many=True, read_only=True)
+    captain = TeamPlayerSerializer(many=False, read_only=True)
 
     circuit = serializers.PrimaryKeyRelatedField(
-        many=False, queryset=Circuit.objects.filter(season__is_active=True))
+        many=False, read_only=True)
+
+    wins = serializers.IntegerField(read_only=True)
+    losses = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Team
