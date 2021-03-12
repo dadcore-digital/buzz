@@ -15,7 +15,7 @@ class TeamSummarySerializer(serializers.ModelSerializer):
         model = Team
         fields = [
             'id', 'name', 'circuit', 'is_active', 'circuit_abbrev',
-            'wins', 'losses'
+            'legacy_wins', 'legacy_losses', 'wins', 'losses'
         ]
 
 class DynastySerializer(serializers.ModelSerializer):

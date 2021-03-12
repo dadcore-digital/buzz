@@ -26,3 +26,4 @@ class CircuitFilter(filters.FilterSet):
         model = Circuit
         fields = ['name', 'is_active']
 
+

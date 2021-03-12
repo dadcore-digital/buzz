@@ -3,7 +3,7 @@ from datetime import datetime
 from django.apps import apps
 from django.conf import settings
 from django.db import models
-from django.db.models import Q
+from django.db.models import Count, Q
 from leagues.models import Circuit
 from players.models import Player
 
@@ -32,7 +32,6 @@ def _generate_invite_code():
     function to populate Team.access_code field.
     """
     return nanoid.generate(settings.NANOID_LIBRARY, size=8)
-
 
 class Team(models.Model):
     """
@@ -84,11 +83,11 @@ class Team(models.Model):
         return f'{self.circuit.tier}{self.circuit.region}'
 
     @property
-    def losses(self):
+    def loss_count(self):
         return self.lost_match_results.filter().count()
 
     @property
-    def wins(self):
+    def win_count(self):
         return self.won_match_results.all().count()
 
     def generate_invite_code(self):

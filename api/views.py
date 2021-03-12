@@ -54,8 +54,16 @@ class SeasonViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = SeasonFilter
     serializer_class = SeasonSerializer
 
+from django.db.models import Prefetch
+
 class CircuitViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Circuit.objects.all().order_by('name')
+    queryset = Circuit.objects.select_related('season')
+    queryset = queryset.prefetch_related(
+        Prefetch('teams', queryset=Team.objects.annotate(
+            wins=Count('won_match_results', distinct=True)).annotate(losses=Count('lost_match_results', distinct=True))),
+        Prefetch('teams__members')            
+    )
+    
     filterset_class = CircuitFilter
     serializer_class = CircuitSerializer
 

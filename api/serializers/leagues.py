@@ -71,18 +71,21 @@ class CircuitTeamPlayerSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'name_phonetic', 'pronouns', 'discord_username',
             'twitch_username', 'bio', 'emoji', 'avatar_url', 'modified',
-            'created', 'aliases'
+            'created'
         ]        
 
 class CircuitTeamSerializer(serializers.ModelSerializer):
     
     members = CircuitTeamPlayerSerializer(many=True, read_only=True)
+    wins = serializers.IntegerField(read_only=True)
+    losses = serializers.IntegerField(read_only=True)
+
     class Meta:
         from teams.models import Team
 
         model = Team
         fields = [
-            'id', 'name', 'wins', 'losses', 'members'
+            'id', 'name', 'members', 'wins', 'losses'
         ]
 
 class CircuitSeasonSerializer(serializers.ModelSerializer):
