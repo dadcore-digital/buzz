@@ -13,7 +13,7 @@ class CanReadPlayer(permissions.BasePermission):
 
 
 class CanEditPlayer(permissions.BasePermission):
-    
+
     def has_object_permission(self, request, view, player):
 
         # Requesting User must be connected to Player object for write access

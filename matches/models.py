@@ -92,6 +92,19 @@ class Result(models.Model):
     def __str__(self):
         return f'{self.winner.name} over {self.loser.name} in {self.sets.count()} sets'
 
+
+    @property
+    def sets_away(self):
+        return self.sets.filter(winner=self.match.away).count()
+
+    @property
+    def sets_home(self):
+        return self.sets.filter(winner=self.match.home).count()
+
+    @property
+    def sets_total(self):
+        return self.sets.all().count()
+
     @property
     def set_count(self):
         if self.sets.all():

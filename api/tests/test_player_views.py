@@ -45,7 +45,6 @@ def test_get_teams_by_name(django_app):
     assert entry['teams'][1]['is_active'] == False
     
     # Need to build this out once Award Factory is in place
-    assert 'award_summary' in entry.keys()
     assert 'token' not in entry.keys()
 
 
@@ -86,7 +85,7 @@ def test_get_player_detail(django_app):
     assert entry['teams'][1]['is_active'] == False
     
     # Need to build this out once Award Factory is in place
-    assert 'award_summary' in entry.keys()
+    assert 'awards' in entry.keys()
 
     # Keep these out!
     assert 'token' not in entry.keys()
@@ -225,5 +224,5 @@ def test_create_player_permission_denied(django_app):
     }
     
     resp = client.players(None, method='POST', data=data, expect_errors=True)
-    assert resp.status_code == 400
+    assert resp.status_code == 405
 

@@ -10,8 +10,7 @@ class MatchTeamSummary(serializers.ModelSerializer):
         model = Team
 
         fields = [
-            'id', 'name', 'is_active', 'wins', 'losses', 'wins',
-            'losses', 'circuit_abbrev'
+            'id', 'name', 'is_active', 'circuit_abbrev'
         ]
 
 #################
@@ -57,7 +56,7 @@ class ResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = Result
         fields = [
-            'id', 'status', 'winner', 'loser', 'sets', 'set_count'
+            'id', 'status', 'winner', 'loser', 'sets'
         ]
 
 ##################
@@ -118,11 +117,18 @@ class MatchResultSerializer(serializers.ModelSerializer):
 
     status = serializers.CharField(source='get_status_display')
     
+    # Needs optimization as prefetch count in future
+    sets_home = serializers.IntegerField(read_only=True)
+    sets_away = serializers.IntegerField(read_only=True)
+    sets_total = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Result
         fields = [
-            'id', 'status', 'winner', 'loser', 'set_count'
+            'id', 'status', 'winner', 'loser', 'sets_home', 'sets_away',
+            'sets_total'
         ]
+
 
 class MatchSerializer(serializers.ModelSerializer):
     

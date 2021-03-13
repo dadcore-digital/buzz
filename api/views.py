@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth.models import User
-from django.db.models import Count, Sum
+from django.db.models import Count, OuterRef, Prefetch, Sum, Q, Subquery
 from django.shortcuts import get_object_or_404
 from .filters.awards import AwardFilter
 from .filters.events import EventFilter    
@@ -54,8 +54,6 @@ class SeasonViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = SeasonFilter
     serializer_class = SeasonSerializer
 
-from django.db.models import Prefetch
-
 class CircuitViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Circuit.objects.select_related('season')
     queryset = queryset.prefetch_related(
@@ -77,7 +75,7 @@ class MatchViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = queryset.select_related('home')
     queryset = queryset.select_related('away')
     queryset = queryset.select_related('round')
-    queryset = queryset.select_related('result')
+
     queryset = queryset.select_related('primary_caster__player')
     queryset = queryset.prefetch_related('secondary_casters__player')
     queryset = queryset.prefetch_related('home__members')
@@ -92,11 +90,20 @@ class MatchViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = MatchFilter
 
 class ResultViewSet(viewsets.ReadOnlyModelViewSet):
+
     queryset = Result.objects.all().order_by('id')
+    queryset = queryset.prefetch_related('loser__circuit__season')
+    queryset = queryset.prefetch_related('winner__circuit__season')
+    queryset = queryset.prefetch_related('sets__winner__circuit__season')
+    queryset = queryset.prefetch_related('sets__loser__circuit__season')
+    
     serializer_class = ResultSerializer
 
 class SetViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Set.objects.all().order_by('id')
+    queryset = queryset.prefetch_related('loser__circuit')
+    queryset = queryset.prefetch_related('winner__circuit')
+
     serializer_class = SetSerializer
 
 class GameViewSet(viewsets.ReadOnlyModelViewSet):
@@ -113,7 +120,6 @@ class TeamViewSet(viewsets.ModelViewSet):
     queryset = queryset.annotate(wins=Count('won_match_results', distinct=True))
     queryset = queryset.annotate(losses=Count('lost_match_results', distinct=True))
 
-
     permission_classes = [
         permissions.CanReadTeam|permissions.CanUpdateTeam
     ]
@@ -121,7 +127,17 @@ class TeamViewSet(viewsets.ModelViewSet):
     filterset_class = TeamFilter
 
     def retrieve(self, request, pk=None):
-        team = Team.objects.filter(id=pk).first()
+        queryset = self.get_queryset()       
+        queryset = queryset.prefetch_related('home_matches__primary_caster')
+        queryset = queryset.prefetch_related('away_matches__primary_caster')
+        queryset = queryset.prefetch_related('home_matches__secondary_casters')
+        queryset = queryset.prefetch_related('away_matches__secondary_casters')
+        queryset = queryset.prefetch_related('home_matches__result')
+        queryset = queryset.prefetch_related('away_matches__result')
+        queryset = queryset.prefetch_related('home_matches__round')
+        queryset = queryset.prefetch_related('away_matches__round')
+
+        team = queryset.filter(id=pk).first()
         serializer = TeamDetailSerializer(team)
         return Response(serializer.data)
 
@@ -136,8 +152,19 @@ class DynastyViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = DynastyFilter
 
 class PlayerViewSet(viewsets.ModelViewSet):
-    queryset = Player.objects.all().order_by('name')
+    queryset = Player.objects.all().order_by('id')
+    queryset = queryset.prefetch_related(
+        Prefetch('teams', queryset=Team.objects.annotate(
+            wins=Count('won_match_results', distinct=True)).annotate(losses=Count('lost_match_results', distinct=True))),
+    )
+    queryset = queryset.prefetch_related('teams__circuit__season')
+    queryset = queryset.prefetch_related('aliases')
+    queryset = queryset.prefetch_related('awards__stats')
+    queryset = queryset.prefetch_related('awards__round')
+    queryset = queryset.prefetch_related('awards__award_category')
+    
     permission_classes = [permissions.CanReadPlayer|permissions.CanEditPlayer]
+    http_method_names = ['get', 'put', 'patch', 'delete']
     serializer_class = PlayerSerializer
     filterset_class = PlayerFilter
 

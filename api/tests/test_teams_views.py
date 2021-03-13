@@ -27,8 +27,8 @@ def test_get_teams_by_name(django_app):
     assert entry['is_active'] == team.is_active
     assert len(entry['members']) == team.members.count()
     assert entry['can_add_members'] == team.can_add_members
-    assert entry['wins'] == team.wins
-    assert entry['losses'] == team.losses
+    assert entry['wins'] == 0
+    assert entry['losses'] == 0
 
 @mark.django_db
 def test_get_team_detail(django_app):
@@ -49,8 +49,8 @@ def test_get_team_detail(django_app):
     assert entry['is_active'] == team.is_active
     assert len(entry['members']) == team.members.count()
     assert entry['can_add_members'] == team.can_add_members
-    assert entry['wins'] == team.wins
-    assert entry['losses'] == team.losses
+    assert entry['wins'] == team.win_count
+    assert entry['losses'] == team.loss_count
 
 
 @mark.django_db

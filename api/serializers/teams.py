@@ -25,7 +25,7 @@ class TeamSummarySerializer(serializers.ModelSerializer):
         model = Team
         fields = [
             'id', 'name', 'circuit', 'is_active', 'circuit_abbrev',
-            'legacy_wins', 'legacy_losses', 'wins', 'losses'
+            'win_count', 'loss_count'
         ]
 
 class DynastySerializer(serializers.ModelSerializer):
@@ -50,7 +50,7 @@ class TeamSerializer(serializers.ModelSerializer):
     captain = TeamPlayerSerializer(many=False, read_only=True)
 
     circuit = serializers.PrimaryKeyRelatedField(
-        many=False, read_only=True)
+        many=False, queryset=Circuit.objects.filter(season__is_active=True))
 
     wins = serializers.IntegerField(read_only=True)
     losses = serializers.IntegerField(read_only=True)
@@ -99,12 +99,18 @@ class TeamDetailMatchResultSerializer(serializers.ModelSerializer):
         many=False, read_only=True, slug_field='name')
 
     status = serializers.CharField(source='get_status_display')
-    
+
+    # Needs optimization as prefetch count in future
+    sets_home = serializers.IntegerField(read_only=True)
+    sets_away = serializers.IntegerField(read_only=True)
+    sets_total = serializers.IntegerField(read_only=True)
+
     class Meta:
         from matches.models import Result
         model = Result
         fields = [
-            'id', 'status', 'winner', 'loser', 'set_count'
+            'id', 'status', 'winner', 'loser', 'sets_home', 'sets_away',
+            'sets_total'
         ]
 
 
@@ -148,14 +154,17 @@ class TeamDetailMatchSerializer(serializers.ModelSerializer):
 
 class TeamDetailSerializer(serializers.ModelSerializer):
     
-    members = PlayerSerializerSummary(many=True, read_only=True)
-    captain = PlayerSerializerSummary(many=False, read_only=True)
+    members = TeamPlayerSerializer(many=True, read_only=True)
+    captain = TeamPlayerSerializer(many=False, read_only=True)
 
     circuit = serializers.PrimaryKeyRelatedField(
         many=False, queryset=Circuit.objects.filter(season__is_active=True))
 
     home_matches = TeamDetailMatchSerializer(many=True, read_only=True)
     away_matches = TeamDetailMatchSerializer(many=True, read_only=True)
+
+    wins = serializers.IntegerField(read_only=True)
+    losses = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Team
@@ -180,6 +189,4 @@ class TeamDetailSerializer(serializers.ModelSerializer):
             return data
 
         raise serializers.ValidationError('Permission Denied')
-
-
 
