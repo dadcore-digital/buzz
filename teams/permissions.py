@@ -6,12 +6,18 @@ def can_create_team(circuit, user):
 
     Current permissions logic:
         
-        1. Season linked to Circuit must have `registration_open` set to True
+        1. User must be signed in and have a player record
         
-        2. Player can be a member of max two teams in a season, and their
+        2. Season linked to Circuit must have `registration_open` set to True
+        
+        3. Player can be a member of max two teams in a season, and their
            Region field must be set different. Tiers are not relevant.
     """
     from teams.models import Team  # Avoid circular import
+    
+    if user.is_anonymous:
+        return False
+
     try:
         player = user.player
 
@@ -42,19 +48,25 @@ def can_join_team(team, user, invite_code):
 
     Current permissions logic:
         
-        1. Player must pass a valid invite code for this team
+        1. User must be signed in and have a player record.
 
-        2. Team.can_add_members() must return True, currently this means:
+        2. Player must pass a valid invite code for this team
+
+        3. Team.can_add_members() must return True, currently this means:
            
            - Season associated with team has `rosters_open=True`
            - Team member count < seaon's `max_team_members`
         
-        3. Player can be a member of max two teams in a season, and their
+        4. Player can be a member of max two teams in a season, and their
            Region field must be set different. Tiers are not relevant.
         
-        4. Player cannot already be a member of this team 
+        5. Player cannot already be a member of this team 
     """
     from teams.models import Team
+
+    if user.is_anonymous:
+        return False
+
     try:
         player = user.player
 

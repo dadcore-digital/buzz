@@ -29,6 +29,7 @@ def test_get_teams_by_name(django_app):
     assert entry['can_add_members'] == team.can_add_members
     assert entry['wins'] == 0
     assert entry['losses'] == 0
+    assert not 'invite_code' in entry.keys()
 
 @mark.django_db
 def test_get_team_detail(django_app):
@@ -52,6 +53,29 @@ def test_get_team_detail(django_app):
     assert entry['wins'] == team.win_count
     assert entry['losses'] == team.loss_count
 
+    assert not entry['invite_code']
+
+@mark.django_db
+def test_get_team_detail_as_captain(django_app):
+    """
+    Get team detail view by object id as captain, to see special secret fields
+    """
+    team = TeamFactory()
+    player = team.captain   
+    client = BuzzClient(django_app, token=player.get_or_create_token())
+
+    params = f'name={team.name}'
+    entry = client.team(team.id)
+    
+    
+    assert entry['invite_code'] == team.invite_code
+    assert entry['name'] == team.name
+    assert entry['captain']['id'] == team.captain.id
+    assert entry['is_active'] == team.is_active
+    assert len(entry['members']) == team.members.count()
+    assert entry['can_add_members'] == team.can_add_members
+    assert entry['wins'] == team.win_count
+    assert entry['losses'] == team.loss_count
 
 @mark.django_db
 def test_create_team_permission_granted(django_app):

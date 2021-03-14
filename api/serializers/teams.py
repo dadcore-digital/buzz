@@ -186,12 +186,13 @@ class TeamDetailSerializer(serializers.ModelSerializer):
     def get_invite_code(self, obj):
         user = self.context['request'].user
         
-        try:
-            if user.player == obj.captain:
-                return obj.invite_code
+        if user.is_authenticated:
+            try:
+                if user.player == obj.captain:
+                    return obj.invite_code
 
-        except user._meta.model.player.RelatedObjectDoesNotExist:
-            pass
+            except user._meta.model.player.RelatedObjectDoesNotExist:
+                pass
         
         return ''
 

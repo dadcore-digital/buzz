@@ -21,7 +21,7 @@ class BuzzClient:
         self, url, id=None, data=None, method='GET', expect_errors=False):
 
         if method == 'GET':
-            resp = self.app.get(url)
+            resp = self.app.get(url, headers=self.headers, expect_errors=expect_errors)
 
         elif method == 'POST':
             resp = self.app.post_json(
