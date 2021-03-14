@@ -11,10 +11,15 @@ class Home(TemplateView):
 
 class DispatchAfterLogin(View):
     def get(self, request, *args, **kwargs):
+    
         if not request.user.is_anonymous:
             token, created = Token.objects.get_or_create(user=request.user)
 
-            player = connect_user_to_player(request.user)
+
+            # Connect user to player object if not already connected
+            if not hasattr(request.user, 'player'):
+                player = connect_user_to_player(request.user)
+
             url = settings.BGL_AUTH_HANDOFF_URL + f'/?token={token}'
             return redirect(url)
 
