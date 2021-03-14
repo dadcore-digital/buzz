@@ -138,7 +138,7 @@ class TeamViewSet(viewsets.ModelViewSet):
         queryset = queryset.prefetch_related('away_matches__round')
 
         team = queryset.filter(id=pk).first()
-        serializer = TeamDetailSerializer(team)
+        serializer = TeamDetailSerializer(team, context={'request': request})
         return Response(serializer.data)
 
     def perform_create(self, serializer):

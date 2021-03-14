@@ -166,12 +166,14 @@ class TeamDetailSerializer(serializers.ModelSerializer):
     wins = serializers.IntegerField(read_only=True)
     losses = serializers.IntegerField(read_only=True)
 
+    invite_code = serializers.SerializerMethodField()
+
     class Meta:
         model = Team
         fields = [
             'id', 'name', 'circuit', 'is_active', 'can_add_members', 'dynasty',
             'captain', 'home_matches', 'away_matches', 'members', 'modified',
-            'created', 'wins', 'losses'
+            'created', 'wins', 'losses', 'invite_code'
         ]
         depth = 2
 
@@ -181,6 +183,18 @@ class TeamDetailSerializer(serializers.ModelSerializer):
             'created', 'wins', 'losses'
         ]
 
+    def get_invite_code(self, obj):
+        user = self.context['request'].user
+        
+        try:
+            if user.player == obj.captain:
+                return obj.invite_code
+
+        except user._meta.model.player.RelatedObjectDoesNotExist:
+            pass
+        
+        return ''
+
     def validate(self, data):
         user = self.context['request'].user
         has_permission = can_create_team(data.get('circuit'), user)
@@ -189,7 +203,7 @@ class TeamDetailSerializer(serializers.ModelSerializer):
             return data
 
         raise serializers.ValidationError('Permission Denied')
-
+    
 class JoinTeamSerializer(serializers.Serializer):    
     invite_code = serializers.CharField(max_length=8)
 
