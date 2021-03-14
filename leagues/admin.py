@@ -55,6 +55,8 @@ class CircuitAdmin(admin.ModelAdmin):
         links = mark_safe(links)
         return links
     
+    
+    search_fields = ('name',)
     readonly_fields = (teams,)  
 
 class RoundAdmin(admin.ModelAdmin):

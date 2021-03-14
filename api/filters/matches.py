@@ -81,6 +81,12 @@ class MatchFilter(filters.FilterSet):
         exclude=True,
         label='Has Been Scheduled',)
 
+    awaiting_results = filters.BooleanFilter(
+        field_name='awaiting_results',
+        method = 'get_awaiting_results',
+        label='Awaiting Results'
+    )
+
     status = filters.CharFilter(
         field_name='result__status', lookup_expr='icontains',
         label='Match Status (C, SF, DF)'
@@ -129,6 +135,17 @@ class MatchFilter(filters.FilterSet):
     )
 
     now = pytz.utc.localize(datetime.utcnow())
+
+    def get_awaiting_results(self, queryset, field_name, value):
+        """
+        Include all matches that should have been played but don't have
+        a result object.
+        """
+        queryset = queryset.filter(start_time__lte=timezone.now())
+        queryset = queryset.filter(result__isnull=value)
+
+        return queryset
+
 
     def get_next_n_minutes(self, queryset, field_name, value):
         time_threshold = timezone.now() + timedelta(minutes=int(value))
@@ -255,5 +272,6 @@ class MatchFilter(filters.FilterSet):
         fields = [
             'round', 'minutes', 'hours', 'days', 'starts_in_minutes', 'home',
             'away', 'team', 'team_id', 'teams', 'winner', 'loser',  'scheduled',
-            'status', 'league', 'season', 'circuit', 'region', 'tier'
+            'awaiting_results', 'status', 'league', 'season', 'circuit',
+            'region', 'tier'
         ]

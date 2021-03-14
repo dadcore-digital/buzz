@@ -25,6 +25,9 @@ class MatchAdmin(admin.ModelAdmin):
         return result_link
 
     readonly_fields = (result,)
+    autocomplete_fields = [
+        'home', 'away', 'circuit', 'round', 'primary_caster', 'secondary_casters'
+    ]
 
 class ResultAdmin(admin.ModelAdmin):
     
