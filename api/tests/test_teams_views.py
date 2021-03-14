@@ -180,3 +180,201 @@ def test_create_team_existing_team_same_region_permission_denied(django_app):
     assert resp.status_code == 400
     assert player.teams.filter(captain=player).count() == 1
 
+
+@mark.django_db
+def test_join_team_permission_granted(django_app):
+    """
+    Join a team with a valid invite code, with no previous team memberships
+    for season.
+    """
+    team = TeamFactory()
+    player = PlayerFactory()
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    
+    data = {
+        'invite_code': team.invite_code
+    }
+    
+    resp = client.join_team(team.id, method='POST', data=data, expect_errors=False)
+    
+    assert resp.status_code == 200
+    assert team.members.filter(id=player.id).exists()
+
+
+@mark.django_db
+def test_join_team_existing_member_other_region_permission_granted(django_app):
+    """
+    Join a team with a valid invite code, have membership in another team 
+    but it's in a different region.
+    """
+    west_circuit = CircuitFactory(region='W',  tier='1')
+    season = west_circuit.season
+    east_circuit = CircuitFactory(region='E', tier='1', season=season)
+
+    west_team = TeamFactory(circuit=west_circuit)
+    east_team = TeamFactory(circuit=east_circuit)
+    
+    player = west_team.members.first()
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    
+    data = {
+        'invite_code': east_team.invite_code
+    }
+    
+    resp = client.join_team(
+        east_team.id, method='POST', data=data, expect_errors=False)
+    
+    assert resp.status_code == 200
+    assert east_team.members.filter(id=player.id).exists()
+
+@mark.django_db
+def test_join_team_invalid_invite_code_permission_denied(django_app):
+    """
+    Deny access to join team with invalid invite code.
+    """
+    team = TeamFactory()
+    player = PlayerFactory()
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    
+    data = {
+        'invite_code': 'ABC123XY'
+    }
+    
+    resp = client.join_team(team.id, method='POST', data=data, expect_errors=True)
+    
+    assert resp.status_code == 400
+    assert not team.members.filter(id=player.id).exists()
+
+@mark.django_db
+def test_join_team_rosters_closed_permission_denied(django_app):
+    """
+    Deny access to join team when season rosters are closed
+    """
+    team = TeamFactory()
+    season = team.circuit.season
+    season.rosters_open = False
+    season.save()
+
+    player = PlayerFactory()
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    
+    data = {
+        'invite_code': team.invite_code
+    }
+    
+    resp = client.join_team(team.id, method='POST', data=data, expect_errors=True)
+    
+    assert resp.status_code == 400
+    assert not team.members.filter(id=player.id).exists()
+
+@mark.django_db
+def test_join_team_roster_maxed_permission_denied(django_app):
+    """
+    Deny access to join team when number of members on roster maxed out
+    """
+    team = TeamFactory(members=[
+        PlayerFactory(), PlayerFactory(), PlayerFactory(), PlayerFactory(),
+        PlayerFactory(), PlayerFactory()
+    ])
+
+    player = PlayerFactory()
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    
+    data = {
+        'invite_code': team.invite_code
+    }
+    
+    resp = client.join_team(team.id, method='POST', data=data, expect_errors=True)
+    
+    assert resp.status_code == 400
+    assert not team.members.filter(id=player.id).exists()
+
+@mark.django_db
+def test_join_team_player_has_two_teams_permission_denied(django_app):
+    """
+    Player can only be on two teams in a season, deny access to a third.
+    """
+    west_circuit = CircuitFactory(region='W',  tier='1')
+    season = west_circuit.season
+    east_circuit = CircuitFactory(season=season, region='E',  tier='1')
+    third_circuit = CircuitFactory(season=season, region='E',  tier='2')
+
+    west_team = TeamFactory(circuit=west_circuit)
+    east_team = TeamFactory(circuit=east_circuit)
+    
+    third_team = TeamFactory(circuit=third_circuit)
+    
+    player = west_team.members.first()
+    east_team.members.add(player)
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    
+    data = {
+        'invite_code': third_team.invite_code
+    }
+    
+    resp = client.join_team(
+        third_team.id, method='POST', data=data, expect_errors=True)
+    
+    assert resp.status_code == 400
+    assert not third_team.members.filter(id=player.id).exists()
+
+
+@mark.django_db
+def test_join_team_player_has_team_in_same_region_permission_denied(django_app):
+    """
+    Player can only be on one team per region.
+    """
+    west_circuit_1 = CircuitFactory(region='W',  tier='1')
+    season = west_circuit_1.season
+    west_circuit_2 = CircuitFactory(season=season, region='W',  tier='2')
+
+    west_team_1 = TeamFactory(circuit=west_circuit_1)
+    west_team_2 = TeamFactory(circuit=west_circuit_2)
+    
+    player = west_team_1.members.first()
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    
+    data = {
+        'invite_code': west_team_2.invite_code
+    }
+    
+    resp = client.join_team(
+        west_team_2.id, method='POST', data=data, expect_errors=True)
+    
+    assert resp.status_code == 400
+    assert not west_team_2.members.filter(id=player.id).exists()
+
+
+@mark.django_db
+def test_join_team_existing_member_permission_denied(django_app):
+    """
+    Cannot join a team if you already have are a member of the team.
+    """
+    team = TeamFactory()
+    player = team.members.first()
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    
+    data = {
+        'invite_code': team.invite_code
+    }
+    
+    resp = client.join_team(team.id, method='POST', data=data, expect_errors=True)
+    
+    assert resp.status_code == 400
+    assert team.members.filter(id=player.id).count() == 1

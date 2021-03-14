@@ -1,6 +1,6 @@
 from allauth.socialaccount.providers.discord.views import DiscordOAuth2Adapter
 from rest_framework import filters, status, viewsets
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth.models import User
@@ -23,7 +23,7 @@ from .serializers.beegame import PlayingSerializer, ReleaseSerializer
 from .serializers.matches import (
     GameSerializer, MatchSerializer, ResultSerializer, SetSerializer)
 from .serializers.teams import (
-    DynastySerializer, TeamSerializer, TeamDetailSerializer)
+    DynastySerializer, JoinTeamSerializer, TeamSerializer, TeamDetailSerializer)
 from .serializers.players import PlayerSerializer
 from .serializers.events import EventSerializer
 from .serializers.streams import StreamSerializer
@@ -145,6 +145,31 @@ class TeamViewSet(viewsets.ModelViewSet):
         player, created = Player.objects.get_or_create(user=self.request.user)
         team = serializer.save(captain=player)
         team.members.add(player)
+    
+    @action(
+        methods=['post'], detail=True,
+        permission_classes=[permissions.CanReadTeam]
+    )
+    def join(self, request, pk=None):
+        team = Team.objects.filter(pk=pk).first()
+        user = request.user
+        context = {'request': self.request, 'team': team}
+        serializer = JoinTeamSerializer(data=request.data, context=context)
+
+        if team:
+            # User CAN join team
+            if serializer.is_valid():
+                try:
+                    team.members.add(user.player)                    
+                    return Response({'status': 'joined team'})
+        
+                except user._meta.model.player.RelatedObjectDoesNotExist:
+                    pass
+                
+                
+        return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
+
 
 class DynastyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Dynasty.objects.all().order_by('name').distinct()

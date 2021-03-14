@@ -3,7 +3,7 @@ from leagues.models import Circuit
 from teams.models import Dynasty, Team
 
 from .players_nested import PlayerSerializerSummary
-from teams.permissions import can_create_team
+from teams.permissions import can_create_team, can_join_team
 
 
 class TeamPlayerSerializer(serializers.ModelSerializer):
@@ -54,7 +54,7 @@ class TeamSerializer(serializers.ModelSerializer):
 
     wins = serializers.IntegerField(read_only=True)
     losses = serializers.IntegerField(read_only=True)
-
+    
     class Meta:
         model = Team
         fields = [
@@ -171,7 +171,7 @@ class TeamDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'circuit', 'is_active', 'can_add_members', 'dynasty',
             'captain', 'home_matches', 'away_matches', 'members', 'modified',
-            'created', 'wins', 'losses' 
+            'created', 'wins', 'losses'
         ]
         depth = 2
 
@@ -180,10 +180,25 @@ class TeamDetailSerializer(serializers.ModelSerializer):
             'captain', 'home_matches', 'away_matches', 'members', 'modified',
             'created', 'wins', 'losses'
         ]
-    
+
     def validate(self, data):
         user = self.context['request'].user
         has_permission = can_create_team(data.get('circuit'), user)
+        
+        if has_permission:
+            return data
+
+        raise serializers.ValidationError('Permission Denied')
+
+class JoinTeamSerializer(serializers.Serializer):    
+    invite_code = serializers.CharField(max_length=8)
+
+    def validate(self, data):
+        team = self.context['team']
+        user = self.context['request'].user
+        invite_code = data['invite_code']
+
+        has_permission = can_join_team(team, user, invite_code)
         
         if has_permission:
             return data

@@ -69,3 +69,9 @@ class BuzzClient:
             url, data=data, method=method, expect_errors=expect_errors
         )
 
+    def join_team(self, id, data=None, method='POST', expect_errors=False):
+        url = f'{self.API_BASE}/teams/{id}/join/?format=json'
+        
+        return self.request(
+            url, data=data, method=method, expect_errors=expect_errors
+        )
