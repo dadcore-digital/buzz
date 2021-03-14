@@ -101,3 +101,82 @@ def test_create_team_registration_closed_permission_denied(django_app):
     assert resp.status_code == 400
     assert player.teams.all().count() == 0
     
+
+@mark.django_db
+def test_create_team_two_existing_team_permission_denied(django_app):
+    """
+    You can create two teams max per season.
+    """
+    player = PlayerFactory()
+    west_circuit = CircuitFactory(region='W',  tier='1')
+    season = west_circuit.season
+    east_circuit = CircuitFactory(region='E', tier='1', season=season)
+    all_circuit = CircuitFactory(region='A', tier='1', season=season)
+
+    TeamFactory(captain=player, circuit=west_circuit)
+    TeamFactory(captain=player, circuit=east_circuit)
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    
+    data = {
+        'name': 'My Third Team',
+        'circuit': all_circuit.id,
+    }
+    
+    resp = client.teams(None, method='POST', data=data, expect_errors=True)
+
+
+    assert resp.status_code == 400
+    assert player.teams.filter(captain=player).count() == 2
+
+@mark.django_db
+def test_create_team_existing_team_different_region_permission_granted(django_app):
+    """
+    You CAN create a second team in a season, if the region is DIFFERENT.
+    """
+    player = PlayerFactory()
+    west_circuit = CircuitFactory(region='W',  tier='1')
+    season = west_circuit.season
+    east_circuit = CircuitFactory(region='E', tier='1', season=season)
+
+    team = TeamFactory(circuit=west_circuit, captain=player)
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    
+    data = {
+        'name': 'My T1 East Team',
+        'circuit': east_circuit.id,
+    }
+    
+    resp = client.teams(None, method='POST', data=data, expect_errors=True)
+
+    assert resp.status_code == 201
+    assert player.teams.filter(captain=player).count() == 2
+    
+@mark.django_db
+def test_create_team_existing_team_same_region_permission_denied(django_app):
+    """
+    You CAN'T create two teams in a season, IF their regions are the SAME.
+    """
+    player = PlayerFactory()
+    west_circuit = CircuitFactory(region='W',  tier='1')
+    season = west_circuit.season
+    east_circuit = CircuitFactory(region='W', tier='2', season=season)
+
+    team = TeamFactory(circuit=west_circuit, captain=player)
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    
+    data = {
+        'name': 'My T2 West Team',
+        'circuit': west_circuit.id,
+    }
+    
+    resp = client.teams(None, method='POST', data=data, expect_errors=True)
+
+    assert resp.status_code == 400
+    assert player.teams.filter(captain=player).count() == 1
+
