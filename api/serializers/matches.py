@@ -1,6 +1,19 @@
 from rest_framework import serializers
 from matches.models import Game, Match, Result, Set
 
+
+class MatchPlayerSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        from players.models import Player
+        model = Player
+
+        fields = [
+            'id', 'name', 'name_phonetic', 'pronouns', 'discord_username',
+            'twitch_username', 'bio', 'emoji', 'avatar_url', 'modified',
+            'created'
+        ]
+
 class MatchTeamSummary(serializers.ModelSerializer):
     """
     Used in multiple match endpoints.
@@ -89,8 +102,7 @@ class MatchRoundSummarySerializer(serializers.ModelSerializer):
 
 class MatchTeamSerializer(serializers.ModelSerializer):
 
-    members = serializers.SlugRelatedField(
-        many=True, read_only=True, slug_field='name')
+    members = MatchPlayerSerializer(many=True, read_only=True)
     
     class Meta:
         from teams.models import Team
