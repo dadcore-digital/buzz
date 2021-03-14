@@ -97,7 +97,10 @@ class Team(models.Model):
         See doc string for generate_invite_code function (outside of this 
         model) for further details. 
         """
-        return _generate_invite_code()
+        new_invite_code = _generate_invite_code()
+        self.invite_code = new_invite_code
+        self.save()
+        return new_invite_code
 
     def __str__(self):
         if self.captain:

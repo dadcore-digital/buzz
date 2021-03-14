@@ -402,3 +402,44 @@ def test_join_team_existing_member_permission_denied(django_app):
     
     assert resp.status_code == 400
     assert team.members.filter(id=player.id).count() == 1
+
+@mark.django_db
+def test_regenerate_team_invite_code_access_granted(django_app):
+    """
+    Generate a new invite code if requester is team captain.
+    """
+    team = TeamFactory()
+    player = team.members.first()
+    current_invite_code = team.invite_code 
+    
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+        
+    resp = client.regenerate_invite_code(
+        team.id, method='GET', expect_errors=False)
+    
+    assert resp.status_code == 200
+    assert resp.json['invite_code'] != current_invite_code
+    
+    team.refresh_from_db()
+    assert team.invite_code != current_invite_code
+
+@mark.django_db
+def test_regenerate_team_invite_code_access_denied(django_app):
+    """
+    Do NOT generate a new invite code if requester is not team captain.
+    """
+    team = TeamFactory()
+    player = PlayerFactory()
+    current_invite_code = team.invite_code 
+    
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+        
+    resp = client.regenerate_invite_code(
+        team.id, method='GET', expect_errors=True)
+    
+    assert resp.status_code == 400
+
+    team.refresh_from_db()
+    assert team.invite_code == current_invite_code

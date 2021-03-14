@@ -37,6 +37,7 @@ from casters.models import Caster
 from players.models import Player
 from streams.models import Stream
 from teams.models import Dynasty, Team
+from teams.permissions import can_regenerate_team_invite_code
 
 
 class AwardViewSet(viewsets.ReadOnlyModelViewSet):
@@ -164,11 +165,34 @@ class TeamViewSet(viewsets.ModelViewSet):
                     return Response({'status': 'joined team'})
         
                 except user._meta.model.player.RelatedObjectDoesNotExist:
-                    pass
-                
+                    pass            
                 
         return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
+
+    @action(
+        methods=['get'], detail=True,
+        permission_classes=[permissions.CanReadTeam],
+        url_path='regenerate-invite-code'
+    )
+    def regenerate_invite_code(self, request, pk=None):
+        team = Team.objects.filter(pk=pk).first()
+        
+        has_permission = can_regenerate_team_invite_code(team, request.user)
+        
+        if has_permission:
+            new_invite_code = team.generate_invite_code()
+
+            return Response(
+                {
+                    'status': 'invite code regenerated',
+                    'invite_code': new_invite_code 
+                }
+            )
+        return Response(
+            {'error': 'permission denied'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class DynastyViewSet(viewsets.ReadOnlyModelViewSet):

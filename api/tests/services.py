@@ -62,6 +62,13 @@ class BuzzClient:
             url, data=data, method=method, expect_errors=expect_errors
         )
 
+    def regenerate_invite_code(self, id, data=None, method='GET', expect_errors=False):
+        url = f'{self.API_BASE}/teams/{id}/regenerate-invite-code/?format=json'
+        
+        return self.request(
+            url, method=method, expect_errors=expect_errors
+        )
+
     def teams(self, params, data=None, method='GET', expect_errors=False):
         
         url = f'{self.API_BASE}/teams/?{params}&format=json'
