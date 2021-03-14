@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from buzz.services import get_object_admin_link
-from .models import Alias, Player, PlayerSettings
+from .models import Alias, Player, PlayerSettings, IGLPlayerLookup
 
 class PlayerAdmin(admin.ModelAdmin):
 
@@ -43,6 +43,12 @@ class AliasAdmin(admin.ModelAdmin):
 
     autocomplete_fields = ['player']
 
+class IGLPlayerLookupAdmin(admin.ModelAdmin):
+    
+    list_display = ('igl_player_name', 'discord_username', 'discord_uid')
+    search_fields = ('igl_player_name', 'discord_username', 'discord_uid')
+
 admin.site.register(Player, PlayerAdmin)
 admin.site.register(Alias, AliasAdmin)
 admin.site.register(PlayerSettings)
+admin.site.register(IGLPlayerLookup, IGLPlayerLookupAdmin)

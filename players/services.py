@@ -1,7 +1,32 @@
 import csv
 from django.db import IntegrityError
-from players.models import Player, Alias
+from players.models import Player, Alias, IGLPlayerLookup
 
+def connect_user_to_player(user):
+    """
+    Connect a User object to an existing Player object.
+
+    For players who have existing Player objects in the system, but are
+    signing up as new users with Discord, we want them to have historical
+    access to their Player object, and not create a dupe one.
+    """
+    social_account = user.socialaccount_set.all().first()
+
+    if social_account:
+        igl_player = IGLPlayerLookup.objects.filter(
+            discord_uid=social_account.uid).first()
+        
+        if igl_player:
+            player = Player.objects.filter(
+                name__icontains=igl_player.igl_player_name).first()
+            
+            if player:
+                player.user = user
+                player.save()
+                return player
+    
+    return None
+        
 def parse_players_csv(csv_data):
     """
     Parse through CSV data of players, convert to a list of player data dicts.

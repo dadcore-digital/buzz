@@ -80,3 +80,8 @@ class PlayerSettings(models.Model):
 
     class Meta:
         verbose_name_plural = 'Settings'
+
+class IGLPlayerLookup(models.Model):
+    discord_uid = models.CharField(max_length=255)
+    discord_username = models.CharField(max_length=255)
+    igl_player_name = models.CharField(max_length=255)
