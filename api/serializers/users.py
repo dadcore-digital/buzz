@@ -9,8 +9,53 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['first_name']
 
 
+class MePlayerTeamSerializer(serializers.ModelSerializer):
+    
+    wins = serializers.IntegerField(read_only=True)
+    losses = serializers.IntegerField(read_only=True)
+    is_active = serializers.BooleanField(
+        read_only=True, source='circuit.season.is_active')
+    circuit_abbrev = serializers.SerializerMethodField()
+
+
+    class Meta:
+        from teams.models import Team
+        model = Team
+
+        fields = [
+            'id', 'name', 'circuit', 'is_active', 'wins', 'losses',
+            'circuit_abbrev'
+        ]
+
+    def get_circuit_abbrev(self, obj):
+        return f'{obj.circuit.tier}{obj.circuit.region}'
+
+
+class MePlayerAwardCategorySerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        from awards.models import AwardCategory
+        model = AwardCategory
+        fields = ['id', 'name']
+
+class PlayerAwardSerializer(serializers.ModelSerializer):
+    
+    award_category = MePlayerAwardCategorySerializer(many=False, read_only=True)
+    circuit = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
+
+    class Meta:
+        from awards.models import Award
+        model = Award
+        fields = [
+            'id', 'award_category', 'circuit', 'round', 'stats'
+        ]
+        depth = 1
+
 class MePlayerSerializer(serializers.ModelSerializer):
     
+    teams = MePlayerTeamSerializer(many=True, read_only=True)
+    awards = PlayerAwardSerializer(many=True, read_only=True)
+
     class Meta:
         from players.models import Player
         model = Player
@@ -18,7 +63,7 @@ class MePlayerSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'name_phonetic', 'pronouns', 'discord_username',
             'twitch_username', 'bio', 'emoji', 'avatar_url', 'modified',
-            'created', 'teams', 'award_summary'
+            'created', 'teams', 'awards'
         ]
 
 class MeSerializer(serializers.ModelSerializer):
