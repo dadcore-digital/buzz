@@ -1,7 +1,9 @@
+from random import randint
 import factory
 from factory.django import DjangoModelFactory
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
+from allauth.socialaccount.models import SocialAccount
 
 class UserFactory(DjangoModelFactory):
 
@@ -26,3 +28,15 @@ class TokenFactory(DjangoModelFactory):
         model = User
     
     user = factory.SubFactory(UserFactory)
+
+class SocialAccountFactory(DjangoModelFactory):
+    
+    class Meta:
+        model = SocialAccount
+
+    user = factory.SubFactory('buzz.tests.factories.UserFactory')
+    provider = 'discord'
+    uid = factory.LazyAttribute(
+        lambda x: randint(100000000000000000, 999999999999999999))
+    extra_data = "{}"
+

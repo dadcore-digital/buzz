@@ -4,8 +4,9 @@ from teams.tests.factories import TeamFactory
 from api.tests.services import BuzzClient
 from buzz.tests.factories import UserFactory
 
+
 @mark.django_db
-def test_get_teams_by_name(django_app):
+def test_get_players_by_name(django_app):
     """
     Get basic player data by player name
     """
@@ -179,32 +180,7 @@ def test_delete_player_self_permission_denied(django_app):
     
     player.refresh_from_db()
     assert player.id
-    
-@mark.django_db
-def test_delete_player_other_permission_denied(django_app):
-    """
-    Players cannot delete each other
-    """
-    player = PlayerFactory()
-    bad_player = PlayerFactory()
-
-    client = BuzzClient(
-        django_app, token=bad_player.get_or_create_token(), return_json=False)
-    
-    
-    data = {
-        'id': '12345',
-        'discord_username': 'admin'
-    }
-    
-    resp = client.player(player.id, method='DELETE', expect_errors=True) 
-    assert resp.status_code == 403
-    
-    player.refresh_from_db()
-    assert player.id
-
-
-@mark.django_db
+      
 def test_create_player_permission_denied(django_app):
     """
     Player cannot create arbitrary additional Players.
@@ -225,4 +201,3 @@ def test_create_player_permission_denied(django_app):
     
     resp = client.players(None, method='POST', data=data, expect_errors=True)
     assert resp.status_code == 405
-

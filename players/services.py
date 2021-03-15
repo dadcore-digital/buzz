@@ -18,7 +18,7 @@ def connect_user_to_player(user):
         
         if igl_player:
             player = Player.objects.filter(
-                name__icontains=igl_player.igl_player_name).first()
+                name__iexact=igl_player.igl_player_name).first()
             
             if player:
                 player.user = user
