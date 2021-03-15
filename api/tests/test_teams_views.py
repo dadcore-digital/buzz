@@ -206,6 +206,86 @@ def test_create_team_existing_team_same_region_permission_denied(django_app):
 
 
 @mark.django_db
+def test_rename_team_as_captain_permission_granted(django_app):
+    """
+    Get team detail view by object id as captain, to see special secret fields
+    """
+    team = TeamFactory()
+    player = team.captain   
+    client = BuzzClient(django_app, token=player.get_or_create_token())
+
+    data = {
+        'name': 'My New Team Name',
+    }
+
+    entry = client.team(team.id, method='PATCH', data=data)
+    assert entry['name'] == data['name']
+
+    team.refresh_from_db()
+    assert team.name == data['name']
+
+
+@mark.django_db
+def test_rename_team_as_captain_permission_granted_ignore_circuit(django_app):
+    """
+    Don't let a player change their circuit id in the patch update.
+    """
+    team = TeamFactory()
+    player = team.captain   
+    client = BuzzClient(django_app, token=player.get_or_create_token())
+
+    other_circuit = CircuitFactory()
+
+    data = {
+        'name': 'My New Team Name',
+        'ciruit': other_circuit.id
+    }
+
+    entry = client.team(team.id, method='PATCH', data=data)
+    
+    team.refresh_from_db()
+    assert team.circuit != other_circuit
+
+
+@mark.django_db
+def test_rename_team_as_member_permission_denied(django_app):
+    """
+    Don't let a member of team rename the team!
+    """
+    team = TeamFactory()
+    player = PlayerFactory()
+    team.members.add(player)
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+
+    data = {'name': 'My New Team Name'}
+    resp = client.team(team.id, method='PATCH', data=data, expect_errors=True)
+    
+    assert resp.status_code == 403
+    team.refresh_from_db()
+    assert team.name != data['name']
+
+
+@mark.django_db
+def test_rename_team_as_rando_permission_denied(django_app):
+    """
+    Don't let a random person rename the team!
+    """
+    team = TeamFactory()
+    player = PlayerFactory()
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+
+    data = {'name': 'My New Team Name'}
+    resp = client.team(team.id, method='PATCH', data=data, expect_errors=True)
+    
+    assert resp.status_code == 403
+    team.refresh_from_db()
+    assert team.name != data['name']
+    
+@mark.django_db
 def test_join_team_permission_granted(django_app):
     """
     Join a team with a valid invite code, with no previous team memberships

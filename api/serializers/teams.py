@@ -1,9 +1,10 @@
+from collections import OrderedDict
 from rest_framework import serializers
 from leagues.models import Circuit
 from teams.models import Dynasty, Team
 
 from .players_nested import PlayerSerializerSummary
-from teams.permissions import can_create_team, can_join_team
+from teams.permissions import can_create_team, can_rename_team, can_join_team
 
 
 class TeamPlayerSerializer(serializers.ModelSerializer):
@@ -70,8 +71,16 @@ class TeamSerializer(serializers.ModelSerializer):
     
     def validate(self, data):
         user = self.context['request'].user
-        has_permission = can_create_team(data.get('circuit'), user)
-        
+        if self.context['request'].method == 'PATCH':
+            has_permission = can_rename_team(self.instance, user)
+            
+            # Drop all fields but name
+            data = OrderedDict({'name': data['name']})
+            return data
+
+        elif self.context['request'].method == 'POST':
+            has_permission = can_create_team(data.get('circuit'), user)
+
         if has_permission:
             return data
 

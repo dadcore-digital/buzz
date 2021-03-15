@@ -42,6 +42,27 @@ def can_create_team(circuit, user):
 
     return False
 
+def can_rename_team(team, user):
+    """
+    Return True if requester is team captain and associated Season is active.
+    """
+    from teams.models import Team
+
+    if user.is_anonymous:
+        return False
+
+    try:
+        player = user.player
+
+    except user._meta.model.player.RelatedObjectDoesNotExist:
+        return False
+    
+    if team.captain == player:
+        if team.circuit.season.is_active:
+            return True
+        
+    return False
+
 def can_join_team(team, user, invite_code):
     """
     Can a requesting player join a Team?
@@ -100,22 +121,6 @@ def can_join_team(team, user, invite_code):
 def can_regenerate_team_invite_code(team, user):
     """
     Return True if requesting user is team captain.
-
-    Current permissions logic:
-        
-        1. User must be signed in and have a player record.
-
-        2. Player must pass a valid invite code for this team
-
-        3. Team.can_add_members() must return True, currently this means:
-           
-           - Season associated with team has `rosters_open=True`
-           - Team member count < seaon's `max_team_members`
-        
-        4. Player can be a member of max two teams in a season, and their
-           Region field must be set different. Tiers are not relevant.
-        
-        5. Player cannot already be a member of this team 
     """
     from teams.models import Team
 
