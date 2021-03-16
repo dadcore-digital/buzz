@@ -22,6 +22,12 @@ class CircuitFilter(filters.FilterSet):
     is_active = filters.BooleanFilter(
         field_name='season__is_active', label='Is Active?')
 
+    registration_open = filters.BooleanFilter(
+        field_name='season__registration_open', label='Registration Open?')
+
+    rosters_open = filters.BooleanFilter(
+        field_name='season__rosters_open', label='Rosters Open?')
+
     class Meta:
         model = Circuit
         fields = ['name', 'is_active']
