@@ -5,14 +5,14 @@ from .models import Match, Result, Set, Game
 
 class MatchAdmin(admin.ModelAdmin):
     
-    list_display = ('id', 'home', 'away', 'round', 'start_time', 'primary_caster')
+    list_display = ('id', 'home', 'away', 'round', 'start_time', 'primary_caster', 'created', 'modified')
     
     search_fields = (
         'home__name',
         'away__name',
         'circuit__name',
         'circuit__season__name',
-        'primary_caster__player__name',
+        'primary_caster__player__name'
     )
 
     def result(self):

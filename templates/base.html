@@ -3,15 +3,21 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0" >
-    <link media="all" rel="stylesheet" href="<link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0" >    
 
+    {% block css %}
+      <link media="all" rel="stylesheet" href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    {% endblock %}
+    {% block js %}{% endblock %}
   <title>Buzz</title>
   </head>
 
-  <body>
+  <body class="{% block bodycss %}{% endblock %}">
     {% block body %}
     {% endblock %}
+  
+  {% block bodyend %}
+  {% endblock %}
   </body>
 
 </html>

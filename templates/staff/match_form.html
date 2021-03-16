@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block bodycss %}bg-gray-200{% endblock %}
+{% block css %}
+
+  {{ matches_formset.media.css }}
+  <style>
+    .select2-container, .select2-selection__rendered, .select2-selection, .select2-selection--single {
+      width: 300px !important;
+      margin-right: 20px; 
+      font-size: 12px
+    }
+
+    label {
+      font-size: 12px;
+      margin-right: 4px;
+    }
+  </style>
+
+  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+
+  
+{% endblock %}
+
+{% block body %}
+<div class="p-10">
+  <h1 class="text-indigo-900 text-4xl mb-5">Add Matches</h1>
+  
+  {% if results %}
+    <div class="flex flex-col p-5 rounded-md mb-5 bg-purple-100 border-purple-200 border-2">
+    
+    <h2 class="text-xl italic mb-3">Saved</h2>
+    {% for match in results %}
+      <p class="text-sm text-purple-500">✅ {{ match.circuit.name }} {{ match.round.name }} :{{ match.away.name }} @ {{ match.home.name }} </p>
+    {% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="post" action=".">
+    
+    {% csrf_token %}
+      
+      <div class="flex flex-col">
+      {% for match_form in matches_formset %}
+
+        <div class="flex flex-row items-center mb-2">
+          {{ match_form }}
+        </div>
+      {% endfor %}
+      {{ matches_formset.management_form }}
+      </div>
+
+    <button type="submit" class="bg-indigo-800 text-white p-2 rounded-md mt-5 w-36">Save</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block bodyend %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  {{ matches_formset.media.js }}
+{% endblock %}

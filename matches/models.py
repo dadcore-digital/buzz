@@ -1,5 +1,6 @@
 import arrow
 from django.db import models
+from django.urls import reverse
 from buzz.services import trim_humanize
 from casters.models import Caster
 from leagues.models import Circuit, Round
@@ -56,6 +57,9 @@ class Match(models.Model):
         
     def __str__(self):
         return f'{self.away.name} @ {self.home.name}'
+
+    def get_absolute_url(self):
+        return reverse('match-detail', kwargs={'pk': self.pk})
 
 class Result(models.Model):
     """Winner, Loser, and statistics for a particular Match."""

@@ -13,7 +13,9 @@ urlpatterns = [
     path('dispatch/', DispatchAfterLogin.as_view(), name='dispatch'),
     path('logging-debug/', trigger_error),
     re_path(r'^accounts/', include('allauth.urls')),
-    path('admin/', admin.site.urls)
+    path('admin/', admin.site.urls),
+    path('staff/', include('staff.urls')),
+    path('select2/', include("django_select2.urls")),
 ]
 
 if settings.DEBUG:
