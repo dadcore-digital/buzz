@@ -11,6 +11,13 @@ SECURE_SSL_REDIRECT = True
 
 USE_X_FORWARDED_HOST = True
 
+# Session Settings
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+SESSION_CACHE_ALIAS = "default"
+
+# Select 2 Autocomplete Settings
+SELECT2_CACHE_BACKEND = "select2"
+
 # Database
 DATABASES = {
     'default': {
@@ -24,6 +31,24 @@ DATABASES = {
         }
     }
 }
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    },
+    'select2': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/2',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
 
 STATIC_ROOT = '/home/ianfitzpatrick/apps/buzz_static'
 MEDIA_ROOT = '/home/ianfitzpatrick/apps/buzz_media'
