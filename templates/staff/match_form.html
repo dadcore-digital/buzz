@@ -32,6 +32,7 @@
     <h2 class="text-xl italic mb-3">Saved</h2>
     {% for match in results %}
       <p class="text-sm text-purple-500">✅ {{ match.circuit.name }} {{ match.round.name }} :{{ match.away.name }} @ {{ match.home.name }} </p>
+
     {% endfor %}
     </div>
   {% endif %}
@@ -45,7 +46,17 @@
 
         <div class="flex flex-row items-center mb-2">
           {{ match_form }}
+          <button
+            tabindex="-1"
+            type="button"
+            class="text-xs rounded-lg px-3 py-1 border-purple-400 border text-purple-400 hover:bg-purple-400 hover:text-white"
+            onclick="$('#id_form-{{ forloop.counter0 }}-circuit').val('').trigger('change');$('#id_form-{{ forloop.counter0 }}-round').val('').trigger('change');$('#id_form-{{ forloop.counter0 }}-home').val('').trigger('change');$('#id_form-{{ forloop.counter0 }}-away').val('').trigger('change')";
+          >
+              <span>X</span>
+            </button>
         </div>
+            
+
       {% endfor %}
       {{ matches_formset.management_form }}
       </div>

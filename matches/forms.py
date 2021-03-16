@@ -6,6 +6,21 @@ from teams.models import Team
 
 class CircuitWidget(s2forms.ModelSelect2Widget):
 
+    def build_attrs(self, base_attrs, extra_attrs=None):
+        """Add select2 data attributes."""
+        default_attrs = {"data-minimum-input-length": 0}
+        default_attrs["data-allow-clear"] = "false"
+
+        default_attrs.update(base_attrs)
+        attrs = super().build_attrs(default_attrs, extra_attrs=extra_attrs)
+
+        if "class" in attrs:
+            attrs["class"] += " django-select2"
+        else:
+            attrs["class"] = "django-select2"
+        return attrs
+
+
     search_fields = [
         'name__icontains',
         'season__name__icontains',

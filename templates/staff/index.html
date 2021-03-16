@@ -1,8 +1,17 @@
 {% extends "base.html" %}
 
+{% block bodycss %}bg-gray-200 p-10{% endblock %}
 
 {% block body %}
 <div class="content">
-You are an admin!
+  <h1 class="text-indigo-900 text-4xl mb-5">BGL Broom Closet</h1>
+  <ul>
+    <li>
+      <a 
+        href="{% url 'staff_create_match' %}"
+        class="underline text-lg text-gray-800"
+      >Add-a-ton-of-matches</a>
+    </li>
+  </ul>
 </div>
 {% endblock %}
