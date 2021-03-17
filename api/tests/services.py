@@ -36,7 +36,14 @@ class BuzzClient:
                 url, headers=self.headers, expect_errors=expect_errors)
 
         return self.response_or_json(resp)
-    
+
+    def match(self, id, data=None, method='GET', expect_errors=False):
+        url = f'{self.API_BASE}/matches/{id}/?format=json'
+        
+        return self.request(
+            url, data=data, method=method, expect_errors=expect_errors
+        )
+
     def matches(self, params):
         resp = self.app.get(f'{self.API_BASE}/matches/?{params}&format=json')
         return self.response_or_json(resp)

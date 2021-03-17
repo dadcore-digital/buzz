@@ -1,4 +1,5 @@
 from rest_framework import permissions
+from matches.permissions import can_update_match_time
 from teams.permissions import can_create_team
 
 class CanReadPlayer(permissions.BasePermission):
@@ -57,4 +58,21 @@ class CanUpdateTeam(permissions.BasePermission):
             except AttributeError:
                 pass        
         
+        return False
+
+
+class CanReadMatch(permissions.BasePermission):
+    
+    def has_object_permission(self, request, view, team):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        
+        return False
+
+class CanUpdateMatchTime(permissions.BasePermission):
+    
+    def has_object_permission(self, request, view, match):
+        if request.method in ['PATCH']:
+            return can_update_match_time(match, request.user)
+
         return False

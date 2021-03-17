@@ -70,7 +70,7 @@ class RoundViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Round.objects.all().order_by('name')
     serializer_class = RoundSerializer
 
-class MatchViewSet(viewsets.ReadOnlyModelViewSet):
+class MatchViewSet(viewsets.ModelViewSet):
     queryset = Match.objects.all().order_by('round__round_number', 'start_time')
     queryset = queryset.select_related('circuit')
     queryset = queryset.select_related('home')
@@ -89,6 +89,10 @@ class MatchViewSet(viewsets.ReadOnlyModelViewSet):
 
     serializer_class = MatchSerializer
     filterset_class = MatchFilter
+    permission_classes = [
+        permissions.CanReadMatch|permissions.CanUpdateMatchTime
+    ]
+    http_method_names = ['get', 'patch']
 
 class ResultViewSet(viewsets.ReadOnlyModelViewSet):
 
