@@ -1,5 +1,6 @@
 from random import randint
 import factory
+from uuid import uuid4
 from factory.django import DjangoModelFactory
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
@@ -38,5 +39,19 @@ class SocialAccountFactory(DjangoModelFactory):
     provider = 'discord'
     uid = factory.LazyAttribute(
         lambda x: randint(100000000000000000, 999999999999999999))
-    extra_data = "{}"
+
+    extra_data = factory.LazyAttribute(
+        lambda obj: 
+            {
+                'id': obj.uid,
+                'username': obj.user.username,
+                'avatar': uuid4().hex,
+                'discriminator': randint(1000, 9999),
+                'public_flags': 0, 'flags': 0, 'locale': 'en-US',
+                'mfa_enabled': False,
+                'premium_type': 1,
+                'email': obj.user.username,
+                'verified': True
+            }
+        )
 
