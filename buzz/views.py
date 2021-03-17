@@ -45,6 +45,12 @@ class DispatchAfterLogin(View):
                             name=f'{request.user.username}{randint(100,999)}',
                             user=request.user
                         )
+            else:
+                player = request.user.player
+                
+            # Refresh player avatar on sign in
+            player.avatar_url = player.discord_avatar_url
+            player.save()
 
             url = settings.BGL_AUTH_HANDOFF_URL + f'/?token={token}'
             

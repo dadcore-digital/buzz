@@ -48,6 +48,21 @@ class Player(models.Model):
         
         return awards
 
+    @property
+    def discord_avatar_url(self):
+        """Retrieve a URL to a player's Discord avatar, given a Player object."""    
+        user = self.user
+        social_account = user.socialaccount_set.all().first()
+
+        if social_account:
+            uid = social_account.extra_data['id']
+            avatar = social_account.extra_data['avatar']
+            return f'https://cdn.discordapp.com/avatars/{uid}/{avatar}.png'
+
+        return None
+
+
+
     def get_or_create_token(self):
         """
         Return DRF auth token. Create if not present.
