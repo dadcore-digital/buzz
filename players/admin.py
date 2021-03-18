@@ -45,7 +45,7 @@ class AliasAdmin(admin.ModelAdmin):
 
 class IGLPlayerLookupAdmin(admin.ModelAdmin):
     
-    list_display = ('igl_player_name', 'discord_username', 'discord_uid')
+    list_display = ('igl_player_name', 'discord_username', 'discord_uid', 'discord_nick', 'discord_avatar_url')
     search_fields = ('igl_player_name', 'discord_username', 'discord_uid')
 
 admin.site.register(Player, PlayerAdmin)

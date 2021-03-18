@@ -27,7 +27,9 @@ DATABASES = {
         'PASSWORD': get_secret('DB_PASSWORD'),  # noqa: F405
         'HOST': '',
         'OPTIONS': {
-                'init_command': 'SET storage_engine=INNODB'
+                'init_command': 'SET storage_engine=INNODB;',
+                'charset': 'utf8mb4',
+                'use_unicode': True
         }
     }
 }

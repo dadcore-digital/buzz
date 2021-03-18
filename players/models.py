@@ -99,4 +99,7 @@ class PlayerSettings(models.Model):
 class IGLPlayerLookup(models.Model):
     discord_uid = models.CharField(max_length=255)
     discord_username = models.CharField(max_length=255)
-    igl_player_name = models.CharField(max_length=255)
+    discord_nick = models.CharField(max_length=255, blank=True, null=True)
+    discord_avatar_url = models.URLField(blank=True, null=True)
+    igl_player_name = models.CharField(max_length=255, blank=True, null=True)
+
