@@ -14,6 +14,7 @@ def connect_user_to_player(user):
     social_account = user.socialaccount_set.all().first()
 
     if social_account:
+        
         igl_player = IGLPlayerLookup.objects.filter(
             discord_uid=social_account.uid).first()
         
@@ -77,11 +78,17 @@ def import_igl_discord_player_data(
 
     for user in users:
         if (
-            'iglname' in user.keys() and
             'id' in user.keys()
         ):
             igl_player = IGLPlayerLookup()
-            igl_player.igl_player_name = user['iglname']
+
+            # Some discord users we have in file have no associated IGL
+            # name, but may have a player object none the less. We can
+            # still associate them to their Player object via their 
+            # discord username, so we don't skip them.
+            if 'iglname' in user.keys():
+                igl_player.igl_player_name = user['iglname']
+            
             igl_player.discord_uid = user['id']
             igl_player.discord_username = user['username']
             igl_player.discord_avatar_url = user['avatar_url']
@@ -100,13 +107,13 @@ def import_igl_discord_player_data(
                 # Attempt to get by discord username if player name doesn't work
                 if not player:
                     player = Player.objects.filter(
-                        discord_username__iexact=igl_player.discord_username)
+                        discord_username__iexact=igl_player.discord_username).first()
                 
                 if player:
                     if not player.avatar_url:
                         player.avatar_url = igl_player.discord_avatar_url
                         player.save() 
-                        print(f'Updating player avatar for{player.name}')
+                        print(f'Updating player avatar for {player.name}')
 
 def parse_players_csv(csv_data):
     """
