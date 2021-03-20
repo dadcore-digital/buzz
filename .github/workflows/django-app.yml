@@ -45,4 +45,4 @@ jobs:
         SSH_KEY_PATH: ${{ github.workspace }}/../private.key
     
     - name: Deploy to Server
-      run: ssh -i $SSH_KEY_PATH ${{GITDEPLOY_SSH_USER_HOSTNAME}} python3 ${{STAGING_REMOTE_PROJECT_PATH}}/deploy.py
+      run: ssh -i $SSH_KEY_PATH ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} python3 ${{secrets.STAGING_REMOTE_PROJECT_PATH}}/deploy.py
