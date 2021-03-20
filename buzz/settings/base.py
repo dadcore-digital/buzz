@@ -35,6 +35,7 @@ def get_secret(secret_name):
 SECRET_KEY = get_secret('SECRET_KEY')
 
 DEBUG = True
+DEBUG_TOOLBAR = False
 ALLOWED_HOSTS = []
 
 # Application definition

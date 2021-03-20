@@ -18,11 +18,15 @@ urlpatterns = [
     path('select2/', include("django_select2.urls")),
 ]
 
-if settings.DEBUG:
+if settings.DEBUG_TOOLBAR:
 
     urlpatterns += [
         path('__debug__/', include(debug_toolbar.urls)),        
-    ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    ] 
+
+if settings.DEBUG:
+    
+    urlpatterns + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += [        
 

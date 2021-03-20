@@ -2,6 +2,7 @@ from .base import *
 
 ALLOWED_HOSTS = ['buzz.local']
 DEBUG = True
+DEBUG_TOOLBAR = True
 INTERNAL_IPS = ('127.0.0.1', '192.168.56.2', '192.168.56.1', '192.168.56.2')
 
 STATIC_ROOT = '/var/www/buzz_static/'
