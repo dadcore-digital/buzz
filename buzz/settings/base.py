@@ -17,16 +17,20 @@ def get_secret(secret_name):
     settings files, or risk circular imports.
     """
     # Secrets file location
-    secrets_file = f'{PROJECT_DIR}/settings/secrets.json'
+    if 'GET_SECRETS_FROM_ENV' in os.environ.keys():
+        return os.environ[secret_name]
 
-    with open(secrets_file) as f:
-        secrets_file = json.loads(f.read())
-    try:
-        return str(secrets_file[secret_name])
+    else:
+        secrets_file = f'{PROJECT_DIR}/settings/secrets.json'
 
-    except KeyError:
-        error_msg = 'Missing secrets file.'
-        raise Exception(error_msg)
+        with open(secrets_file) as f:
+            secrets_file = json.loads(f.read())
+        try:
+            return str(secrets_file[secret_name])
+
+        except KeyError:
+            error_msg = 'Missing secrets file.'
+            raise Exception(error_msg)
 
 SECRET_KEY = get_secret('SECRET_KEY')
 

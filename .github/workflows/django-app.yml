@@ -12,6 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DJANGO_SETTINGS_MODULE: buzz.settings.github
+      GET_SECRETS_FROM_ENV: true
+      SECRET_KEY: dontusethisanywhereelse3jFF8gbVcEcdontusethisanywCrbDHKEZVM
+      TWITCH_CLIENT_ID: abc123
+      TWITCH_CLIENT_SECRET: abc123
 
     steps:
     - uses: actions/checkout@v2
