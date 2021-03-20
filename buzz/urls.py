@@ -3,7 +3,6 @@ from django.conf import settings
 from django.urls import path, re_path
 from django.conf.urls import url, include
 from django.conf.urls.static import static
-import debug_toolbar
 from .views import Home, DispatchAfterLogin, trigger_error
 
 admin.site.site_header = 'Buzz Administration'
@@ -21,7 +20,7 @@ urlpatterns = [
 if settings.DEBUG_TOOLBAR:
 
     urlpatterns += [
-        path('__debug__/', include(debug_toolbar.urls)),        
+        path('__debug__/', include('debug_toolbar.urls')),        
     ] 
 
 if settings.DEBUG:
