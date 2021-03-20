@@ -31,3 +31,18 @@ jobs:
       run: python manage.py migrate
     - name: Run tests
       run: pytest
+  
+    - name: Create SSH key
+      run: |
+        mkdir -p ~/.ssh/
+        echo "$SSH_PRIVATE_KEY" > ../private.key
+        sudo chmod 600 ../private.key
+        echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+      shell: bash
+      env:
+        SSH_PRIVATE_KEY: ${{secrets.GITDEPLOY_SSH_PRIVATE_KEY}}
+        SSH_KNOWN_HOSTS: ${{secrets.GITDEPLOY_SSH_KNOWN_HOSTS}}
+        SSH_KEY_PATH: ${{ github.workspace }}/../private.key
+    
+    - name: Deploy to Server
+      run: ssh -i $SSH_KEY_PATH ${{GITDEPLOY_SSH_USER_HOSTNAME}} python3 ${{STAGING_REMOTE_PROJECT_PATH}}/deploy.py
