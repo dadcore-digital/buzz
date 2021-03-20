@@ -42,7 +42,9 @@ jobs:
       env:
         SSH_PRIVATE_KEY: ${{secrets.GITDEPLOY_SSH_PRIVATE_KEY}}
         SSH_KNOWN_HOSTS: ${{secrets.GITDEPLOY_SSH_KNOWN_HOSTS}}
-        SSH_KEY_PATH: ${{ github.workspace }}/../private.key
-    
+
     - name: Deploy to Server
       run: ssh -i $SSH_KEY_PATH -t ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} python3 ${{secrets.STAGING_REMOTE_PROJECT_PATH}}/deploy.py
+      env:
+        SSH_KEY_PATH: ${{ github.workspace }}/../private.key
+    
