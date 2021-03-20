@@ -19,8 +19,11 @@ urlpatterns = [
 
 if settings.DEBUG_TOOLBAR:
 
+    # Does not exist in CI
+    import debug_toolbar
+
     urlpatterns += [
-        path('__debug__/', include('debug_toolbar.urls')),        
+        path('__debug__/', include(debug_toolbar.urls)),        
     ] 
 
 if settings.DEBUG:
