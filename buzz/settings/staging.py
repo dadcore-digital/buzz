@@ -18,6 +18,10 @@ SESSION_CACHE_ALIAS = "default"
 # Select 2 Autocomplete Settings
 SELECT2_CACHE_BACKEND = "select2"
 
+INSTALLED_APPS += [
+    'django_extensions'
+]
+
 # Database
 DATABASES = {
     'default': {

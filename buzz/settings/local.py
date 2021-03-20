@@ -21,6 +21,10 @@ SELECT2_CACHE_BACKEND = "select2"
 
 MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
 
+INSTALLED_APPS += [
+    'django_extensions'
+]
+
 # Database
 DATABASES = {
     'default': {
