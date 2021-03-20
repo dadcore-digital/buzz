@@ -3,7 +3,7 @@ from players.models import Player
 from players.tests.factories import IGLPlayerLookupFactory, PlayerFactory
 from buzz.tests.factories import UserFactory, SocialAccountFactory
 
-@mark.django_db
+@mark.django_db(transaction=True)
 def test_discord_login_page(django_app):
     """
     Discord login should be a static page with text 'Buzz API' and a login link
@@ -12,7 +12,7 @@ def test_discord_login_page(django_app):
     resp.mustcontain('Buzz API')
 
 
-@mark.django_db
+@mark.django_db(transaction=True)
 def test_dispatch_create_player(django_app):
     """
     Sign up with a new Player object.
@@ -40,7 +40,7 @@ def test_dispatch_create_player(django_app):
     assert user.player == player
 
 
-@mark.django_db
+@mark.django_db(transaction=True)
 def test_dispatch_login_has_user_has_player(django_app):
     """
     Sign in a user with an existing account and player object
@@ -64,7 +64,7 @@ def test_dispatch_login_has_user_has_player(django_app):
     assert user.player == player
 
     
-@mark.django_db
+@mark.django_db(transaction=True)
 def test_dispatch_create_player_has_historical_player_object(django_app):
     """
     Sign up with a new Player object has old IGL player object in database.
@@ -90,7 +90,7 @@ def test_dispatch_create_player_has_historical_player_object(django_app):
     assert user.player == player
 
 
-@mark.django_db
+@mark.django_db(transaction=True)
 def test_dispatch_create_player_conflicting_player_object(django_app):
     """
     Sign up as a new Player when another user has the same Player name.
