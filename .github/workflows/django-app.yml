@@ -23,6 +23,12 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.7.5
+
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.github.txt') }}
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -51,6 +57,6 @@ jobs:
     - name: Post results to \#tech-logs
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_DEPLOY_WEBHOOK }}
-      uses: Ilshidur/action-discord@8135f7f
+      uses: Ilshidur/action-discord@8135f7f8f567c49fa55ada203fcf37b4888a4001
       with:
         args: '{{ EVENT_PAYLOAD.repository.full_name }} passed all tests has been deployed to staging.'    
