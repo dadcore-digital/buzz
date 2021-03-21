@@ -91,11 +91,4 @@ class CanCreateResult(permissions.BasePermission):
         
     def has_permission(self, request, view):
         if request.method in ['POST']:
-            match = Match.objects.filter(id=request.data['match']).first()
-            
-            # Can't submit results for a bogus Match
-            if not match:
-                return False
-
-            return can_create_result(match, request.user)
-
+            return True

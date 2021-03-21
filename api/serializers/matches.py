@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from matches.models import Game, Match, Result, Set
+from matches.permissions import can_create_result
 from teams.models import Team
 
 class MatchPlayerSerializer(serializers.ModelSerializer):
@@ -123,6 +124,11 @@ class ResultSerializer(serializers.ModelSerializer):
         - Set winner & loser must be same as teams associated with Match
         """
         teams = [data['match'].home, data['match'].away]
+        user = self.context['request'].user
+        
+        if not can_create_result(data['match'], user):
+            raise serializers.ValidationError('Permission Denied')
+
         if (
             data['winner'] not in teams or
             data['loser'] not in teams

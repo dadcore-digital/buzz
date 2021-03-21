@@ -86,7 +86,7 @@ def test_create_result_not_captain_permission_denied(django_app):
     }
 
     resp = client.results(None, method='POST', data=data, expect_errors=True)
-    assert resp.status_code == 403
+    assert resp.status_code == 400
     
     match.refresh_from_db()
     assert not hasattr(match, 'result')
@@ -122,7 +122,7 @@ def test_create_result_has_result_permission_denied(django_app):
     }
 
     resp = client.results(None, method='POST', data=data, expect_errors=True)
-    assert resp.status_code == 403
+    assert resp.status_code == 400
     
     match.refresh_from_db()
     assert match.result.id == result_id
