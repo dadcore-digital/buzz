@@ -2,9 +2,9 @@ name: Buzz API Django App
 
 on:
   push:
-    branches: [ mvp ]
+    branches: [ mvp-dev ]
   pull_request:
-    branches: [ mvp ]
+    branches: [ mvp-dev ]
 
 jobs:
   build:
