@@ -94,7 +94,7 @@ class MatchViewSet(viewsets.ModelViewSet):
     ]
     http_method_names = ['get', 'patch']
 
-class ResultViewSet(viewsets.ReadOnlyModelViewSet):
+class ResultViewSet(viewsets.ModelViewSet):
 
     queryset = Result.objects.all().order_by('id')
     queryset = queryset.prefetch_related('loser__circuit__season')

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from matches.models import Game, Match, Result, Set
-
+from teams.models import Team
 
 class MatchPlayerSerializer(serializers.ModelSerializer):
     
@@ -59,17 +59,66 @@ class SetSerializer(serializers.ModelSerializer):
 ###################
 # Result Endpoint #
 ###################
-class ResultSerializer(serializers.ModelSerializer):
-    winner = MatchTeamSummary()
-    loser = MatchTeamSummary()
-    sets = SetSerializer(many=True)
+################
+class ResultSetSerializer(serializers.ModelSerializer):
 
-    status = serializers.CharField(source='get_status_display')
-    
+    winner = serializers.PrimaryKeyRelatedField(
+        many=False, read_only=False,
+        queryset=Team.objects.all(),
+        style={'base_template': 'input.html'}
+    )
+
+    loser = serializers.PrimaryKeyRelatedField(
+        many=False, read_only=False,
+        queryset=Team.objects.all(),
+        style={'base_template': 'input.html'}
+    )
+
+    class Meta:
+        model = Set
+        fields = [
+            'id', 'number', 'winner', 'loser'
+        ]
+
+class ResultSerializer(serializers.ModelSerializer):
+
+    winner = serializers.PrimaryKeyRelatedField(
+        many=False, read_only=False,
+        queryset=Team.objects.all(),
+        style={'base_template': 'input.html'}
+    )
+
+    loser = serializers.PrimaryKeyRelatedField(
+        many=False, read_only=False,
+        queryset=Team.objects.all(),
+        style={'base_template': 'input.html'}
+    )
+
+    sets = ResultSetSerializer(many=True)
+
+    match = serializers.PrimaryKeyRelatedField(
+        many=False, read_only=False,
+        queryset=Match.objects.filter(
+            circuit__season__is_active=True, result__isnull=True
+        ),
+        style={'base_template': 'input.html'}
+    )
+
+    status = serializers.CharField()
+
+    def create(self, validated_data):
+        sets_data = validated_data.pop('sets')
+        result = Result.objects.create(**validated_data)
+        
+        for data in sets_data:
+            Set.objects.create(result=result, **data)
+
+        return result
+        
     class Meta:
         model = Result
         fields = [
-            'id', 'status', 'winner', 'loser', 'sets'
+            'id', 'match', 'status', 'winner', 'loser', 'sets'
         ]
 
 ##################

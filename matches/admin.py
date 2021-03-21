@@ -51,6 +51,8 @@ class ResultAdmin(admin.ModelAdmin):
         return sets
     
     readonly_fields = (sets,)    
+    autocomplete_fields = ['match', 'winner', 'loser']
+
 
 class SetAdmin(admin.ModelAdmin):
     
@@ -64,6 +66,7 @@ class SetAdmin(admin.ModelAdmin):
         return result_link
 
     readonly_fields = (result,)
+    autocomplete_fields = ['result', 'winner', 'loser']
 
 
 admin.site.register(Match, MatchAdmin)
