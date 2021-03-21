@@ -60,4 +60,4 @@ jobs:
         DISCORD_EMBEDS: '[{"title": "api-staging.beegame.gg", "description": "All tests passed, migrations ran, deployed! <:dancebluestripes:811497254329253909> "}]'
       uses: Ilshidur/action-discord@8135f7f8f567c49fa55ada203fcf37b4888a4001
       with:
-        args: ''    
+        args: ''
