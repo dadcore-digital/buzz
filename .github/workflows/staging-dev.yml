@@ -13,9 +13,9 @@ jobs:
     env:
       DJANGO_SETTINGS_MODULE: buzz.settings.github
       GET_SECRETS_FROM_ENV: true
-      SECRET_KEY: dontusethisanywhereelse3jFF8gbVcEcdontusethisanywCrbDHKEZVM
-      TWITCH_CLIENT_ID: abc123
-      TWITCH_CLIENT_SECRET: abc123
+      SECRET_KEY: ${{secrets.CI_DJANGO_SECRET_KEY}}
+      TWITCH_CLIENT_ID: ${{secrets.TWITCH_CLIENT_ID}}
+      TWITCH_CLIENT_SECRET: ${{secrets.TWITCH_CLIENT_SECRET}}
 
     steps:
     - uses: actions/checkout@v2
@@ -25,6 +25,7 @@ jobs:
         python-version: 3.7.5
 
     - uses: actions/cache@v2
+      id: cache
       with:
         path: ~/.cache/pip
         key: ${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.github.txt') }}
