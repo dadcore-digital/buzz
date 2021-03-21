@@ -47,4 +47,10 @@ jobs:
       run: ssh -i $SSH_KEY_PATH -t ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} python3 ${{secrets.STAGING_REMOTE_PROJECT_PATH}}/deploy.py
       env:
         SSH_KEY_PATH: ${{ github.workspace }}/../private.key
-    
+
+    - name: Post results to \#tech-logs
+      env:
+        DISCORD_WEBHOOK: ${{ secrets.DISCORD_DEPLOY_WEBHOOK }}
+      uses: Ilshidur/action-discord@8135f7f
+      with:
+        args: '{{ EVENT_PAYLOAD.repository.full_name }} passed all tests has been deployed to staging.'    
