@@ -57,7 +57,7 @@ jobs:
     - name: Post results to \#tech-logs
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_DEPLOY_WEBHOOK }}
-        DISCORD_EMBEDS: {"embeds": [{"title": "We Just Deployed", "description": "**api-staging.beegame.gg**: All tests passed, migrations ran."}]}
+        DISCORD_EMBEDS: ${{ toJson({"embeds": [{"title": "We Just Deployed", "description": "**api-staging.beegame.gg**: All tests passed, migrations ran."}]}) }}
       uses: Ilshidur/action-discord@8135f7f8f567c49fa55ada203fcf37b4888a4001
       with:
         args: ''    
