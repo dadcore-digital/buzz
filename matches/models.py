@@ -168,15 +168,6 @@ class Game(models.Model):
         null=True
     )
 
-    home_berries = models.PositiveSmallIntegerField(blank=True, default=True)
-    away_berries = models.PositiveSmallIntegerField(blank=True, default=True)
-
-    home_snail = models.PositiveSmallIntegerField(blank=True, default=True)
-    away_snail = models.PositiveSmallIntegerField(blank=True, default=True)
-
-    home_queen_deaths = models.PositiveSmallIntegerField(blank=True, default=True)
-    away_queen_deaths = models.PositiveSmallIntegerField(blank=True, default=True)
-
     WIN_CONDITION_CHOICES = (
         ('E', 'Economic'),
         ('M', 'Military'),
