@@ -114,7 +114,40 @@ class ResultSerializer(serializers.ModelSerializer):
             Set.objects.create(result=result, **data)
 
         return result
-        
+
+    def validate(self, data):
+        """
+        In order for Result/Set data to be valid, they must:
+
+        - Result winner & loser must be same as teams associated with Match
+        - Set winner & loser must be same as teams associated with Match
+        """
+        teams = [data['match'].home, data['match'].away]
+        if (
+            data['winner'] not in teams or
+            data['loser'] not in teams
+        ): 
+             raise serializers.ValidationError(
+                 'Result Winner and Loser must be associated with Match')
+
+        if len(data['sets']) < 3:
+             raise serializers.ValidationError(
+                 'You must include results for at least three Sets.')
+
+        if len(data['sets']) > 5:
+             raise serializers.ValidationError(
+                 'You cannot include more than five Sets.')
+
+        for set in data['sets']:
+            if (
+                set['winner'] not in teams or
+                set['loser'] not in teams
+            ): 
+                raise serializers.ValidationError(
+                    'Set Winner and Loser must be associated with Match')
+
+        return data
+
     class Meta:
         model = Result
         fields = [

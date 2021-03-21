@@ -1,5 +1,6 @@
 from rest_framework import permissions
-from matches.permissions import can_update_match_time
+from matches.permissions import can_create_result, can_update_match_time
+from matches.models import Match
 from teams.permissions import can_create_team
 
 class CanReadPlayer(permissions.BasePermission):
@@ -76,3 +77,25 @@ class CanUpdateMatchTime(permissions.BasePermission):
             return can_update_match_time(match, request.user)
 
         return False
+
+class CanReadResult(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        return request.method in permissions.SAFE_METHODS
+
+    def has_object_permission(self, request, view, team):
+        return request.method in permissions.SAFE_METHODS
+
+
+class CanCreateResult(permissions.BasePermission):
+        
+    def has_permission(self, request, view):
+        if request.method in ['POST']:
+            match = Match.objects.filter(id=request.data['match']).first()
+            
+            # Can't submit results for a bogus Match
+            if not match:
+                return False
+
+            return can_create_result(match, request.user)
+

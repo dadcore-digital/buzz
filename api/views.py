@@ -104,6 +104,12 @@ class ResultViewSet(viewsets.ModelViewSet):
     
     serializer_class = ResultSerializer
 
+    permission_classes = [
+        permissions.CanReadResult|permissions.CanCreateResult
+    ]
+
+    http_method_names = ['get', 'post']
+
 class SetViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Set.objects.all().order_by('id')
     queryset = queryset.prefetch_related('loser__circuit')

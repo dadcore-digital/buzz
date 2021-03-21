@@ -76,6 +76,13 @@ class BuzzClient:
             url, method=method, expect_errors=expect_errors
         )
 
+    def results(self, params, data=None, method='GET', expect_errors=False):
+        
+        url = f'{self.API_BASE}/results/?{params}&format=json'
+        return self.request(
+            url, data=data, method=method, expect_errors=expect_errors
+        )
+
     def teams(self, params, data=None, method='GET', expect_errors=False):
         
         url = f'{self.API_BASE}/teams/?{params}&format=json'
