@@ -1,4 +1,4 @@
-name: Staging Dev Run Test
+name: Staging Run Tests
 
 on:
   push:
