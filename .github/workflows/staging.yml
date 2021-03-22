@@ -1,4 +1,4 @@
-name: Buzz API Django App
+name: Staging Run Tests & Deploy
 
 on:
   push:
