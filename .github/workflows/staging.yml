@@ -51,7 +51,12 @@ jobs:
         SSH_KNOWN_HOSTS: ${{secrets.GITDEPLOY_SSH_KNOWN_HOSTS}}
 
     - name: Deploy to Server
-      run: ssh -i $SSH_KEY_PATH -t ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} python3 ${{secrets.STAGING_REMOTE_PROJECT_PATH}}/deploy.py
+      run: |
+        ssh -i $SSH_KEY_PATH -t ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} "cd ${{secrets.STAGING_REMOTE_PROJECT_PATH}};/usr/bin/git pull"
+        ssh -i $SSH_KEY_PATH -t ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} "${{secrets.STAGING_REMOTE_PROJECT_PATH}}/env/bin/python ${{secrets.STAGING_REMOTE_PROJECT_PATH}}/buzz/manage.py migrate --settings=buzz.settings.staging"
+        ssh -i $SSH_KEY_PATH -t ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} "${{secrets.STAGING_REMOTE_PROJECT_PATH}}/env/bin/python ${{secrets.STAGING_REMOTE_PROJECT_PATH}}/buzz/manage.py collectstatic --no-input --settings=buzz.settings.staging"
+        ssh -i $SSH_KEY_PATH -t ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} "${{secrets.STAGING_REMOTE_PROJECT_PATH}}/stop"
+        ssh -i $SSH_KEY_PATH -t ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} "${{secrets.STAGING_REMOTE_PROJECT_PATH}}/start"
       env:
         SSH_KEY_PATH: ${{ github.workspace }}/../private.key
 
