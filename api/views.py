@@ -21,7 +21,9 @@ from .serializers.leagues import (
 from api import permissions
 from .serializers.beegame import PlayingSerializer, ReleaseSerializer
 from .serializers.matches import (
-    GameSerializer, MatchSerializer, ResultSerializer, SetSerializer)
+    GameSerializer, MatchSerializer, ResultSerializer, SetSerializer,
+    SetDetailSerializer
+)
 from .serializers.teams import (
     DynastySerializer, JoinTeamSerializer, TeamSerializer, TeamDetailSerializer)
 from .serializers.players import PlayerSerializer
@@ -117,6 +119,15 @@ class SetViewSet(viewsets.ReadOnlyModelViewSet):
 
     serializer_class = SetSerializer
 
+    def retrieve(self, request, pk=None):
+        queryset = self.get_queryset()       
+        queryset = queryset.prefetch_related('loser__circuit')
+        queryset = queryset.prefetch_related('winner__circuit')
+
+        set = queryset.filter(id=pk).first()
+        serializer = SetDetailSerializer(set, context={'request': request})
+        return Response(serializer.data)
+        
 class GameViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Game.objects.all().order_by('id')
     serializer_class = GameSerializer

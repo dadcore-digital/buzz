@@ -137,7 +137,19 @@ class Set(models.Model):
 
     def __str__(self):
         return f'Set {self.number}: {self.winner.name}'
-        
+
+class SetLog(models.Model):
+    """Log data for a set, should be a single JSONField."""
+    set = models.OneToOneField(
+        Set, related_name='log', on_delete=models.CASCADE
+    )
+
+    filename = models.CharField(max_length=255, blank=True, null=True)
+    body = models.JSONField()
+
+    def __str__(self):
+        return f'Log Data for {self.set}'
+
 class Game(models.Model):
     """A single map played in a Set."""
     number = models.PositiveSmallIntegerField(default=1)

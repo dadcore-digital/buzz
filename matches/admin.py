@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from buzz.services import get_object_admin_link
-from .models import Match, Result, Set, Game
+from .models import Match, Result, Set, SetLog, Game
 
 class MatchAdmin(admin.ModelAdmin):
     
@@ -66,10 +66,18 @@ class SetAdmin(admin.ModelAdmin):
         return result_link
 
     readonly_fields = (result,)
+    search_fields = [
+        'match__home__name',
+        'match__away__name'
+    ]
     autocomplete_fields = ['result', 'winner', 'loser']
 
+class SetLogAdmin(admin.ModelAdmin):
+
+    autocomplete_fields = ['set']
 
 admin.site.register(Match, MatchAdmin)
 admin.site.register(Result, ResultAdmin)
 admin.site.register(Set, SetAdmin)
+admin.site.register(SetLog, SetLogAdmin)
 admin.site.register(Game)

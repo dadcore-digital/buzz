@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from matches.models import Game, Match, Result, Set
+from matches.models import Game, Match, Result, Set, SetLog
 from matches.permissions import can_create_result
 from teams.models import Team
 
@@ -48,13 +48,30 @@ class GameSerializer(serializers.ModelSerializer):
 ################
 class SetSerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model = Set
+        fields = [
+            'id', 'number', 'winner', 'loser', 'log'
+        ]
+
+class SetDetailLogSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = SetLog
+        fields = [
+            'id', 'filename', 'body'
+        ]
+
+class SetDetailSerializer(serializers.ModelSerializer):
+    
     winner = MatchTeamSummary()
     loser = MatchTeamSummary()
+    log = SetDetailLogSerializer()
 
     class Meta:
         model = Set
         fields = [
-            'id', 'number', 'winner', 'loser'
+            'id', 'number', 'winner', 'loser', 'log'
         ]
 
 ###################
