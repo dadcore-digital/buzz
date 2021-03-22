@@ -65,7 +65,16 @@ class SetAdmin(admin.ModelAdmin):
 
         return result_link
 
-    readonly_fields = (result,)
+    def log(self):
+        log_link = ''
+
+        if self.log:
+            log_link = get_object_admin_link(self.log, self.log)
+            log_link = mark_safe(log_link)
+
+        return log_link
+
+    readonly_fields = (result, log)
     search_fields = [
         'match__home__name',
         'match__away__name'
