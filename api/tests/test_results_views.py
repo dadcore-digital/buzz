@@ -87,6 +87,7 @@ def test_create_result_not_captain_permission_denied(django_app):
 
     resp = client.results(None, method='POST', data=data, expect_errors=True)
     assert resp.status_code == 400
+    assert resp.json['non_field_errors'][0] == 'Permission Error: Only team captains can submit match results.'
     
     match.refresh_from_db()
     assert not hasattr(match, 'result')
@@ -100,7 +101,7 @@ def test_create_result_has_result_permission_denied(django_app):
     result = ResultFactory()
     match = result.match
     player = match.home.captain
-
+    
     result_id = result.id
     client = BuzzClient(
         django_app, token=player.get_or_create_token(), return_json=False)
@@ -123,7 +124,7 @@ def test_create_result_has_result_permission_denied(django_app):
 
     resp = client.results(None, method='POST', data=data, expect_errors=True)
     assert resp.status_code == 400
-    
+
     match.refresh_from_db()
     assert match.result.id == result_id
 
@@ -152,7 +153,7 @@ def test_create_result_not_enough_sets_permission_denied(django_app):
 
     resp = client.results(None, method='POST', data=data, expect_errors=True)
     assert resp.status_code == 400
-    assert resp.json['non_field_errors'][0] == 'You must include results for at least three Sets.'
+    assert resp.json['non_field_errors'][0] == 'Validation Error: You must include results for at least three Sets.'
 
     match.refresh_from_db()
     assert not hasattr(match, 'result')
@@ -188,7 +189,7 @@ def test_create_result_too_many_sets_permission_denied(django_app):
 
     resp = client.results(None, method='POST', data=data, expect_errors=True)
     assert resp.status_code == 400
-    assert resp.json['non_field_errors'][0] == 'You cannot include more than five Sets.'
+    assert resp.json['non_field_errors'][0] == 'Validation Error: You cannot include more than five Sets.'
 
     match.refresh_from_db()
     assert not hasattr(match, 'result')
@@ -223,7 +224,7 @@ def test_create_result_winner_must_be_match_team_permission_denied(django_app):
     resp = client.results(None, method='POST', data=data, expect_errors=True)
 
     assert resp.status_code == 400
-    assert resp.json['non_field_errors'][0] == 'Result Winner and Loser must be associated with Match'
+    assert resp.json['non_field_errors'][0] == 'Validation Error: Result Winner and Loser must be associated with Match'
 
     match.refresh_from_db()
     assert not hasattr(match, 'result')
@@ -257,7 +258,7 @@ def test_create_result_loser_must_be_match_team_permission_denied(django_app):
     resp = client.results(None, method='POST', data=data, expect_errors=True)
 
     assert resp.status_code == 400
-    assert resp.json['non_field_errors'][0] == 'Result Winner and Loser must be associated with Match'
+    assert resp.json['non_field_errors'][0] == 'Validation Error: Result Winner and Loser must be associated with Match'
 
     match.refresh_from_db()
     assert not hasattr(match, 'result')
@@ -291,7 +292,7 @@ def test_create_result_set_winner_must_be_match_team_permission_denied(django_ap
     resp = client.results(None, method='POST', data=data, expect_errors=True)
 
     assert resp.status_code == 400
-    assert resp.json['non_field_errors'][0] == 'Set Winner and Loser must be associated with Match'
+    assert resp.json['non_field_errors'][0] == 'Validation Error: Set Winner and Loser must be associated with Match'
 
     match.refresh_from_db()
     assert not hasattr(match, 'result')
@@ -326,7 +327,7 @@ def test_create_result_set_loser_must_be_match_team_permission_denied(django_app
     resp = client.results(None, method='POST', data=data, expect_errors=True)
 
     assert resp.status_code == 400
-    assert resp.json['non_field_errors'][0] == 'Set Winner and Loser must be associated with Match'
+    assert resp.json['non_field_errors'][0] == 'Validation Error: Set Winner and Loser must be associated with Match'
 
     match.refresh_from_db()
     assert not hasattr(match, 'result')

@@ -102,7 +102,7 @@ class ResultSerializer(serializers.ModelSerializer):
         queryset=Match.objects.filter(
             circuit__season__is_active=True, result__isnull=True
         ),
-        style={'base_template': 'input.html'}
+        style={'base_template': 'input.html'},
     )
 
     status = serializers.CharField()
@@ -115,7 +115,7 @@ class ResultSerializer(serializers.ModelSerializer):
             Set.objects.create(result=result, **data)
 
         return result
-
+    
     def validate(self, data):
         """
         In order for Result/Set data to be valid, they must:
@@ -125,24 +125,27 @@ class ResultSerializer(serializers.ModelSerializer):
         """
         teams = [data['match'].home, data['match'].away]
         user = self.context['request'].user
-        
-        if not can_create_result(data['match'], user):
-            raise serializers.ValidationError('Permission Denied')
+
+        has_permission, error = can_create_result(
+            data['match'], user, return_error_msg=True)
+
+        if not has_permission:
+            raise serializers.ValidationError(error)
 
         if (
             data['winner'] not in teams or
             data['loser'] not in teams
         ): 
              raise serializers.ValidationError(
-                 'Result Winner and Loser must be associated with Match')
+                 'Validation Error: Result Winner and Loser must be associated with Match')
 
         if len(data['sets']) < 3:
              raise serializers.ValidationError(
-                 'You must include results for at least three Sets.')
+                 'Validation Error: You must include results for at least three Sets.')
 
         if len(data['sets']) > 5:
              raise serializers.ValidationError(
-                 'You cannot include more than five Sets.')
+                 'Validation Error: You cannot include more than five Sets.')
 
         for set in data['sets']:
             if (
@@ -150,7 +153,7 @@ class ResultSerializer(serializers.ModelSerializer):
                 set['loser'] not in teams
             ): 
                 raise serializers.ValidationError(
-                    'Set Winner and Loser must be associated with Match')
+                    'Validation Error: Set Winner and Loser must be associated with Match')
 
         return data
 
