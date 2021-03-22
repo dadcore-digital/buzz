@@ -55,7 +55,7 @@ jobs:
         ssh -i $SSH_KEY_PATH -t ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} "cd ${{secrets.STAGING_REMOTE_PROJECT_PATH}}/buzz;/usr/bin/git pull"
         ssh -i $SSH_KEY_PATH -t ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} "${{secrets.STAGING_REMOTE_PROJECT_PATH}}/env/bin/python ${{secrets.STAGING_REMOTE_PROJECT_PATH}}/buzz/manage.py migrate --settings=buzz.settings.staging"
         ssh -i $SSH_KEY_PATH -t ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} "${{secrets.STAGING_REMOTE_PROJECT_PATH}}/env/bin/python ${{secrets.STAGING_REMOTE_PROJECT_PATH}}/buzz/manage.py collectstatic --no-input --settings=buzz.settings.staging"
-        ssh -i $SSH_KEY_PATH -tt ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} "/usr/bin/pgrep ${{secrets.STAGING_REMOTE_PROJECT_PATH}}/env/bin/uwsgi | awk '{system("kill -9 "$1)}'"
+        ssh -i $SSH_KEY_PATH -tt ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} "/usr/bin/pgrep -f -o ${{secrets.STAGING_REMOTE_PROJECT_PATH}}/env/bin/uwsgi | awk '{system("kill -9 "$1)}'"
         ssh -i $SSH_KEY_PATH -tt ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} "${{secrets.STAGING_REMOTE_PROJECT_PATH}}/env/bin/uwsgi --ini ${{secrets.STAGING_REMOTE_PROJECT_PATH}}/uwsgi.ini"
       env:
         SSH_KEY_PATH: ${{ github.workspace }}/../private.key
