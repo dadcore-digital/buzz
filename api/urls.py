@@ -18,7 +18,7 @@ router.register(r'matches', MatchViewSet)
 router.register(r'me', MeViewSet, basename='me')
 router.register(r'players', PlayerViewSet)
 router.register(r'playing', PlayingViewSet)
-router.register(r'results', ResultViewSet),
+router.register(r'results', ResultViewSet, basename='results'),
 router.register(r'releases', ReleaseViewSet)
 router.register(r'sets', SetViewSet),
 router.register(r'rounds', RoundViewSet, basename='rounds')

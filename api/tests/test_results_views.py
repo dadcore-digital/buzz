@@ -32,7 +32,8 @@ def test_create_result_permission_granted(django_app):
     
     resp = client.results(None, method='POST', data=data, expect_errors=False)
     
-    assert resp.status_code == 201
+    assert resp.status_code == 302
+    resp = resp.follow()
 
     match.refresh_from_db()
     result = resp.json
@@ -57,6 +58,60 @@ def test_create_result_permission_granted(django_app):
     assert result['sets'][3]['loser'] == match.away.id
     assert result['sets'][4]['loser'] == match.away.id
 
+
+@mark.django_db
+def test_create_result_with_log_permission_granted(django_app):
+    """
+    Create Result object for Match and include raw log data for each set.
+    """
+    match = MatchFactory()
+    player = match.home.captain
+    
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    
+    data = {
+        'match': match.id,
+        'status': 'C',
+        'winner': match.home.id,
+        'loser': match.away.id,
+        'sets': [
+            {
+                'number': 1,
+                'winner': match.away.id,
+                'loser': match.home.id,
+                'log': {
+                    'filename': 'myfilename1.json',
+                    'body': '{"results": "yadayada"}'
+                }
+            },
+            {
+                'number': 2,
+                'winner': match.away.id,
+                'loser': match.home.id,
+                'log': {
+                    'filename': 'myfilename2.json',
+                    'body': '{"results": "okaygreat"}'
+                }
+            },
+            {
+                'number': 3,
+                'winner': match.away.id,
+                'loser': match.home.id,
+                'log': {
+                    'filename': 'myfilename3.json',
+                    'body': '{"results": "morestuff"}'
+                }
+            }
+        ]
+    }
+    
+    resp = client.results(None, method='POST', data=data, expect_errors=True)
+    assert resp.status_code == 302
+    resp = resp.follow()
+
+    assert resp.json['sets'][0]['log']['filename'] == 'myfilename1.json'
+    assert resp.json['sets'][0]['log']['body'] == '{"results": "yadayada"}'
 
 @mark.django_db
 def test_create_result_not_captain_permission_denied(django_app):

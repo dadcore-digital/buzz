@@ -3,9 +3,10 @@ from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from django.contrib.auth.models import User
 from django.db.models import Count, OuterRef, Prefetch, Sum, Q, Subquery
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from .filters.awards import AwardFilter
 from .filters.events import EventFilter    
 from .filters.leagues import CircuitFilter, LeagueFilter, SeasonFilter
@@ -21,8 +22,8 @@ from .serializers.leagues import (
 from api import permissions
 from .serializers.beegame import PlayingSerializer, ReleaseSerializer
 from .serializers.matches import (
-    GameSerializer, MatchSerializer, ResultSerializer, SetSerializer,
-    SetDetailSerializer
+    GameSerializer, MatchSerializer, ResultSerializer, ResultDetailSerializer,
+    SetSerializer, SetDetailSerializer
 )
 from .serializers.teams import (
     DynastySerializer, JoinTeamSerializer, TeamSerializer, TeamDetailSerializer)
@@ -111,6 +112,26 @@ class ResultViewSet(viewsets.ModelViewSet):
     ]
 
     http_method_names = ['get', 'post']
+
+    def create(self, request, *args, **kwargs):
+        """
+        Redirect to result detail view on creation.
+        """
+        response = super(ResultViewSet, self).create(request, *args, **kwargs)
+        url = reverse('results-detail', kwargs={'pk': response.data['id']})
+        return redirect(url)
+
+    def retrieve(self, request, pk=None):
+        queryset = self.get_queryset()       
+        queryset = queryset.prefetch_related('loser__circuit__season')
+        queryset = queryset.prefetch_related('winner__circuit__season')
+        queryset = queryset.prefetch_related('sets__winner__circuit__season')
+        queryset = queryset.prefetch_related('sets__loser__circuit__season')
+
+        result = queryset.filter(id=pk).first()
+        serializer = ResultDetailSerializer(result, context={'request': request})
+        return Response(serializer.data)
+
 
 class SetViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Set.objects.all().order_by('id')

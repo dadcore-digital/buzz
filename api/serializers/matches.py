@@ -78,6 +78,14 @@ class SetDetailSerializer(serializers.ModelSerializer):
 # Result Endpoint #
 ###################
 ################
+class ResultSetLogSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = SetLog
+        fields = [
+            'id', 'filename', 'body'
+        ]
+
 class ResultSetSerializer(serializers.ModelSerializer):
 
     winner = serializers.PrimaryKeyRelatedField(
@@ -92,10 +100,12 @@ class ResultSetSerializer(serializers.ModelSerializer):
         style={'base_template': 'input.html'}
     )
 
+    log = ResultSetLogSerializer(required=False, write_only=True)
+
     class Meta:
         model = Set
         fields = [
-            'id', 'number', 'winner', 'loser'
+            'id', 'number', 'winner', 'loser', 'log'
         ]
 
 class ResultSerializer(serializers.ModelSerializer):
@@ -129,7 +139,15 @@ class ResultSerializer(serializers.ModelSerializer):
         result = Result.objects.create(**validated_data)
         
         for data in sets_data:
-            Set.objects.create(result=result, **data)
+            
+            log_data = None
+            if 'log' in data.keys():
+                log_data = data.pop('log')    
+            
+            set = Set.objects.create(result=result, **data)
+            
+            if log_data:
+                SetLog.objects.create(set=set, **log_data)
 
         return result
     
@@ -174,6 +192,33 @@ class ResultSerializer(serializers.ModelSerializer):
 
         return data
 
+    class Meta:
+        model = Result
+        fields = [
+            'id', 'match', 'status', 'winner', 'loser', 'sets'
+        ]
+
+class ResultDetailSetSerializer(serializers.ModelSerializer):
+    
+    winner = serializers.PrimaryKeyRelatedField(read_only=True)
+    loser = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    log = ResultSetLogSerializer(read_only=True)
+
+    class Meta:
+        model = Set
+        fields = [
+            'id', 'number', 'winner', 'loser', 'log'
+        ]
+
+class ResultDetailSerializer(serializers.ModelSerializer):
+    
+    winner = serializers.PrimaryKeyRelatedField(read_only=True)
+    loser = serializers.PrimaryKeyRelatedField(read_only=True)
+    sets = ResultDetailSetSerializer(many=True)
+    status = serializers.CharField()
+
+    
     class Meta:
         model = Result
         fields = [
