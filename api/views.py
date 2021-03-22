@@ -119,7 +119,7 @@ class BracketViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 class MatchViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Match.objects.all().order_by('round__round_number', 'start_time')
+    queryset = Match.objects.all().order_by('start_time')
     serializer_class = MatchSerializer
     filterset_class = MatchFilter
 
@@ -158,7 +158,7 @@ class StreamViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = StreamFilter
 
 class EventViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Event.objects.all()
+    queryset = Event.objects.all().order_by('start_time')
     serializer_class = EventSerializer
     filterset_class = EventFilter
 
