@@ -80,12 +80,12 @@ class TeamSerializer(serializers.ModelSerializer):
             return data
 
         elif self.context['request'].method == 'POST':
-            has_permission = can_create_team(data.get('circuit'), user)
+            has_permission, error = can_create_team(data.get('circuit'), user)
 
         if has_permission:
             return data
 
-        raise serializers.ValidationError('Permission Denied')
+        raise serializers.ValidationError(error)
 
 ########################
 # Team Detail Endpoint #
@@ -208,12 +208,12 @@ class TeamDetailSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         user = self.context['request'].user
-        has_permission = can_create_team(data.get('circuit'), user)
+        has_permission, error = can_create_team(data.get('circuit'), user)
         
         if has_permission:
             return data
 
-        raise serializers.ValidationError('Permission Denied')
+        raise serializers.ValidationError(error)
     
 class JoinTeamSerializer(serializers.Serializer):    
     invite_code = serializers.CharField(max_length=8)

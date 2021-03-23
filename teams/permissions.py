@@ -16,15 +16,18 @@ def can_create_team(circuit, user):
     from teams.models import Team  # Avoid circular import
     
     if user.is_anonymous:
-        return False
+        return False, 'Authentication Error: Sign in to create a team.'
 
     try:
         player = user.player
 
     except user._meta.model.player.RelatedObjectDoesNotExist:
-        return False
+        return False, 'Authentication Error: Your account does not have a Player associated with it.'
 
-    if circuit.season.registration_open:
+    if not circuit.season.registration_open:
+        return False, 'Permission Error: Cannot create new team, registration for this season has closed.'
+
+    elif circuit.season.registration_open:
 
         existing_teams = Team.objects.filter(
             Q(circuit__season=circuit.season, captain=player) |
@@ -33,14 +36,14 @@ def can_create_team(circuit, user):
 
         num_teams = existing_teams.count()
         
-        if num_teams == 0:            
-            return True
-        
-        elif num_teams == 1:
-            if existing_teams[0].circuit.region != circuit.region:
-                return True
+        if num_teams >= 2:
+            return False, 'Permission Error: You can only create two teams per season, one per region.'
 
-    return False
+        elif num_teams == 1:            
+            if existing_teams[0].circuit.region == circuit.region:
+                return False, 'Permission Error: You have already registered a team for this circuit.'
+        
+    return True, None
 
 def can_rename_team(team, user):
     """

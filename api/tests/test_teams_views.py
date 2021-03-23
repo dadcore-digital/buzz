@@ -152,6 +152,7 @@ def test_create_team_two_existing_team_permission_denied(django_app):
 
 
     assert resp.status_code == 400
+    assert resp.json['non_field_errors'][0] == 'Permission Error: You can only create two teams per season, one per region.'
     assert player.teams.filter(captain=player).count() == 2
 
 @mark.django_db
@@ -202,6 +203,7 @@ def test_create_team_existing_team_same_region_permission_denied(django_app):
     resp = client.teams(None, method='POST', data=data, expect_errors=True)
 
     assert resp.status_code == 400
+    assert resp.json['non_field_errors'][0] == 'Permission Error: You have already registered a team for this circuit.'
     assert player.teams.filter(captain=player).count() == 1
 
 
