@@ -71,8 +71,9 @@ class TeamSerializer(serializers.ModelSerializer):
     
     def validate(self, data):
         user = self.context['request'].user
+        
         if self.context['request'].method == 'PATCH':
-            has_permission = can_rename_team(self.instance, user)
+            has_permission, error_msg = can_rename_team(self.instance, user)
             
             # Drop all fields but name
             data = OrderedDict({'name': data['name']})

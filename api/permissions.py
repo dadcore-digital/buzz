@@ -1,7 +1,7 @@
 from rest_framework import permissions
 from matches.permissions import can_create_result, can_update_match_time
 from matches.models import Match
-from teams.permissions import can_create_team
+from teams.permissions import can_create_team, can_rename_team
 
 class CanReadPlayer(permissions.BasePermission):
 
@@ -45,20 +45,18 @@ class CanReadTeam(permissions.BasePermission):
 
 class CanUpdateTeam(permissions.BasePermission):
     
+    message = 'Cannot rename team'
+
     def has_object_permission(self, request, view, team):
         # Requesting User must be connected to Player object for write access
         if request.method in ['PUT', 'PATCH']:
-            try:
-                if (
-                    team.captain.user == request.user and
-                    team.circuit.season.is_active  
-                ):
-                    return True
+            has_permission, error = can_rename_team(team, request.user)
+            
+            if has_permission:
+                return True
+            else:
+                self.message = error
 
-            # No user associated with player.
-            except AttributeError:
-                pass        
-        
         return False
 
 

@@ -44,24 +44,33 @@ def can_create_team(circuit, user):
 
 def can_rename_team(team, user):
     """
-    Return True if requester is team captain and associated Season is active.
+    Return True if requester if ALL following permission checks are met:
+
+    1. Requester is captain of team
+    2. Season linked to team's circuit is active
+    3. Season linked to team's circuit has registration_open set True    
     """
     from teams.models import Team
-
+    
     if user.is_anonymous:
-        return False
+        return False, 'Authentication Error: Sign in to rename your team.'
 
     try:
         player = user.player
 
     except user._meta.model.player.RelatedObjectDoesNotExist:
-        return False
+        return False, 'Authentication Error: Your account does not have a Player associated with it.'
     
-    if team.captain == player:
-        if team.circuit.season.is_active:
-            return True
-        
-    return False
+    if team.captain != player:
+        return False, 'Permission Error: You must be the captain of this team to rename it.'
+    
+    elif not team.circuit.season.is_active:
+        return False, 'Permission Error: Only teams in active seasons may be renamed.'
+
+    elif not team.circuit.season.registration_open:
+        return False, 'Permission Error: Only teams in seasons with open registration may be renamed.'
+
+    return True, None
 
 def can_join_team(team, user, invite_code):
     """

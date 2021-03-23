@@ -263,6 +263,8 @@ def test_rename_team_as_member_permission_denied(django_app):
     resp = client.team(team.id, method='PATCH', data=data, expect_errors=True)
     
     assert resp.status_code == 403
+    assert resp.json['detail'] == 'Permission Error: You must be the captain of this team to rename it.'
+
     team.refresh_from_db()
     assert team.name != data['name']
 
@@ -285,6 +287,58 @@ def test_rename_team_as_rando_permission_denied(django_app):
     team.refresh_from_db()
     assert team.name != data['name']
     
+@mark.django_db
+def test_rename_team_season_inactive_permission_denied(django_app):
+    """
+    Can't rename a team when it's circuit's season is inactive.
+    """
+    team = TeamFactory()
+    player = team.captain   
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+
+    season = team.circuit.season
+    season.is_active = False
+    season.save()
+    
+    data = {
+        'name': 'My New Team Name',
+    }
+
+    resp = client.team(team.id, method='PATCH', data=data, expect_errors=True)
+
+    assert resp.status_code == 403
+    assert resp.json['detail'] == 'Permission Error: Only teams in active seasons may be renamed.'
+    team.refresh_from_db()
+    assert team.name != data['name']
+    
+
+@mark.django_db
+def test_rename_team_season_registration_closed_permission_denied(django_app):
+    """
+    Can't rename a team when it's circuit's season is inactive.
+    """
+    team = TeamFactory()
+    player = team.captain   
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+
+    season = team.circuit.season
+    season.registration_open = False
+    season.save()
+    
+    data = {
+        'name': 'My New Team Name',
+    }
+
+    resp = client.team(team.id, method='PATCH', data=data, expect_errors=True)
+
+    assert resp.status_code == 403
+    assert resp.json['detail'] == 'Permission Error: Only teams in seasons with open registration may be renamed.'
+    team.refresh_from_db()
+    assert team.name != data['name']
+
+
 @mark.django_db
 def test_join_team_permission_granted(django_app):
     """

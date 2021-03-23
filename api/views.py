@@ -163,9 +163,8 @@ class TeamViewSet(viewsets.ModelViewSet):
     queryset = queryset.annotate(wins=Count('won_match_results', distinct=True))
     queryset = queryset.annotate(losses=Count('lost_match_results', distinct=True))
 
-    permission_classes = [
-        permissions.CanReadTeam|permissions.CanUpdateTeam
-    ]
+    permission_classes = [permissions.CanUpdateTeam]
+
     serializer_class = TeamSerializer
     filterset_class = TeamFilter
 
