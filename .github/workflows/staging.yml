@@ -53,6 +53,7 @@ jobs:
     - name: Deploy to Server
       run: |
         ssh -i $SSH_KEY_PATH -t ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} "cd ${{secrets.STAGING_REMOTE_PROJECT_PATH}}/buzz;/usr/bin/git pull"
+        ssh -i $SSH_KEY_PATH -t ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} "${{secrets.STAGING_REMOTE_PROJECT_PATH}}/env/bin/pip install -r ${{secrets.STAGING_REMOTE_PROJECT_PATH}}/buzz/requirements.txt"
         ssh -i $SSH_KEY_PATH -t ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} "${{secrets.STAGING_REMOTE_PROJECT_PATH}}/env/bin/python ${{secrets.STAGING_REMOTE_PROJECT_PATH}}/buzz/manage.py migrate --settings=buzz.settings.staging"
         ssh -i $SSH_KEY_PATH -t ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} "${{secrets.STAGING_REMOTE_PROJECT_PATH}}/env/bin/python ${{secrets.STAGING_REMOTE_PROJECT_PATH}}/buzz/manage.py collectstatic --no-input --settings=buzz.settings.staging"
         ssh -i $SSH_KEY_PATH -tt ${{secrets.GITDEPLOY_SSH_USER_HOSTNAME}} "touch ${{secrets.STAGING_REMOTE_PROJECT_PATH}}/buzz/buzz/wsgi.py"
