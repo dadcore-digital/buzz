@@ -179,6 +179,6 @@ TWITCH_CLIENT_SECRET = get_secret('TWITCH_CLIENT_SECRET')
 TWITCH_GAME_ID = '506455'
 
 # BGL
-BGL_AUTH_HANDOFF_URL = 'https://league-beegame-gg.web.app'
+BGL_AUTH_HANDOFF_URL = 'https://league.beegame.gg'
 
 NANOID_LIBRARY = '6789BCDFGHJKLMNPQRTWbcdfghjkmnpqrtwz'
