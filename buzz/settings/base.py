@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',    
     'allauth.socialaccount.providers.discord',
     'django_filters',
+    'loginas',
     'buzz',
     'players',
     'leagues',

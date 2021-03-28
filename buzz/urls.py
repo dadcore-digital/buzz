@@ -13,6 +13,7 @@ urlpatterns = [
     path('logging-debug/', trigger_error),
     re_path(r'^accounts/', include('allauth.urls')),
     path('admin/', admin.site.urls),
+    path('admin/', include('loginas.urls')),
     path('staff/', include('staff.urls')),
     path('select2/', include("django_select2.urls")),
 ]
