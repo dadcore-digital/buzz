@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 from django.db.models import Count, OuterRef, Prefetch, Sum, Q, Subquery
 from django.shortcuts import get_object_or_404, redirect
 from .filters.awards import AwardFilter
@@ -22,8 +23,8 @@ from .serializers.leagues import (
 from api import permissions
 from .serializers.beegame import PlayingSerializer, ReleaseSerializer
 from .serializers.matches import (
-    GameSerializer, MatchSerializer, ResultSerializer, ResultDetailSerializer,
-    SetSerializer, SetDetailSerializer
+    GameSerializer, MatchSerializer, MatchUpdateSerializer, ResultSerializer,
+    ResultDetailSerializer, SetSerializer, SetDetailSerializer
 )
 from .serializers.teams import (
     DynastySerializer, JoinTeamSerializer, TeamSerializer, TeamDetailSerializer)
@@ -36,6 +37,7 @@ from beegame.models import Playing, Release
 from events.models import Event
 from leagues.models import League, Season, Circuit, Round
 from matches.models import Game, Match, Result, Set
+from matches.permissions import can_update_match
 from casters.models import Caster
 from players.models import Player
 from streams.models import Stream
@@ -93,10 +95,27 @@ class MatchViewSet(viewsets.ModelViewSet):
     serializer_class = MatchSerializer
     filterset_class = MatchFilter
     permission_classes = [
-        permissions.CanReadMatch|permissions.CanUpdateMatchTime
+        permissions.CanReadMatch|permissions.CanUpdateMatch
     ]
     http_method_names = ['get', 'patch']
 
+    def partial_update(self, request, pk=None):
+        match = Match.objects.filter(id=pk).first()
+
+        partial_serializer = MatchUpdateSerializer(
+            match, data=request.data, context={'request': request})
+        
+        if partial_serializer.is_valid():
+            if can_update_match(match, request.user):
+                match =partial_serializer.save()
+
+                full_serializer = MatchSerializer(match)
+                
+                return Response(full_serializer.data) 
+
+        raise PermissionDenied(
+            'Permission Error: Either you are not a team captain associated with this match, or it has already occurred.')
+    
 class ResultViewSet(viewsets.ModelViewSet):
 
     queryset = Result.objects.all().order_by('id')
@@ -260,6 +279,8 @@ class PlayerViewSet(viewsets.ModelViewSet):
 
 class CasterViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Caster.objects.all().order_by('player__name')
+    queryset = queryset.select_related('player')
+    
     serializer_class = CasterSerializer
 
 class StreamViewSet(viewsets.ReadOnlyModelViewSet):

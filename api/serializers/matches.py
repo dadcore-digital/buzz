@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from casters.models import Caster
 from matches.models import Game, Match, Result, Set, SetLog
 from matches.permissions import can_create_result
 from teams.models import Team
@@ -270,7 +271,7 @@ class MatchCasterSummarySerializer(serializers.ModelSerializer):
         from casters.models import Caster
         model = Caster
         fields = [
-            'name', 'bio_link', 'stream_link'
+            'id', 'name', 'bio_link', 'stream_link'
         ]
 
 class MatchResultSerializer(serializers.ModelSerializer):
@@ -314,3 +315,20 @@ class MatchSerializer(serializers.ModelSerializer):
             'time_until', 'scheduled', 'primary_caster', 'secondary_casters',
             'result', 'vod_link'
         ]
+
+
+class MatchUpdateSerializer(serializers.ModelSerializer):
+    
+    primary_caster = serializers.PrimaryKeyRelatedField(
+        many=False, read_only=False,
+        queryset=Caster.objects.all(),
+        style={'base_template': 'input.html'},
+        required=False
+    )
+        
+    class Meta:
+        model = Match
+        fields = [
+            'primary_caster', 'start_time'            
+        ]
+

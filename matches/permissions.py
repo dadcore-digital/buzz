@@ -1,6 +1,6 @@
-def can_update_match_time(match, user):
+def can_update_match(match, user):
     """
-    Return True if requesting user can update a matche's start time.
+    Return True if requesting user can update a matche's start time or caster.
 
     Requester can set a Match.start_time if ALL conditions met:
 

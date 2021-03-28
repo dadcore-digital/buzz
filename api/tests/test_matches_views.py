@@ -2,6 +2,7 @@ from pytest import mark
 from dateutil import parser
 from django.utils import timezone
 from datetime import datetime, timedelta
+from casters.tests.factories import CasterFactory
 from players.tests.factories import PlayerFactory
 from leagues.tests.factories import CircuitFactory
 from matches.tests.factories import MatchFactory, ResultFactory
@@ -126,6 +127,84 @@ def test_update_match_time_no_start_time_home_catapin_permission_granted(django_
     entry = resp.json
     assert entry['start_time'] == now
 
+@mark.django_db
+def test_update_caster_no_existing_caster_permission_granted(django_app):
+    """
+    Update caster as home team captain when none has been set.
+    """
+    start_time = (
+        timezone.now() + timedelta(hours=23)).strftime('%Y-%m-%dT%H:%M:%SZ')
+
+    match = MatchFactory(start_time=start_time)    
+    player = match.home.captain
+
+    caster = CasterFactory()
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    data = {'primary_caster': caster.id }
+    resp = client.match(match.id, method='PATCH', data=data)
+
+    assert resp.status_code == 200
+    
+    entry = resp.json
+    assert entry['primary_caster']['id'] == caster.id
+
+@mark.django_db
+def test_update_caster_has_existing_caster_permission_granted(django_app):
+    """
+    Update caster as home team captain when existing caster has been set.
+    """
+    old_caster = CasterFactory()
+    new_caster = CasterFactory()
+
+    start_time = (
+        timezone.now() + timedelta(hours=23)).strftime('%Y-%m-%dT%H:%M:%SZ')
+
+    match = MatchFactory(start_time=start_time, primary_caster=old_caster)  
+    player = match.home.captain
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    data = {'primary_caster': new_caster.id }
+    resp = client.match(match.id, method='PATCH', data=data)
+
+    assert resp.status_code == 200
+    
+    entry = resp.json
+    assert entry['primary_caster']['id'] == new_caster.id
+    match.refresh_from_db()
+    assert match.primary_caster == new_caster
+
+
+@mark.django_db
+def test_update_caster_team_member_permission_denied(django_app):
+    """
+    Raise permission denied when trying to update a caster as non-captain.
+    """
+
+    start_time = (
+        timezone.now() + timedelta(hours=23)).strftime('%Y-%m-%dT%H:%M:%SZ')
+
+    match = MatchFactory(start_time=start_time)  
+
+    player = PlayerFactory()
+    home = match.home
+    home.members.add(player)
+
+    caster = CasterFactory()
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    data = {'primary_caster': caster.id }
+    resp = client.match(match.id, method='PATCH', data=data, expect_errors=True)
+
+    assert resp.status_code == 403
+    
+    assert resp.json['detail'] == 'You do not have permission to perform this action.'
+    
+    match.refresh_from_db()
+    assert not match.primary_caster
 
 @mark.django_db
 def test_update_match_time_no_start_time_away_catapin_permission_granted(django_app):

@@ -79,6 +79,7 @@ sentry_sdk.init(
 
 SHELL_PLUS_IMPORTS = [
     'from buzz.tests.factories import *',
+    'from casters.tests.factories import *',
     'from players.tests.factories import *',
     'from leagues.tests.factories import *',
     'from teams.tests.factories import *',

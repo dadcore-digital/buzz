@@ -1,5 +1,5 @@
 from rest_framework import permissions
-from matches.permissions import can_create_result, can_update_match_time
+from matches.permissions import can_create_result, can_update_match
 from matches.models import Match
 from teams.permissions import can_create_team, can_rename_team
 
@@ -68,11 +68,11 @@ class CanReadMatch(permissions.BasePermission):
         
         return False
 
-class CanUpdateMatchTime(permissions.BasePermission):
+class CanUpdateMatch(permissions.BasePermission):
     
     def has_object_permission(self, request, view, match):
         if request.method in ['PATCH']:
-            return can_update_match_time(match, request.user)
+            return can_update_match(match, request.user)
 
         return False
 
