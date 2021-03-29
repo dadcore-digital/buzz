@@ -55,6 +55,11 @@ class MatchFilter(filters.FilterSet):
         label='Home AND Away Team Name'
     )
 
+    player = filters.CharFilter(
+        field_name='player', method='get_by_player_id',
+        label='Get matches by Player ID'
+    )
+
     winner = filters.CharFilter(
         field_name='result__winner__name', lookup_expr='icontains',
         label='Winning Team\'s Name'
@@ -203,6 +208,16 @@ class MatchFilter(filters.FilterSet):
             Q(away__dynasty__name__icontains=value)
         )
 
+    def get_by_player_id(self, queryset, field_name, value):
+        """
+        Return any matches where a player is in one of the teams.
+        Filter by player ID.
+        """
+        return queryset.filter(
+            Q(home__members__id=value) |
+            Q(away__members__id=value)
+        ).distinct()
+
     def get_by_team_names(self, queryset, field_name, value):
         """
         Return match queryset for two team names.
@@ -271,7 +286,7 @@ class MatchFilter(filters.FilterSet):
         model = Match
         fields = [
             'round', 'minutes', 'hours', 'days', 'starts_in_minutes', 'home',
-            'away', 'team', 'team_id', 'teams', 'winner', 'loser',  'scheduled',
-            'awaiting_results', 'status', 'league', 'season', 'circuit',
-            'region', 'tier'
+            'away', 'team', 'team_id', 'teams', 'player', 'winner', 'loser', 
+            'scheduled', 'awaiting_results', 'status', 'league', 'season',
+            'circuit', 'region', 'tier'
         ]
