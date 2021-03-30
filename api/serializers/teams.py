@@ -138,7 +138,7 @@ class TeamDetailMatchCasterSummarySerializer(serializers.ModelSerializer):
         from casters.models import Caster
         model = Caster
         fields = [
-            'name', 'bio_link', 'stream_link'
+            'id', 'name', 'bio_link', 'stream_link'
         ]
 
 class TeamDetailMatchSerializer(serializers.ModelSerializer):
