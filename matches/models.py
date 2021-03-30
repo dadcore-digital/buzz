@@ -4,6 +4,7 @@ from django.urls import reverse
 from buzz.services import trim_humanize
 from casters.models import Caster
 from leagues.models import Circuit, Round
+from players.models import Player
 from teams.models import Team
 
 class Match(models.Model):
@@ -68,6 +69,11 @@ class Result(models.Model):
         Match, related_name='result', on_delete=models.CASCADE, blank=True,
         null=True)    
 
+    created_by = models.ForeignKey(
+        Player, blank=True, null=True, on_delete=models.deletion.SET_NULL,
+        related_name='created_results'
+    )
+
     COMPLETED = 'C'
     SINGLE_FORFEIT = 'SF'
     DOUBLE_FORFEIT = 'DF'
@@ -81,6 +87,19 @@ class Result(models.Model):
     status = models.CharField(
         max_length=2, choices=STATUS_CHOICES)
 
+    UPLOADER = 'UL'
+    SHEETS = 'SH'
+    ADMIN = 'AM'
+    
+    SOURCE_CHOICES = (
+        (UPLOADER, 'Match Uploader'),
+        (SHEETS, 'Google Sheets'),
+        (ADMIN, 'Buzz Admin')
+    )
+
+    source = models.CharField(
+        max_length=2, choices=SOURCE_CHOICES, blank=True, null=True)
+
     winner = models.ForeignKey(
         Team, related_name='won_match_results', on_delete=models.CASCADE,
         blank=True, null=True
@@ -92,6 +111,9 @@ class Result(models.Model):
 
     modified = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+
+    notes = models.CharField(max_length=1024, blank=True, null=True)
+
 
     def __str__(self):
         return f'{self.winner.name} over {self.loser.name} in {self.sets.count()} sets'
@@ -193,3 +215,40 @@ class Game(models.Model):
     def __str__(self):
         return f'Game {self.number}: {self.winner.name}'
 
+
+class PlayerMapping(models.Model):
+
+    result = models.ForeignKey(
+        Result, related_name='player_mappings', on_delete=models.CASCADE, blank=True,
+        null=True)
+
+    name = models.CharField(max_length=255)
+    player = models.ForeignKey(
+        Player, related_name='player_mapping', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name_plural = 'Player Mappings'
+
+    def __str__(self):
+        return f'{self.name} --> {self.player.name}'
+
+class TeamMapping(models.Model):
+
+    result = models.ForeignKey(
+        Result, related_name='team_mappings', on_delete=models.CASCADE, blank=True,
+        null=True)
+    
+    COLOR_CHOICES = (
+        ('blue', 'Blue'),
+        ('gold', 'Gold')
+    )
+
+    color = models.CharField(max_length=4, choices=COLOR_CHOICES)
+    team = models.ForeignKey(
+        Team, related_name='team_mapping', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name_plural = 'Team Mappings'
+
+    def __str__(self):
+        return f'{self.color} --> {self.team.name}'
