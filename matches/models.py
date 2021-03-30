@@ -222,7 +222,7 @@ class PlayerMapping(models.Model):
         Result, related_name='player_mappings', on_delete=models.CASCADE, blank=True,
         null=True)
 
-    name = models.CharField(max_length=255)
+    nickname = models.CharField(max_length=255)
     player = models.ForeignKey(
         Player, related_name='player_mapping', on_delete=models.CASCADE)
 
@@ -230,7 +230,7 @@ class PlayerMapping(models.Model):
         verbose_name_plural = 'Player Mappings'
 
     def __str__(self):
-        return f'{self.name} --> {self.player.name}'
+        return f'{self.nickname} --> {self.player.name}'
 
 class TeamMapping(models.Model):
 
@@ -238,12 +238,15 @@ class TeamMapping(models.Model):
         Result, related_name='team_mappings', on_delete=models.CASCADE, blank=True,
         null=True)
     
+    GOLD = 1
+    BLUE = 2
+
     COLOR_CHOICES = (
-        ('blue', 'Blue'),
-        ('gold', 'Gold')
+        (BLUE, 'Blue'),
+        (GOLD, 'Gold')
     )
 
-    color = models.CharField(max_length=4, choices=COLOR_CHOICES)
+    color = models.CharField(max_length=1, choices=COLOR_CHOICES)
     team = models.ForeignKey(
         Team, related_name='team_mapping', on_delete=models.CASCADE)
 

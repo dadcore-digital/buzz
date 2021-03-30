@@ -117,11 +117,11 @@ class SetLogAdmin(admin.ModelAdmin):
 
 class PlayerMappingAdmin(admin.ModelAdmin):
     
-    list_display = ('id', 'name', 'player', 'result' )
+    list_display = ('id', 'nickname', 'player', 'result' )
     
     search_fields = (
         'id',
-        'name',
+        'nickname',
         'result__match__home__name',
         'result__match__away__name',
         'player__name',
