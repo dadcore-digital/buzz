@@ -323,7 +323,8 @@ class MatchUpdateSerializer(serializers.ModelSerializer):
         many=False, read_only=False,
         queryset=Caster.objects.all(),
         style={'base_template': 'input.html'},
-        required=False
+        required=False,
+        allow_null=True
     )
         
     class Meta:

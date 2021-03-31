@@ -176,6 +176,31 @@ def test_update_caster_has_existing_caster_permission_granted(django_app):
     match.refresh_from_db()
     assert match.primary_caster == new_caster
 
+@mark.django_db
+def test_update_caster_clear_permission_granted(django_app):
+    """
+    Clear the value of caster to nothing.
+    """
+    old_caster = CasterFactory()
+
+    start_time = (
+        timezone.now() + timedelta(hours=23)).strftime('%Y-%m-%dT%H:%M:%SZ')
+
+    match = MatchFactory(start_time=start_time, primary_caster=old_caster)  
+    player = match.home.captain
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    data = {'primary_caster': None }
+    resp = client.match(match.id, method='PATCH', data=data, expect_errors=True)
+    
+    assert resp.status_code == 200
+    
+    entry = resp.json
+    assert not  entry['primary_caster']
+    match.refresh_from_db()
+    assert not match.primary_caster
+
 
 @mark.django_db
 def test_update_caster_team_member_permission_denied(django_app):
