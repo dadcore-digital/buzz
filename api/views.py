@@ -140,6 +140,10 @@ class ResultViewSet(viewsets.ModelViewSet):
         url = reverse('results-detail', kwargs={'pk': response.data['id']})
         return redirect(url)
 
+    def perform_create(self, serializer):
+        player, created = Player.objects.get_or_create(user=self.request.user)
+        result = serializer.save(created_by=player)
+        
     def retrieve(self, request, pk=None):
         queryset = self.get_queryset()       
         queryset = queryset.prefetch_related('loser__circuit__season')

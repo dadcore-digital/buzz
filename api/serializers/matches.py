@@ -132,9 +132,7 @@ class ResultSerializer(serializers.ModelSerializer):
         ),
         style={'base_template': 'input.html'},
     )
-
-    status = serializers.CharField()
-
+    
     def create(self, validated_data):
         sets_data = validated_data.pop('sets')
         result = Result.objects.create(**validated_data)
@@ -196,7 +194,8 @@ class ResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = Result
         fields = [
-            'id', 'match', 'status', 'winner', 'loser', 'sets'
+            'id', 'created_by', 'match', 'status', 'winner', 'loser', 'sets',
+            'source', 'notes'
         ]
 
 class ResultDetailSetSerializer(serializers.ModelSerializer):
@@ -223,7 +222,8 @@ class ResultDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Result
         fields = [
-            'id', 'match', 'status', 'winner', 'loser', 'sets'
+            'id', 'created_by', 'match', 'status', 'winner', 'loser', 'sets',
+            'source', 'notes'
         ]
 
 ##################
