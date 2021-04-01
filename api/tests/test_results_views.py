@@ -64,6 +64,9 @@ def test_create_result_permission_granted(django_app):
 def test_create_result_include_optional_fields_permission_granted(django_app):
     """
     Create Result object for Match, including extra fields.    
+
+    Optional fields include:
+    notes, source, player_mappings (array), and team_mappings (array)
     """
     match = MatchFactory()
     player = match.home.captain
@@ -74,6 +77,21 @@ def test_create_result_include_optional_fields_permission_granted(django_app):
     # Extra Data
     notes = 'This match had a disconnect in the third set, but we played through it anyway.'
     source = 'UL'
+    player_mappings = [
+        {
+            'nickname': f'**{match.home.members.all()[0].name.upper()}**',
+            'player': match.home.members.all()[0].id
+        },
+        {
+            'nickname': f'**{match.away.members.all()[0].name.upper()}**',
+            'player': match.away.members.all()[0].id
+        }
+    ]
+
+    team_mappings = [
+        { 'color': 1, 'team': match.home.id },
+        { 'color': 2, 'team': match.away.id }
+    ]
 
     data = {
         'match': match.id,
@@ -88,13 +106,13 @@ def test_create_result_include_optional_fields_permission_granted(django_app):
             { 'number': 5, 'winner': match.home.id, 'loser': match.away.id },
         ],
         'notes': notes,
-        'source': source
-
+        'source': source,
+        'player_mappings': player_mappings,
+        'team_mappings': team_mappings
     }
-
-    resp = client.results(None, method='POST', data=data, expect_errors=False)
     
-    assert resp.status_code == 302
+    resp = client.results(None, method='POST', data=data, expect_errors=False)
+
     resp = resp.follow()
     assert resp.json['source'] == source
     assert resp.json['notes'] == notes
@@ -103,6 +121,19 @@ def test_create_result_include_optional_fields_permission_granted(django_app):
     assert match.result.notes == notes
     assert match.result.source == source
     
+    assert resp.json['player_mappings'][0]['nickname'] == player_mappings[0]['nickname']
+    assert resp.json['player_mappings'][0]['player'] == player_mappings[0]['player']
+    assert resp.json['player_mappings'][1]['nickname'] == player_mappings[1]['nickname']
+    assert resp.json['player_mappings'][1]['player'] == player_mappings[1]['player']
+
+    assert match.result.player_mappings.all().count() == 2
+
+    assert resp.json['team_mappings'][0]['color'] == team_mappings[0]['color']
+    assert resp.json['team_mappings'][0]['team'] == team_mappings[0]['team']
+    assert resp.json['team_mappings'][1]['color'] == team_mappings[1]['color']
+    assert resp.json['team_mappings'][1]['team'] == team_mappings[1]['team']
+
+    assert match.result.team_mappings.all().count() == 2
 
 
 @mark.django_db

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from casters.models import Caster
-from matches.models import Game, Match, Result, Set, SetLog
+from matches.models import (
+    Game, Match, Result, Set, SetLog, PlayerMapping, TeamMapping)
 from matches.permissions import can_create_result
 from teams.models import Team
 
@@ -109,6 +110,18 @@ class ResultSetSerializer(serializers.ModelSerializer):
             'id', 'number', 'winner', 'loser', 'log'
         ]
 
+class ResultPlayerMappingSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PlayerMapping
+        fields = ['id', 'nickname', 'player']    
+
+class ResultTeamMappingSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = TeamMapping
+        fields = ['id', 'color', 'team']    
+
 class ResultSerializer(serializers.ModelSerializer):
 
     winner = serializers.PrimaryKeyRelatedField(
@@ -133,10 +146,22 @@ class ResultSerializer(serializers.ModelSerializer):
         style={'base_template': 'input.html'},
     )
     
+    player_mappings = ResultPlayerMappingSerializer(many=True, required=False)
+    team_mappings = ResultTeamMappingSerializer(many=True, required=False)
+
     def create(self, validated_data):
         sets_data = validated_data.pop('sets')
+                        
+        player_mappings_data = []
+        if 'player_mappings' in validated_data:
+            player_mappings_data = validated_data.pop('player_mappings')
+
+        team_mappings_data = []
+        if 'team_mappings' in validated_data:
+            team_mappings_data = validated_data.pop('team_mappings')
+
         result = Result.objects.create(**validated_data)
-        
+
         for data in sets_data:
             
             log_data = None
@@ -147,6 +172,12 @@ class ResultSerializer(serializers.ModelSerializer):
             
             if log_data:
                 SetLog.objects.create(set=set, **log_data)
+
+        for data in player_mappings_data:
+            PlayerMapping.objects.create(result=result, **data)
+        
+        for data in team_mappings_data:
+            TeamMapping.objects.create(result=result, **data)
 
         return result
     
@@ -195,7 +226,7 @@ class ResultSerializer(serializers.ModelSerializer):
         model = Result
         fields = [
             'id', 'created_by', 'match', 'status', 'winner', 'loser', 'sets',
-            'source', 'notes'
+            'source', 'notes', 'player_mappings', 'team_mappings' 
         ]
 
 class ResultDetailSetSerializer(serializers.ModelSerializer):
@@ -211,19 +242,33 @@ class ResultDetailSetSerializer(serializers.ModelSerializer):
             'id', 'number', 'winner', 'loser', 'log'
         ]
 
+class ResultDetailPlayerMappingSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = PlayerMapping
+        fields = ['id', 'nickname', 'player']    
+
+class ResultDetailTeamMappingSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = TeamMapping
+        fields = ['id', 'color', 'team']
+
 class ResultDetailSerializer(serializers.ModelSerializer):
     
     winner = serializers.PrimaryKeyRelatedField(read_only=True)
     loser = serializers.PrimaryKeyRelatedField(read_only=True)
     sets = ResultDetailSetSerializer(many=True)
     status = serializers.CharField()
+    player_mappings = ResultDetailPlayerMappingSerializer(many=True)
+    team_mappings = ResultDetailTeamMappingSerializer(many=True)
 
     
     class Meta:
         model = Result
         fields = [
             'id', 'created_by', 'match', 'status', 'winner', 'loser', 'sets',
-            'source', 'notes'
+            'source', 'notes', 'player_mappings', 'team_mappings'
         ]
 
 ##################
