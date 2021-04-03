@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from buzz.services import get_object_admin_link
-from .models import League, Season, Circuit, Round
-
+from .models import League, Season, Circuit, Group, Round
+from teams.models import Team
 
 class LeagueAdmin(admin.ModelAdmin):
     
@@ -59,6 +59,28 @@ class CircuitAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     readonly_fields = (teams,)  
 
+class GroupAdmin(admin.ModelAdmin):
+    
+    list_display = (
+        'circuit',
+        'name',
+        'number',
+    )   
+
+    def teams(self):
+        links = ''
+        for obj in self.teams.all():
+            link = get_object_admin_link(obj, obj)
+            links += f'{link}, <br>'
+        
+        links = links[0:-6]
+        links = mark_safe(links)
+        return links
+    
+    
+    search_fields = ('name', 'circuit__name')
+    readonly_fields = (teams,)  
+
 class RoundAdmin(admin.ModelAdmin):
     
     list_display = (
@@ -73,4 +95,5 @@ class RoundAdmin(admin.ModelAdmin):
 admin.site.register(League, LeagueAdmin)
 admin.site.register(Season, SeasonAdmin)
 admin.site.register(Circuit, CircuitAdmin)
+admin.site.register(Group, GroupAdmin)
 admin.site.register(Round, RoundAdmin)

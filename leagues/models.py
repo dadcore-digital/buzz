@@ -116,6 +116,20 @@ class Circuit(models.Model):
         else:
             return f'{self.league.name} {self.season.name} {self.get_region_display()} {self.get_tier_display()}'
 
+class Group(models.Model):
+    """Split up teams within a Circuit into Groups for brackets, etc."""
+
+    circuit = models.ForeignKey(
+        Circuit, related_name='groups', on_delete=models.CASCADE)
+
+    name = models.CharField(max_length=255)
+
+    number = models.DecimalField(
+        max_digits=4, decimal_places=2, default=1.0, blank=True, null=True)
+
+    def __str__(self):
+        return f'[{self.circuit}] {self.name}'
+
 class Round(models.Model):
     """A period of play in which matches can take place, usually a week."""
     season = models.ForeignKey(

@@ -4,7 +4,7 @@ from django.apps import apps
 from django.conf import settings
 from django.db import models
 from django.db.models import Count, Q
-from leagues.models import Circuit
+from leagues.models import Circuit, Group
 from players.models import Player
 
 
@@ -40,6 +40,10 @@ class Team(models.Model):
     name = models.CharField(blank=True, max_length=255)
     circuit = models.ForeignKey(
         Circuit, related_name='teams', on_delete=models.CASCADE)
+    group = models.ForeignKey(
+        Group, related_name='teams', on_delete=models.SET_NULL, blank=True,
+        null=True
+    )
     captain = models.ForeignKey(
         Player, related_name='captained_teams', on_delete=models.CASCADE,
         blank=True, null=True
