@@ -310,12 +310,14 @@ class MatchTeamSerializer(serializers.ModelSerializer):
 
     members = MatchPlayerSerializer(many=True, read_only=True)
     group = MatchTeamGroupSerializer(read_only=True)
+    wins = serializers.IntegerField(read_only=True)
+    losses = serializers.IntegerField(read_only=True)
 
     class Meta:
         from teams.models import Team
         model = Team
         fields = [
-            'id', 'name', 'members', 'group'         
+            'id', 'name', 'members', 'group', 'wins', 'losses'
         ]
 
 class MatchCasterSummarySerializer(serializers.ModelSerializer):

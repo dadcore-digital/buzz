@@ -59,7 +59,7 @@ class Team(models.Model):
         on_delete=models.SET_NULL)
     modified = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
-
+    
     @property
     def is_active(self):
         """
