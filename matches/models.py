@@ -6,6 +6,8 @@ from casters.models import Caster
 from leagues.models import Circuit, Round
 from players.models import Player
 from teams.models import Team
+from matches.managers import ResultManager, SetManager
+
 
 class Match(models.Model):
     """A match between two teams."""
@@ -35,7 +37,6 @@ class Match(models.Model):
 
     modified = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
-
 
     class Meta:
         verbose_name_plural = 'Matches'
@@ -125,22 +126,11 @@ class Result(models.Model):
 
     notes = models.CharField(max_length=1024, blank=True, null=True)
 
+    objects = ResultManager()
+
 
     def __str__(self):
         return f'{self.winner.name} over {self.loser.name} in {self.sets.count()} sets'
-
-
-    @property
-    def sets_away(self):
-        return self.sets.filter(winner=self.match.away).count()
-
-    @property
-    def sets_home(self):
-        return self.sets.filter(winner=self.match.home).count()
-
-    @property
-    def sets_total(self):
-        return self.sets.all().count()
 
     @property
     def set_count(self):
@@ -167,6 +157,8 @@ class Set(models.Model):
 
     loser = models.ForeignKey(
         Team, related_name='lost_sets', on_delete=models.CASCADE)
+
+    objects = SetManager()
 
     def __str__(self):
         return f'Set {self.number}: {self.winner.name}'

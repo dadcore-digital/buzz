@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.db.models import Count, OuterRef, Prefetch, Sum, Q, Subquery
+from django.db.models import Count, OuterRef, Prefetch, Sum, Q, Subquery, Case, When, F, IntegerField
+from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404, redirect
 from .filters.awards import AwardFilter
 from .filters.events import EventFilter    
@@ -109,10 +110,32 @@ class MatchViewSet(viewsets.ModelViewSet):
     queryset = queryset.select_related('primary_caster__player')
     queryset = queryset.prefetch_related('secondary_casters__player')
     queryset = queryset.prefetch_related('circuit__season')
-    queryset = queryset.prefetch_related('result__sets')
-    queryset = queryset.prefetch_related('result__winner')
-    queryset = queryset.prefetch_related('result__loser')
 
+    queryset = queryset.prefetch_related(
+        Prefetch('result', Result.objects.annotate(
+            sets_total=Coalesce(Count('sets'), 0)
+        ).annotate(sets_home=Count(
+                Case(
+                    When(
+                        sets__winner=F('match__home'), then=1),
+                        output_field=IntegerField(),
+                    )
+                )
+        ).annotate(sets_away=Count(
+                Case(
+                    When(
+                        sets__winner=F('match__away'), then=1),
+                        output_field=IntegerField(),
+                    )
+                )
+            )
+        ),
+        Prefetch('result__sets'),
+        Prefetch('result__winner'),
+        Prefetch('result__loser'),
+    )
+    
+    
     serializer_class = MatchSerializer
     filterset_class = MatchFilter
     permission_classes = [
