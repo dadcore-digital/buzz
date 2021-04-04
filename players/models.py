@@ -48,6 +48,21 @@ class Player(models.Model):
         
         return awards
 
+    @property
+    def discord_avatar_url(self):
+        """Retrieve a URL to a player's Discord avatar, given a Player object."""    
+        user = self.user
+        social_account = user.socialaccount_set.all().first()
+
+        if social_account:
+            uid = social_account.extra_data['id']
+            avatar = social_account.extra_data['avatar']
+            return f'https://cdn.discordapp.com/avatars/{uid}/{avatar}.png'
+
+        return None
+
+
+
     def get_or_create_token(self):
         """
         Return DRF auth token. Create if not present.
@@ -80,3 +95,11 @@ class PlayerSettings(models.Model):
 
     class Meta:
         verbose_name_plural = 'Settings'
+
+class IGLPlayerLookup(models.Model):
+    discord_uid = models.CharField(max_length=255)
+    discord_username = models.CharField(max_length=255)
+    discord_nick = models.CharField(max_length=255, blank=True, null=True)
+    discord_avatar_url = models.URLField(blank=True, null=True)
+    igl_player_name = models.CharField(max_length=255, blank=True, null=True)
+

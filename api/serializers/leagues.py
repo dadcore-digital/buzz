@@ -1,64 +1,54 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-from rest_framework_nested.relations import NestedHyperlinkedRelatedField
-from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
-from leagues.models import League, Season, Circuit, Round, Bracket
+from leagues.models import League, Season, Circuit, Group, Round
 
-class LeagueSerializer(serializers.HyperlinkedModelSerializer):
+
+###################
+# League Endpoint #
+###################
+class LeagueSeasonSerializer(serializers.ModelSerializer):
     
-    # seasons = NestedHyperlinkedRelatedField(
-    #     many=True,
-    #     read_only=True,
-    #     view_name='seasons-detail',
-    #     parent_lookup_kwargs={'league_pk': 'league__pk'}
-    # )
+    class Meta:
+        model = Season
+        fields = [
+            'id', 'is_active', 'name', 'registration_open', 'rosters_open',
+            'max_team_members', 'registration_start', 'registration_end',
+            'regular_start', 'regular_end', 'tournament_start',
+            'tournament_end'
+        ]
 
-    seasons = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
+class LeagueSerializer(serializers.ModelSerializer):
+    
+    seasons = LeagueSeasonSerializer(many=True, read_only=True)
+    
     class Meta:
         model = League
         fields = [
             'id', 'name', 'modified', 'created', 'seasons'
         ]
 
-
-class LeagueSummarySerializer(serializers.HyperlinkedModelSerializer):
-
-    _href = serializers.HyperlinkedIdentityField(
-        view_name='leagues-detail'
-    )
-
-    class Meta:
-        model = League
-        fields = [
-            'name', '_href'
-        ]
-
-class CircuitSummaryNoSeasonSerializer(serializers.ModelSerializer):
-    """
-    1. Must come before SeasonSerializer
-    2. Get around circular imports by importing team serializer in class
-    """
-    from .teams import TeamSummaryNoCircuitSerializer
-
-    teams = TeamSummaryNoCircuitSerializer(many=True)
+###################
+# Season Endpoint #
+###################
+class SeasonCircuitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Circuit
-        fields = ['id', 'region', 'tier', 'name', 'verbose_name', 'teams']
+        fields = [
+            'id', 'region', 'tier', 'name', 'verbose_name'
+        ]
+
+class SeasonRoundSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Round
+        fields = ['id', 'round_number', 'name']
 
 
-class SeasonSerializer(serializers.HyperlinkedModelSerializer):
-
-    circuits = CircuitSummaryNoSeasonSerializer(many=True)
-
-    rounds = NestedHyperlinkedRelatedField(
-        many=True,
-        read_only=True,
-        view_name='rounds-detail',
-        parent_lookup_kwargs={
-            'league_pk': 'season__league__pk', 'season_pk': 'season__pk'
-        }
-    )
+class SeasonSerializer(serializers.ModelSerializer):
+    
+    circuits = SeasonCircuitSerializer(many=True, read_only=True)
+    rounds = SeasonRoundSerializer(many=True, read_only=True)
 
     class Meta:
         model = Season
@@ -69,56 +59,95 @@ class SeasonSerializer(serializers.HyperlinkedModelSerializer):
             'tournament_end', 'circuits', 'rounds'
         ]
 
-class SeasonSummarySerializer(serializers.ModelSerializer):
-    league = LeagueSummarySerializer()
+####################
+# Circuit Endpoint #
+####################
 
+class CircuitTeamPlayerSerializer(serializers.ModelSerializer):
+    
     class Meta:
-        model = Season
-        fields = ['id', 'name', 'league']
-
-class CircuitSerializer(serializers.ModelSerializer):
-    from .teams import TeamSummaryNoCircuitMemberDetailSerializer
-    teams = TeamSummaryNoCircuitMemberDetailSerializer(many=True)
-    class Meta:
-        model = Circuit
-        depth = 2
+        from players.models import Player
+        model = Player
         fields = [
-            'id', 'region', 'tier', 'name', 'teams', 'verbose_name'
+            'id', 'name', 'name_phonetic', 'pronouns', 'discord_username',
+            'twitch_username', 'bio', 'emoji', 'avatar_url', 'modified',
+            'created'
+        ]        
+
+class CircuitTeamSerializer(serializers.ModelSerializer):
+    
+    members = CircuitTeamPlayerSerializer(many=True, read_only=True)
+    wins = serializers.IntegerField(read_only=True)
+    losses = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        from teams.models import Team
+
+        model = Team
+        fields = [
+            'id', 'name', 'members', 'wins', 'losses'
         ]
 
-class CircuitSummarySerializer(serializers.ModelSerializer):
+class CircuitSeasonSerializer(serializers.ModelSerializer):
     
-    season = SeasonSummarySerializer()
+    class Meta:
+        model = Season
+        fields = [
+            'id', 'is_active', 'name', 'registration_open', 'rosters_open',
+            'max_team_members', 'registration_start', 'registration_end',
+            'regular_start', 'regular_end', 'tournament_start',
+            'tournament_end'
+        ]
+
+class CircuitSerializer(serializers.ModelSerializer):
+    
+    season = CircuitSeasonSerializer(many=False, read_only=True)
+    teams = CircuitTeamSerializer(many=True)
 
     class Meta:
         model = Circuit
-        fields = ['id', 'season', 'region', 'tier', 'name', 'verbose_name']
-        
+        depth = 1
+        fields = [
+            'id', 'is_active', 'region', 'tier', 'name', 'season',
+            'teams', 'verbose_name'
+        ]
 
+####################
+# Group Endpoint #
+####################
+                
+class GroupTeamSerializer(serializers.ModelSerializer):
+    
+    members = CircuitTeamPlayerSerializer(many=True, read_only=True)
+    wins = serializers.IntegerField(read_only=True)
+    losses = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        from teams.models import Team
+
+        model = Team
+        fields = [
+            'id', 'name', 'members', 'wins', 'losses'
+        ]
+
+class GroupSerializer(serializers.ModelSerializer):
+    
+    teams = GroupTeamSerializer(many=True)
+
+    class Meta:
+        model = Group
+        depth = 1
+        fields = [
+            'id', 'name', 'circuit', 'number', 'teams'
+        ]
+
+###################
+# Round Endpoints #
+###################
 class RoundSerializer(serializers.ModelSerializer):
     
-    matches = serializers.HyperlinkedRelatedField(
-        many=True,
-        read_only=True,
-        view_name='match-detail'
-    )
+    matches = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
 
     class Meta:
         model = Round
         fields = ['round_number', 'name', 'matches']
-    
-class BracketSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = Bracket
-        fields = ['name']
-
-class RoundSummarySerializer(serializers.ModelSerializer):
-
-    number = serializers.DecimalField(
-        source='round_number', max_digits=4, decimal_places=2)
-
-    class Meta:
-        model = Round
-        fields = ['number', 'name']
-        

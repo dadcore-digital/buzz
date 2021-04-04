@@ -4,8 +4,9 @@ from teams.tests.factories import TeamFactory
 from api.tests.services import BuzzClient
 from buzz.tests.factories import UserFactory
 
+
 @mark.django_db
-def test_get_teams_by_name(django_app):
+def test_get_players_by_name(django_app):
     """
     Get basic player data by player name
     """
@@ -45,7 +46,6 @@ def test_get_teams_by_name(django_app):
     assert entry['teams'][1]['is_active'] == False
     
     # Need to build this out once Award Factory is in place
-    assert 'award_summary' in entry.keys()
     assert 'token' not in entry.keys()
 
 
@@ -86,7 +86,7 @@ def test_get_player_detail(django_app):
     assert entry['teams'][1]['is_active'] == False
     
     # Need to build this out once Award Factory is in place
-    assert 'award_summary' in entry.keys()
+    assert 'awards' in entry.keys()
 
     # Keep these out!
     assert 'token' not in entry.keys()
@@ -160,28 +160,6 @@ def test_update_player_permission_denied(django_app):
 
 
 @mark.django_db
-def test_delete_player_self_permission_denied(django_app):
-    """
-    Player cannot delete themselves.
-    """
-    player = PlayerFactory()
-
-    client = BuzzClient(
-        django_app, token=player.get_or_create_token(), return_json=False)
-    
-    
-    data = {
-        'id': '12345',
-        'discord_username': 'admin'
-    }
-    
-    resp = client.player(player.id, method='DELETE', expect_errors=True) 
-    assert resp.status_code == 403
-    
-    player.refresh_from_db()
-    assert player.id
-    
-@mark.django_db
 def test_delete_player_other_permission_denied(django_app):
     """
     Players cannot delete each other
@@ -206,24 +184,23 @@ def test_delete_player_other_permission_denied(django_app):
 
 
 @mark.django_db
-def test_create_player_permission_denied(django_app):
+def test_delete_player_self_permission_denied(django_app):
     """
-    Player cannot create arbitrary additional Players.
+    Player cannot delete themselves.
     """
     player = PlayerFactory()
-    
+
     client = BuzzClient(
         django_app, token=player.get_or_create_token(), return_json=False)
     
+    
     data = {
-        'name': 'misbehavin',
-        'pronouns': 'abc123',
-        'name_phonetic': 'ohhh-kayyy',
-        'twitch_username': 'bogus_',
-        'bio': 'My new bio',
-        'emoji': 'testmoji'
+        'id': '12345',
+        'discord_username': 'admin'
     }
     
-    resp = client.players(None, method='POST', data=data, expect_errors=True)
-    assert resp.status_code == 400
-
+    resp = client.player(player.id, method='DELETE', expect_errors=True) 
+    assert resp.status_code == 403
+    
+    player.refresh_from_db()
+    assert player.id

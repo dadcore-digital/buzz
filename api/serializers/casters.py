@@ -2,22 +2,23 @@ from rest_framework import serializers
 from casters.models import Caster
 from .players_nested import PlayerSerializerSummary
 
-class CasterSerializer(serializers.ModelSerializer):
-    
-    player = PlayerSerializerSummary()
-
+class CasterPlayerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Caster
+        from players.models import Player
+        model = Player
         fields = [
-            'name', 'player', 'bio_link', 'is_active', 'does_solo_casts',
-            'stream_link'
+            'id', 'name', 'name_phonetic', 'pronouns', 'discord_username',
+            'twitch_username', 'bio', 'emoji', 'avatar_url', 'modified',
+            'created'
         ]
 
-
-class CasterSummarySerializer(serializers.ModelSerializer):
+class CasterSerializer(serializers.ModelSerializer):
     
+    player = CasterPlayerSerializer()
+
     class Meta:
         model = Caster
         fields = [
-            'name', 'bio_link', 'stream_link'
+            'id', 'name', 'player', 'bio_link', 'is_active', 'does_solo_casts',
+            'stream_link'
         ]

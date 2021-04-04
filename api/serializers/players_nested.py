@@ -1,8 +1,10 @@
 from rest_framework import serializers
 from players.models import Player
 
-class PlayerSerializerSummary(serializers.HyperlinkedModelSerializer):
-    
+class PlayerSerializerSummary(serializers.ModelSerializer):
+    """
+    This Serializer is used in multiple other serializers. Careful editing!
+    """
     class Meta:
         model = Player
         fields = [

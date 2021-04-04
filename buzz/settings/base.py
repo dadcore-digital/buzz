@@ -17,20 +17,25 @@ def get_secret(secret_name):
     settings files, or risk circular imports.
     """
     # Secrets file location
-    secrets_file = f'{PROJECT_DIR}/settings/secrets.json'
+    if 'GET_SECRETS_FROM_ENV' in os.environ.keys():
+        return os.environ[secret_name]
 
-    with open(secrets_file) as f:
-        secrets_file = json.loads(f.read())
-    try:
-        return str(secrets_file[secret_name])
+    else:
+        secrets_file = f'{PROJECT_DIR}/settings/secrets.json'
 
-    except KeyError:
-        error_msg = 'Missing secrets file.'
-        raise Exception(error_msg)
+        with open(secrets_file) as f:
+            secrets_file = json.loads(f.read())
+        try:
+            return str(secrets_file[secret_name])
+
+        except KeyError:
+            error_msg = 'Missing secrets file.'
+            raise Exception(error_msg)
 
 SECRET_KEY = get_secret('SECRET_KEY')
 
 DEBUG = True
+DEBUG_TOOLBAR = False
 ALLOWED_HOSTS = []
 
 # Application definition
@@ -39,13 +44,13 @@ INSTALLED_APPS = [
     'admin_interface',
     'colorfield',
     'corsheaders',
+    'django_select2',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_extensions',
     'rest_framework',
     'rest_framework.authtoken',
     'django.contrib.sites',
@@ -54,6 +59,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',    
     'allauth.socialaccount.providers.discord',
     'django_filters',
+    'loginas',
     'buzz',
     'players',
     'leagues',
@@ -64,7 +70,8 @@ INSTALLED_APPS = [
     'events',
     'streams',
     'beegame',
-    'api',
+    'staff',
+    'api'
 
 ]
 
@@ -157,8 +164,10 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-    ]
-}
+    ],
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
+    'DEFAULT_VERSION': 1.0
+}   
 
 
 # Steam Settings
@@ -170,6 +179,6 @@ TWITCH_CLIENT_SECRET = get_secret('TWITCH_CLIENT_SECRET')
 TWITCH_GAME_ID = '506455'
 
 # BGL
-BGL_AUTH_HANDOFF_URL = 'https://league-beegame-gg.web.app'
+BGL_AUTH_HANDOFF_URL = 'https://league.beegame.gg'
 
 NANOID_LIBRARY = '6789BCDFGHJKLMNPQRTWbcdfghjkmnpqrtwz'

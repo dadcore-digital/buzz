@@ -3,8 +3,8 @@ from datetime import datetime
 from django.apps import apps
 from django.conf import settings
 from django.db import models
-from django.db.models import Q
-from leagues.models import Circuit
+from django.db.models import Count, Q
+from leagues.models import Circuit, Group
 from players.models import Player
 
 
@@ -33,7 +33,6 @@ def _generate_invite_code():
     """
     return nanoid.generate(settings.NANOID_LIBRARY, size=8)
 
-
 class Team(models.Model):
     """
     A group of Member players within a League.
@@ -41,6 +40,10 @@ class Team(models.Model):
     name = models.CharField(blank=True, max_length=255)
     circuit = models.ForeignKey(
         Circuit, related_name='teams', on_delete=models.CASCADE)
+    group = models.ForeignKey(
+        Group, related_name='teams', on_delete=models.SET_NULL, blank=True,
+        null=True
+    )
     captain = models.ForeignKey(
         Player, related_name='captained_teams', on_delete=models.CASCADE,
         blank=True, null=True
@@ -56,7 +59,7 @@ class Team(models.Model):
         on_delete=models.SET_NULL)
     modified = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
-
+    
     @property
     def is_active(self):
         """
@@ -84,11 +87,11 @@ class Team(models.Model):
         return f'{self.circuit.tier}{self.circuit.region}'
 
     @property
-    def losses(self):
+    def loss_count(self):
         return self.lost_match_results.filter().count()
 
     @property
-    def wins(self):
+    def win_count(self):
         return self.won_match_results.all().count()
 
     def generate_invite_code(self):
@@ -98,7 +101,10 @@ class Team(models.Model):
         See doc string for generate_invite_code function (outside of this 
         model) for further details. 
         """
-        return _generate_invite_code()
+        new_invite_code = _generate_invite_code()
+        self.invite_code = new_invite_code
+        self.save()
+        return new_invite_code
 
     def __str__(self):
         if self.captain:

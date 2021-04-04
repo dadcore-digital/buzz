@@ -1,6 +1,119 @@
 import csv
+import json
 from django.db import IntegrityError
-from players.models import Player, Alias
+from players.models import Player, Alias, IGLPlayerLookup
+
+def connect_user_to_player(user):
+    """
+    Connect a User object to an existing Player object.
+
+    For players who have existing Player objects in the system, but are
+    signing up as new users with Discord, we want them to have historical
+    access to their Player object, and not create a dupe one.
+    """
+    social_account = user.socialaccount_set.all().first()
+
+    if social_account:
+        
+        igl_player = IGLPlayerLookup.objects.filter(
+            discord_uid=social_account.uid).first()
+        
+        if igl_player:
+            
+            # Try looking up by IGL PLayer Name first
+            player = Player.objects.filter(
+                name__iexact=igl_player.igl_player_name).first()
+
+            # Then try by discord username
+            if not player:
+                player = Player.objects.filter(
+                    discord_username__iexact=igl_player.discord_username).first()
+            
+            if player:
+                player.user = user
+                player.save()
+            return player
+    
+    return None
+
+def import_igl_discord_player_data(
+    json_file_path, clear_igl_lookup_table=False, update_player_avatars=False):
+    """
+    Update IGLPlayerLookup table with list of IGL playernames and Discord Users.
+
+    Takes a JSON file of IGL players names in the following format:
+
+    {
+        "id": 393937783783782378,
+        "username": "gameplayer#9324",
+        "avatar_url": "https://cdn.discordapp.com/avatars/393937783783782378/c7c1e03edd089663c0f6f7bfd35028b6.webp?size=1024",
+        "nick": "playsgames!",
+        "iglname": "GamePlayer"
+    }
+
+    ...and populate the IGLLookup table.
+
+    Additionally, if update_player_avatars is passed in, will find any
+    existing Player objects whose avatar is not already set, and if their
+    Player.discord_username matches an entry in the JSON file, update their
+    avatar accordingly.
+    
+    This should be a one-time thing, but useful to know how to have it on 
+    record if we ever have to do a re-import for some reason. 
+
+    Arguments:
+    json_file_path -- A relative or full filepath to the JSON file to import.
+    clear_igl_lookup_table -- If True, will delete all existing IGLPlayerLookup
+                              objects in database. (bool) (optional)
+    update_player_avatars -- If True will attempt to find existing Player
+                            objects, even those not connected to a User
+                            account, and assign avatars to them. (bool)
+                            (optional)
+    """
+    with open(json_file_path) as f:
+        users = json.load(f)
+    
+    if clear_igl_lookup_table:
+        IGLPlayerLookup.objects.all().delete()
+
+    for user in users:
+        if (
+            'id' in user.keys()
+        ):
+            igl_player = IGLPlayerLookup()
+
+            # Some discord users we have in file have no associated IGL
+            # name, but may have a player object none the less. We can
+            # still associate them to their Player object via their 
+            # discord username, so we don't skip them.
+            if 'iglname' in user.keys():
+                igl_player.igl_player_name = user['iglname']
+            
+            igl_player.discord_uid = user['id']
+            igl_player.discord_username = user['username']
+            igl_player.discord_avatar_url = user['avatar_url']
+
+            if 'nick' in user.keys():
+                igl_player.discord_nick = user['nick']
+            
+            igl_player.save()
+
+            if update_player_avatars:
+
+                # First try get player by player name
+                player = Player.objects.filter(
+                    name__iexact=igl_player.igl_player_name).first()
+                
+                # Attempt to get by discord username if player name doesn't work
+                if not player:
+                    player = Player.objects.filter(
+                        discord_username__iexact=igl_player.discord_username).first()
+                
+                if player:
+                    if not player.avatar_url:
+                        player.avatar_url = igl_player.discord_avatar_url
+                        player.save() 
+                        print(f'Updating player avatar for {player.name}')
 
 def parse_players_csv(csv_data):
     """
