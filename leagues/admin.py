@@ -19,7 +19,15 @@ class LeagueAdmin(admin.ModelAdmin):
     readonly_fields = (seasons,)  
 
 class SeasonAdmin(admin.ModelAdmin):
-    
+
+    list_display = (
+        'name',
+        'league',
+        'is_active',
+        'registration_open',
+        'rosters_open'        
+    )   
+ 
     def circuits(self):
         links = ''
         for obj in self.circuits.all():
@@ -44,7 +52,15 @@ class SeasonAdmin(admin.ModelAdmin):
     readonly_fields = (circuits, rounds)  
 
 class CircuitAdmin(admin.ModelAdmin):
-    
+
+    list_display = (
+        'name',
+        'region',
+        'tier',
+        'season'
+    )   
+
+
     def teams(self):
         links = ''
         for obj in self.teams.all():

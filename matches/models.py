@@ -249,7 +249,7 @@ class TeamMapping(models.Model):
         (GOLD, 'Gold')
     )
 
-    color = models.CharField(max_length=1, choices=COLOR_CHOICES)
+    color = models.IntegerField(max_length=1, choices=COLOR_CHOICES)
     team = models.ForeignKey(
         Team, related_name='team_mapping', on_delete=models.CASCADE)
 

@@ -31,7 +31,16 @@ class MatchAdmin(admin.ModelAdmin):
     ]
 
 class ResultAdmin(admin.ModelAdmin):
-    
+    list_display = [
+        'id',
+        'match',
+        'status',
+        'winner',
+        'loser',
+        'source',
+        'created_by'
+    ]
+
     search_fields = (
         'match__home__name',
         'match__away__name',
@@ -85,6 +94,13 @@ class ResultAdmin(admin.ModelAdmin):
 
 
 class SetAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+        'result',
+        'number',
+        'winner',
+        'loser'
+    ]
     
     def result(self):
         result_link = ''
@@ -112,8 +128,15 @@ class SetAdmin(admin.ModelAdmin):
     autocomplete_fields = ['result', 'winner', 'loser']
 
 class SetLogAdmin(admin.ModelAdmin):
-
+    list_display = ['id', 'set', 'filename']
     autocomplete_fields = ['set']
+
+class GameAdmin(admin.ModelAdmin):
+    
+    list_display = [
+        'id', 'set', 'map', 'number', 'winner', 'loser', 'win_condition' 
+    ]
+    autocomplete_fields = ['winner', 'loser', 'set' ]
 
 class PlayerMappingAdmin(admin.ModelAdmin):
     
@@ -151,6 +174,6 @@ admin.site.register(Match, MatchAdmin)
 admin.site.register(Result, ResultAdmin)
 admin.site.register(Set, SetAdmin)
 admin.site.register(SetLog, SetLogAdmin)
+admin.site.register(Game, GameAdmin)
 admin.site.register(PlayerMapping, PlayerMappingAdmin)
 admin.site.register(TeamMapping, TeamMappingAdmin)
-admin.site.register(Game)

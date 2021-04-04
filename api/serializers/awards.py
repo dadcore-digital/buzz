@@ -5,7 +5,7 @@ class AwardCategorySerializer(serializers.ModelSerializer):
     
     class Meta:
         model = AwardCategory
-        fields = ['name']
+        fields = ['id', 'name', 'discord_emoji']
 
 class AwardCircuitSeasonSerializer(serializers.ModelSerializer):
     

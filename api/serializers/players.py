@@ -27,7 +27,7 @@ class PlayerAwardCategorySerializer(serializers.ModelSerializer):
     class Meta:
         from awards.models import AwardCategory
         model = AwardCategory
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'discord_emoji']
 
 class PlayerAwardSerializer(serializers.ModelSerializer):
     
