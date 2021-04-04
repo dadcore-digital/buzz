@@ -283,7 +283,7 @@ class MatchCircuitSeasonSerializer(serializers.ModelSerializer):
 
 class MatchCircuitSerializer(serializers.ModelSerializer):
     season = MatchCircuitSeasonSerializer(many=False, read_only=True)
-
+    
     class Meta:
         from leagues.models import Circuit
         model = Circuit
@@ -299,15 +299,23 @@ class MatchRoundSummarySerializer(serializers.ModelSerializer):
         model = Round
         fields = ['number', 'name']
 
+class MatchTeamGroupSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        from leagues.models import Group
+        model = Group
+        fields = ['id', 'name', 'number']
+
 class MatchTeamSerializer(serializers.ModelSerializer):
 
     members = MatchPlayerSerializer(many=True, read_only=True)
-    
+    group = MatchTeamGroupSerializer(read_only=True)
+
     class Meta:
         from teams.models import Team
         model = Team
         fields = [
-            'id', 'name', 'members'            
+            'id', 'name', 'members', 'group'         
         ]
 
 class MatchCasterSummarySerializer(serializers.ModelSerializer):
@@ -339,8 +347,7 @@ class MatchResultSerializer(serializers.ModelSerializer):
             'id', 'status', 'winner', 'loser', 'sets_home', 'sets_away',
             'sets_total'
         ]
-
-
+                
 class MatchSerializer(serializers.ModelSerializer):
     
     circuit = MatchCircuitSerializer()
@@ -348,6 +355,7 @@ class MatchSerializer(serializers.ModelSerializer):
     away = MatchTeamSerializer()
     round = MatchRoundSummarySerializer()
     result = MatchResultSerializer()
+    circuit_display = serializers.CharField()
 
     primary_caster = MatchCasterSummarySerializer()
     secondary_casters = serializers.SlugRelatedField(
@@ -356,7 +364,7 @@ class MatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Match
         fields = [
-            'id', 'home', 'away', 'circuit', 'round', 'start_time',
+            'id', 'home', 'away', 'circuit', 'circuit_display', 'round', 'start_time',
             'time_until', 'scheduled', 'primary_caster', 'secondary_casters',
             'result', 'vod_link'
         ]

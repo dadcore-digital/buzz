@@ -51,6 +51,7 @@ def test_get_matches_upcoming(django_app):
     assert 'secondary_casters' in matches[0].keys()
     assert 'result' in matches[0].keys()
     assert 'vod_link' in matches[0].keys()
+    assert 'circuit_display' in matches[0].keys()
 
 
 @mark.django_db

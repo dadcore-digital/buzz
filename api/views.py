@@ -18,7 +18,7 @@ from .filters.teams import DynastyFilter, TeamFilter
 from .serializers.awards import AwardSerializer
 from .serializers.casters import CasterSerializer
 from .serializers.leagues import (
-    LeagueSerializer, SeasonSerializer, CircuitSerializer,
+    LeagueSerializer, SeasonSerializer, CircuitSerializer, GroupSerializer,
     RoundSerializer)
 from api import permissions
 from .serializers.beegame import PlayingSerializer, ReleaseSerializer
@@ -35,7 +35,7 @@ from .serializers.users import MeSerializer, UserSerializer
 from awards.models import Award
 from beegame.models import Playing, Release
 from events.models import Event
-from leagues.models import League, Season, Circuit, Round
+from leagues.models import League, Season, Circuit, Group, Round
 from matches.models import Game, Match, Result, Set
 from matches.permissions import can_update_match
 from casters.models import Caster
@@ -70,6 +70,16 @@ class CircuitViewSet(viewsets.ReadOnlyModelViewSet):
     
     filterset_class = CircuitFilter
     serializer_class = CircuitSerializer
+
+class GroupViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Group.objects.select_related('circuit')
+    queryset = queryset.prefetch_related(
+        Prefetch('teams', queryset=Team.objects.annotate(
+            wins=Count('won_match_results', distinct=True)).annotate(losses=Count('lost_match_results', distinct=True))),
+        Prefetch('teams__members')            
+    ).order_by('id')
+    
+    serializer_class = GroupSerializer
 
 class RoundViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Round.objects.all().order_by('name')

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-from leagues.models import League, Season, Circuit, Round
+from leagues.models import League, Season, Circuit, Group, Round
 
 
 ###################
@@ -110,6 +110,35 @@ class CircuitSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'is_active', 'region', 'tier', 'name', 'season',
             'teams', 'verbose_name'
+        ]
+
+####################
+# Group Endpoint #
+####################
+                
+class GroupTeamSerializer(serializers.ModelSerializer):
+    
+    members = CircuitTeamPlayerSerializer(many=True, read_only=True)
+    wins = serializers.IntegerField(read_only=True)
+    losses = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        from teams.models import Team
+
+        model = Team
+        fields = [
+            'id', 'name', 'members', 'wins', 'losses'
+        ]
+
+class GroupSerializer(serializers.ModelSerializer):
+    
+    teams = GroupTeamSerializer(many=True)
+
+    class Meta:
+        model = Group
+        depth = 1
+        fields = [
+            'id', 'name', 'circuit', 'number', 'teams'
         ]
 
 ###################

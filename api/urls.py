@@ -4,12 +4,13 @@ from .views import (
     AwardViewSet, LeagueViewSet, SeasonViewSet, CircuitViewSet, MatchViewSet,
     TeamViewSet, DynastyViewSet, PlayerViewSet, EventViewSet, RoundViewSet,
     CasterViewSet, StreamViewSet, PlayingViewSet, ReleaseViewSet,
-    ResultViewSet, SetViewSet, MeViewSet, GameViewSet)
+    ResultViewSet, SetViewSet, MeViewSet, GameViewSet, GroupViewSet)
 
 router = routers.DefaultRouter()
 router.register(r'awards', AwardViewSet)
 router.register(r'casters', CasterViewSet)
 router.register(r'circuits', CircuitViewSet, basename='circuits')
+router.register(r'groups', GroupViewSet, basename='groups')
 router.register(r'dynasties', DynastyViewSet)
 router.register(r'events', EventViewSet)
 router.register(r'games', GameViewSet),

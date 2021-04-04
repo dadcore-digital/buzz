@@ -1,10 +1,22 @@
 from collections import OrderedDict
 from rest_framework import serializers
-from leagues.models import Circuit
+from leagues.models import Circuit, Group
 from teams.models import Dynasty, Team
 
 from .players_nested import PlayerSerializerSummary
 from teams.permissions import can_create_team, can_rename_team, can_join_team
+
+class TeamGroupSerializer(serializers.ModelSerializer):
+
+    circuit = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
+    
+    class Meta:
+        from leagues.models import Group
+        model = Group
+        
+        fields = [
+            'id', 'name', 'circuit', 'number'
+        ]
 
 
 class TeamPlayerSerializer(serializers.ModelSerializer):
@@ -53,14 +65,17 @@ class TeamSerializer(serializers.ModelSerializer):
     circuit = serializers.PrimaryKeyRelatedField(
         many=False, queryset=Circuit.objects.filter(season__is_active=True))
 
+    group = TeamGroupSerializer(many=False, read_only=True)
+
     wins = serializers.IntegerField(read_only=True)
     losses = serializers.IntegerField(read_only=True)
     
     class Meta:
         model = Team
         fields = [
-            'id', 'name', 'circuit', 'is_active', 'can_add_members', 'dynasty',
-            'captain', 'members', 'modified', 'created', 'wins', 'losses' 
+            'id', 'name', 'circuit', 'group', 'is_active', 'can_add_members',
+            'dynasty', 'captain', 'members', 'modified', 'created', 'wins',
+            'losses' 
         ]
         depth = 2
 
@@ -170,6 +185,8 @@ class TeamDetailSerializer(serializers.ModelSerializer):
     circuit = serializers.PrimaryKeyRelatedField(
         many=False, queryset=Circuit.objects.filter(season__is_active=True))
 
+    group = TeamGroupSerializer(many=False, read_only=True)
+
     home_matches = TeamDetailMatchSerializer(many=True, read_only=True)
     away_matches = TeamDetailMatchSerializer(many=True, read_only=True)
 
@@ -181,9 +198,9 @@ class TeamDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
         fields = [
-            'id', 'name', 'circuit', 'is_active', 'can_add_members', 'dynasty',
-            'captain', 'home_matches', 'away_matches', 'members', 'modified',
-            'created', 'wins', 'losses', 'invite_code'
+            'id', 'name', 'circuit', 'group', 'is_active', 'can_add_members',
+            'dynasty', 'captain', 'home_matches', 'away_matches', 'members',
+            'modified', 'created', 'wins', 'losses', 'invite_code'
         ]
         depth = 2
 

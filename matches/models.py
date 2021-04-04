@@ -41,6 +41,17 @@ class Match(models.Model):
         verbose_name_plural = 'Matches'
 
     @property
+    def circuit_display(self):
+        if self.home:
+            if self.home.group and self.circuit:
+                return f'{self.circuit.name} - {self.home.group.name}'
+
+        if self.circuit:
+            return self.circuit.name
+        
+        return ''
+
+    @property
     def time_until(self):
         if self.start_time:
             arrow_start_time = arrow.get(self.start_time)
