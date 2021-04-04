@@ -33,5 +33,3 @@ def create_match(request):
     return render(
         request, 'staff/match_form.html',
         {'matches_formset': formset, 'results': results})
-
-# @method_decorator(staff_member_required, name='dispatch')

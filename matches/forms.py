@@ -76,11 +76,11 @@ class MatchForm(ModelForm):
 
     class Meta:
         model = Match
-        fields = ['circuit', 'round', 'home', 'away']
+        fields = ['circuit', 'round', 'away', 'home']
 
         widgets = {
-            'home': TeamWidget,
             'away': TeamWidget,
+            'home': TeamWidget,
             'circuit': CircuitWidget,
             'round': RoundWidget
         }
