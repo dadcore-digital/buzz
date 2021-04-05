@@ -2,6 +2,7 @@ from pytest import mark
 from teams.tests.factories import TeamFactory
 from api.tests.services import BuzzClient
 from leagues.tests.factories import CircuitFactory
+from matches.tests.factories import ResultFactory
 from players.tests.factories import PlayerFactory
 
 
@@ -38,7 +39,9 @@ def test_get_team_detail(django_app):
     """
     client = BuzzClient(django_app)
 
-    team = TeamFactory()
+    result = ResultFactory()
+    team = result.match.home
+    match = result.match
     TeamFactory()    
 
     params = f'name={team.name}'
@@ -52,8 +55,13 @@ def test_get_team_detail(django_app):
     assert entry['can_add_members'] == team.can_add_members
     assert entry['wins'] == team.win_count
     assert entry['losses'] == team.loss_count
-
+    
     assert not entry['invite_code']
+    assert entry['home_matches']
+    assert entry['home_matches'][0]['result']
+    assert entry['home_matches'][0]['result']['sets_home'] == 0
+    assert entry['home_matches'][0]['result']['sets_away'] == 0
+    assert entry['home_matches'][0]['result']['sets_total'] == 0
 
 @mark.django_db
 def test_get_team_detail_as_captain(django_app):

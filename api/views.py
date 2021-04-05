@@ -235,15 +235,59 @@ class TeamViewSet(viewsets.ModelViewSet):
     filterset_class = TeamFilter
 
     def retrieve(self, request, pk=None):
-        queryset = self.get_queryset()       
+        queryset = self.get_queryset()
         queryset = queryset.prefetch_related('home_matches__primary_caster')
         queryset = queryset.prefetch_related('away_matches__primary_caster')
         queryset = queryset.prefetch_related('home_matches__secondary_casters')
         queryset = queryset.prefetch_related('away_matches__secondary_casters')
-        queryset = queryset.prefetch_related('home_matches__result')
-        queryset = queryset.prefetch_related('away_matches__result')
         queryset = queryset.prefetch_related('home_matches__round')
         queryset = queryset.prefetch_related('away_matches__round')
+
+        queryset = queryset.prefetch_related(
+            Prefetch('home_matches__result', Result.objects.annotate(
+                sets_total=Coalesce(Count('sets'), 0)
+            ).annotate(sets_home=Count(
+                    Case(
+                        When(
+                            sets__winner=F('match__home'), then=1),
+                            output_field=IntegerField(),
+                        )
+                    )
+            ).annotate(sets_away=Count(
+                    Case(
+                        When(
+                            sets__winner=F('match__away'), then=1),
+                            output_field=IntegerField(),
+                        )
+                    )
+                )
+            ),
+            Prefetch('home_matches__result__match__home__members'),
+            Prefetch('home_matches__result__match__away__members'),
+        )
+ 
+        queryset = queryset.prefetch_related(
+            Prefetch('away_matches__result', Result.objects.annotate(
+                sets_total=Coalesce(Count('sets'), 0)
+            ).annotate(sets_home=Count(
+                    Case(
+                        When(
+                            sets__winner=F('match__home'), then=1),
+                            output_field=IntegerField(),
+                        )
+                    )
+            ).annotate(sets_away=Count(
+                    Case(
+                        When(
+                            sets__winner=F('match__away'), then=1),
+                            output_field=IntegerField(),
+                        )
+                    )
+                )
+            ),
+            Prefetch('away_matches__result__match__home__members'),
+            Prefetch('away_matches__result__match__away__members'),
+        )            
 
         team = queryset.filter(id=pk).first()
         serializer = TeamDetailSerializer(team, context={'request': request})
