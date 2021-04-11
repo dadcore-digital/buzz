@@ -2,9 +2,9 @@ name: Staging Run Tests & Deploy
 
 on:
   push:
-    branches: [ mvp ]
+    branches: [ staging ]
   pull_request:
-    branches: [ mvp ]
+    branches: [ staging ]
 
 jobs:
   build:
