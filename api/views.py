@@ -10,6 +10,7 @@ from django.db.models import Count, OuterRef, Prefetch, Sum, Q, Subquery, Case, 
 from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404, redirect
 from .filters.awards import AwardFilter
+from .filters.casters import CasterFilter
 from .filters.events import EventFilter    
 from .filters.leagues import CircuitFilter, LeagueFilter, SeasonFilter
 from .filters.matches import MatchFilter
@@ -371,7 +372,8 @@ class PlayerViewSet(viewsets.ModelViewSet):
 class CasterViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Caster.objects.all().order_by('player__name')
     queryset = queryset.select_related('player')
-    
+    filterset_class = CasterFilter
+
     serializer_class = CasterSerializer
 
 class StreamViewSet(viewsets.ReadOnlyModelViewSet):
