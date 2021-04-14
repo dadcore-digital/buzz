@@ -5,8 +5,9 @@ from .models import Award, AwardCategory, Stat, StatCategory
 
 class AwardAdmin(admin.ModelAdmin):
     
-    readonly_fields = ('stats',)
-
+    raw_id_fields = ('stats',)
+    save_as = True
+    
     list_display = (
         'award_category',
         'player',
@@ -20,26 +21,24 @@ class AwardAdmin(admin.ModelAdmin):
     )
 
     autocomplete_fields = ['player']
-
+    
 class StatAdmin(admin.ModelAdmin):
 
     def player(self):
-        award = self.award.all().first()
+        award = self.award.first()
         if award:
-            return self.award.all().first().player.name
+            return award.player.name
         return ''
 
-    def award_display(self):
-        award = self.award.all().first()
-        if award:
-            return self.award.all().first()
-        return ''
+    def category(self):
+        return self.stat_category.name
 
-    list_display = (
-        'stat_category',
-        'total',
+    list_display = (        
+        'id',
         player,
-        award_display
+        category,
+        'total',
+        
     )   
 
 
