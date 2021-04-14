@@ -8,7 +8,6 @@ class UserSerializer(serializers.ModelSerializer):
         depth = 2
         fields = ['first_name']
 
-
 class MePlayerTeamSerializer(serializers.ModelSerializer):
     
     wins = serializers.IntegerField(read_only=True)
@@ -16,6 +15,7 @@ class MePlayerTeamSerializer(serializers.ModelSerializer):
     is_active = serializers.BooleanField(
         read_only=True, source='circuit.season.is_active')
     circuit_abbrev = serializers.SerializerMethodField()
+    circuit_display = serializers.SerializerMethodField()
 
 
     class Meta:
@@ -24,11 +24,21 @@ class MePlayerTeamSerializer(serializers.ModelSerializer):
 
         fields = [
             'id', 'name', 'circuit', 'is_active', 'wins', 'losses',
-            'circuit_abbrev'
+            'circuit_abbrev', 'circuit_display' 
         ]
 
     def get_circuit_abbrev(self, obj):
         return f'{obj.circuit.tier}{obj.circuit.region}'
+
+    def get_circuit_display(self, obj):
+        league_name = obj.circuit.season.league.name
+        if league_name.startswith('Indy'):
+            league_name = 'IGL'
+        elif league_name.startswith('Bee'):
+            league_name = 'BGL'
+
+        return f'{league_name} {obj.circuit.season.name} {obj.circuit.tier}{obj.circuit.region}'
+
 
 
 class MePlayerAwardCategorySerializer(serializers.ModelSerializer):
