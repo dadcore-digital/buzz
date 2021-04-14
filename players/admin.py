@@ -29,12 +29,48 @@ class PlayerAdmin(admin.ModelAdmin):
         awards = mark_safe(awards)
         return awards
 
+    def caster(self):
+        caster_link = ''
+
+        if hasattr(self, 'caster_profile'):
+            caster_link = get_object_admin_link(self.caster_profile, self.caster_profile.id)
+        
+        caster_link = mark_safe(caster_link)
+        return caster_link
+
+    def casted_matches(self):
+        matches = ''
+
+        if hasattr(self, 'caster_profile'):
+
+            for match in self.caster_profile.casted_matches.all():
+                match_link = get_object_admin_link(match, f'{match.away.name} @ {match.home.name}')
+                matches += f'{match_link}, '
+        
+        matches = matches.strip().rstrip(',')
+        matches = mark_safe(matches)
+        return matches
+
+    def cocasted_matches(self):
+        matches = ''
+
+        if hasattr(self, 'caster_profile'):
+
+            for match in self.caster_profile.cocasted_matches.all():
+                match_link = get_object_admin_link(match, f'{match.away.name} @ {match.home.name}')
+                matches += f'{match_link}, '
+        
+        matches = matches.strip().rstrip(',')
+        matches = mark_safe(matches)
+        return matches
+
     list_display = ('name', member_of_teams, 'discord_username', 'twitch_username')
     search_fields = ('name', 'teams__name')
     
     autocomplete_fields = ['user']
 
-    readonly_fields = (member_of_teams, awards)
+    readonly_fields = (
+        member_of_teams, awards, caster, casted_matches, cocasted_matches)
 
 class AliasAdmin(admin.ModelAdmin):
 
