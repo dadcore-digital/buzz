@@ -5,6 +5,11 @@ from .models import Alias, Player, PlayerSettings, IGLPlayerLookup
 
 class PlayerAdmin(admin.ModelAdmin):
 
+    def user_link(self):
+        link = get_object_admin_link(self.user, self.user.username)        
+        link = mark_safe(link)
+        return link
+
     def member_of_teams(self):
         teams = ''
 
@@ -70,7 +75,9 @@ class PlayerAdmin(admin.ModelAdmin):
     autocomplete_fields = ['user']
 
     readonly_fields = (
-        member_of_teams, awards, caster, casted_matches, cocasted_matches)
+        user_link, member_of_teams, awards, caster, casted_matches,
+        cocasted_matches
+    )
 
 class AliasAdmin(admin.ModelAdmin):
 
@@ -83,6 +90,7 @@ class IGLPlayerLookupAdmin(admin.ModelAdmin):
     
     list_display = ('igl_player_name', 'discord_username', 'discord_uid', 'discord_nick', 'discord_avatar_url')
     search_fields = ('igl_player_name', 'discord_username', 'discord_uid')
+
 
 admin.site.register(Player, PlayerAdmin)
 admin.site.register(Alias, AliasAdmin)
