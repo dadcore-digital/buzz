@@ -61,7 +61,26 @@ class Player(models.Model):
 
         return None
 
+    @property
+    def discord_login_username(self):
+        """
+        Retrieve latest discord username as recorded by Discord Login.
+        """
+        try:
+            discord_account = self.user.socialaccount_set.all().filter(
+                provider='discord').first()
 
+            if discord_account:
+                try:
+                    return f"{discord_account.extra_data['username']}#{discord_account.extra_data['discriminator']}"
+                except KeyError:
+                    pass
+
+        
+        except AttributeError:
+            pass
+        
+        return ''
 
     def get_or_create_token(self):
         """

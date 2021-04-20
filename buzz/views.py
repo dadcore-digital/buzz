@@ -48,8 +48,9 @@ class DispatchAfterLogin(View):
             else:
                 player = request.user.player
                 
-            # Refresh player avatar on sign in
+            # Update player profile data from discord social account
             player.avatar_url = player.discord_avatar_url
+            player.discord_username = player.discord_login_username
             player.save()
 
             url = settings.BGL_AUTH_HANDOFF_URL + f'/?token={token}'
