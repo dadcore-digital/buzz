@@ -221,7 +221,7 @@ class GameViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = GameSerializer
 
 class TeamViewSet(viewsets.ModelViewSet):
-    queryset = Team.objects.all().order_by('id')
+    queryset = Team.objects.all().order_by('name')
     queryset = queryset.select_related('captain')
     queryset = queryset.select_related('circuit')
     queryset = queryset.select_related('dynasty')
