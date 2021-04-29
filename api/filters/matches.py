@@ -133,6 +133,13 @@ class MatchFilter(filters.FilterSet):
         label='Round/Week Number'
     )
 
+
+    round_is_current = filters.BooleanFilter(
+        field_name='round_is_current',
+        method = 'get_round_is_current',
+        label='Round Is Current Round?'
+    )
+
     primary_caster = filters.CharFilter(
         field_name='primary_caster__player__name',
         lookup_expr='icontains',
@@ -282,11 +289,20 @@ class MatchFilter(filters.FilterSet):
             Q(home__dynasty__name__icontains=dynasty_b, away__dynasty__name__icontains=dynasty_a) 
         ).distinct()
 
+    def get_round_is_current(self, queryset, field_name, value):
+        """
+        Return matches where round for match equals to Season.current_round.
+        """
+        
+        queryset = queryset.exclude(round__current_round_season__isnull=value)
+        return queryset
+
+
     class Meta:
         model = Match
         fields = [
-            'round', 'minutes', 'hours', 'days', 'starts_in_minutes', 'home',
-            'away', 'team', 'team_id', 'teams', 'player', 'winner', 'loser', 
-            'scheduled', 'awaiting_results', 'status', 'league', 'season',
-            'circuit', 'region', 'tier'
+            'round', 'round_is_current',  'minutes', 'hours', 'days',
+            'starts_in_minutes', 'home', 'away', 'team', 'team_id', 'teams',
+            'player', 'winner', 'loser',  'scheduled', 'awaiting_results',
+            'status', 'league', 'season', 'circuit', 'region', 'tier'
         ]

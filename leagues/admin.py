@@ -24,6 +24,7 @@ class SeasonAdmin(admin.ModelAdmin):
         'name',
         'league',
         'is_active',
+        'current_round',
         'registration_open',
         'rosters_open'        
     )   
@@ -49,6 +50,7 @@ class SeasonAdmin(admin.ModelAdmin):
         links = mark_safe(links)
         return links
     
+    autocomplete_fields = ['current_round']
     readonly_fields = (circuits, rounds)  
 
 class CircuitAdmin(admin.ModelAdmin):

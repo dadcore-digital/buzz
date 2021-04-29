@@ -150,4 +150,4 @@ class RoundSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Round
-        fields = ['round_number', 'name', 'matches']
+        fields = ['round_number', 'name', 'is_current_round', 'matches']

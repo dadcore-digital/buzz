@@ -113,7 +113,7 @@ class TeamDetailMatchRoundSummarySerializer(serializers.ModelSerializer):
     class Meta:
         from leagues.models import Round
         model = Round
-        fields = ['number', 'name']
+        fields = ['number', 'name', 'is_current_round']
 
 
 class TeamDetailMatchResultSerializer(serializers.ModelSerializer):

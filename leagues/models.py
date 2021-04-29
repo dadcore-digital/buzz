@@ -44,6 +44,11 @@ class Season(models.Model):
     league = models.ForeignKey(
         League, related_name='seasons', on_delete=models.CASCADE)
     
+    current_round = models.OneToOneField(
+        'Round', on_delete=models.SET_NULL, null=True,
+        related_name='current_round_season'
+    )
+
     is_active = models.BooleanField(default=False, null=False)
     registration_open = models.BooleanField(default=False, null=False)
     rosters_open = models.BooleanField(default=False, null=False)
@@ -141,8 +146,14 @@ class Round(models.Model):
     class Meta:
         ordering = ['round_number', '-name']
 
+    @property
+    def is_current_round(self):
+        """Return True is this round is set as Season.current_round."""
+        return hasattr(self, 'current_round_season')
+
     def __str__(self):
         prepend_text =  ''
         if self.name:
             prepend_text = f'{self.name} '         
         return f'{self.season} {prepend_text}Round {self.round_number}'
+    
