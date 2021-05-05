@@ -85,7 +85,7 @@ class CircuitTeamSerializer(serializers.ModelSerializer):
 
         model = Team
         fields = [
-            'id', 'name', 'members', 'wins', 'losses'
+            'id', 'name', 'abbreviation', 'emoji', 'members', 'wins', 'losses'
         ]
 
 class CircuitSeasonSerializer(serializers.ModelSerializer):
@@ -127,7 +127,7 @@ class GroupTeamSerializer(serializers.ModelSerializer):
 
         model = Team
         fields = [
-            'id', 'name', 'members', 'wins', 'losses'
+            'id', 'name', 'abbreviation', 'emoji', 'members', 'wins', 'losses'
         ]
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -138,7 +138,7 @@ class GroupSerializer(serializers.ModelSerializer):
         model = Group
         depth = 1
         fields = [
-            'id', 'name', 'circuit', 'number', 'teams'
+            'id', 'name', 'abbreviation', 'emoji', 'circuit', 'number', 'teams'
         ]
 
 ###################

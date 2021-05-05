@@ -317,7 +317,7 @@ class MatchTeamSerializer(serializers.ModelSerializer):
         from teams.models import Team
         model = Team
         fields = [
-            'id', 'name', 'members', 'group', 'wins', 'losses'
+            'id', 'name', 'abbreviation', 'emoji', 'members', 'group', 'wins', 'losses'
         ]
 
 class MatchCasterSummarySerializer(serializers.ModelSerializer):

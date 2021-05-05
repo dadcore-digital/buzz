@@ -15,8 +15,8 @@ class PlayerTeamSerializer(serializers.ModelSerializer):
         model = Team
 
         fields = [
-            'id', 'name', 'circuit', 'is_active', 'wins', 'losses',
-            'circuit_abbrev'
+            'id', 'name', 'abbreviation', 'emoji', 'circuit', 'is_active',
+            'wins', 'losses', 'circuit_abbrev'
         ]
 
     def get_circuit_abbrev(self, obj):

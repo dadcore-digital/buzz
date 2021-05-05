@@ -38,6 +38,9 @@ class Team(models.Model):
     A group of Member players within a League.
     """
     name = models.CharField(blank=True, max_length=255)
+    abbreviation =  models.CharField(blank=True, null=True, max_length=4)
+    emoji =  models.CharField(blank=True, null=True, max_length=4)
+
     circuit = models.ForeignKey(
         Circuit, related_name='teams', on_delete=models.CASCADE)
     group = models.ForeignKey(

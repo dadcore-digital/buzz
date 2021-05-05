@@ -23,8 +23,8 @@ class MePlayerTeamSerializer(serializers.ModelSerializer):
         model = Team
 
         fields = [
-            'id', 'name', 'circuit', 'is_active', 'wins', 'losses',
-            'circuit_abbrev', 'circuit_display' 
+            'id', 'name', 'abbreviation', 'emoji', 'circuit', 'is_active',
+            'wins', 'losses', 'circuit_abbrev', 'circuit_display' 
         ]
 
     def get_circuit_abbrev(self, obj):

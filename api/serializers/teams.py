@@ -73,9 +73,9 @@ class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
         fields = [
-            'id', 'name', 'circuit', 'group', 'is_active', 'can_add_members',
-            'dynasty', 'captain', 'members', 'modified', 'created', 'wins',
-            'losses' 
+            'id', 'name', 'abbreviation', 'emoji', 'circuit', 'group',
+            'is_active', 'can_add_members', 'dynasty', 'captain', 'members',
+            'modified', 'created', 'wins', 'losses' 
         ]
         depth = 2
 
@@ -198,9 +198,10 @@ class TeamDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
         fields = [
-            'id', 'name', 'circuit', 'group', 'is_active', 'can_add_members',
-            'dynasty', 'captain', 'home_matches', 'away_matches', 'members',
-            'modified', 'created', 'wins', 'losses', 'invite_code'
+            'id', 'name', 'abbreviation', 'emoji', 'circuit', 'group',
+            'is_active', 'can_add_members', 'dynasty', 'captain',
+            'home_matches', 'away_matches', 'members', 'modified',
+            'created', 'wins', 'losses', 'invite_code'
         ]
         depth = 2
 
