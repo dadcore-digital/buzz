@@ -7,7 +7,7 @@ def can_create_match(user, return_error_msg=False):
 
     By default all admin users have this permission.
     """
-    has_perms = user.has_perm('matches.match.can_add_match')
+    has_perms = user.has_perm('matches.add_match')
     error_msg = 'Only service accounts can create matches.'
 
     if not has_perms:
