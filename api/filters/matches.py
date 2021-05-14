@@ -109,6 +109,11 @@ class MatchFilter(filters.FilterSet):
         label='Season Name'
     )
 
+    season_is_active = filters.BooleanFilter(
+        field_name='circuit__season__is_active',
+        label='Season Is Active?'
+    )
+
     circuit = filters.CharFilter(
         field_name='circuit__id',
         lookup_expr='exact',
@@ -304,5 +309,6 @@ class MatchFilter(filters.FilterSet):
             'round', 'round_is_current',  'minutes', 'hours', 'days',
             'starts_in_minutes', 'home', 'away', 'team', 'team_id', 'teams',
             'player', 'winner', 'loser',  'scheduled', 'awaiting_results',
-            'status', 'league', 'season', 'circuit', 'region', 'tier'
+            'status', 'league', 'season', 'season_is_active', 'circuit',
+            'region', 'tier'
         ]
