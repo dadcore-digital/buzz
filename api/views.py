@@ -25,8 +25,9 @@ from .serializers.leagues import (
 from api import permissions
 from .serializers.beegame import PlayingSerializer, ReleaseSerializer
 from .serializers.matches import (
-    GameSerializer, MatchSerializer, MatchUpdateSerializer, ResultSerializer,
-    ResultDetailSerializer, SetSerializer, SetDetailSerializer
+    GameSerializer, CreateMatchSerializer, MatchSerializer,
+    MatchUpdateSerializer, ResultSerializer, ResultDetailSerializer,
+    SetSerializer, SetDetailSerializer
 )
 from .serializers.teams import (
     DynastySerializer, JoinTeamSerializer, TeamSerializer, TeamDetailSerializer)
@@ -140,9 +141,23 @@ class MatchViewSet(viewsets.ModelViewSet):
     serializer_class = MatchSerializer
     filterset_class = MatchFilter
     permission_classes = [
-        permissions.CanReadMatch|permissions.CanUpdateMatch
+        permissions.CanReadMatch|permissions.CanUpdateMatch|permissions.CanCreateMatch
     ]
-    http_method_names = ['get', 'patch']
+    http_method_names = ['get', 'patch', 'post']
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CreateMatchSerializer
+
+        return MatchSerializer 
+
+    def create(self, request, *args, **kwargs):
+        """
+        Redirect to result detail view on creation.
+        """
+        response = super(MatchViewSet, self).create(request, *args, **kwargs)
+        url = reverse('match-detail', kwargs={'pk': response.data['id']})
+        return redirect(url)
 
     def partial_update(self, request, pk=None):
         match = Match.objects.filter(id=pk).first()

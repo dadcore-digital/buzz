@@ -1,5 +1,6 @@
 from rest_framework import permissions
-from matches.permissions import can_create_result, can_update_match
+from matches.permissions import (
+    can_create_match, can_create_result, can_update_match)
 from matches.models import Match
 from teams.permissions import can_create_team, can_rename_team
 
@@ -59,6 +60,16 @@ class CanUpdateTeam(permissions.BasePermission):
 
         return False
 
+
+class CanCreateMatch(permissions.BasePermission):
+        
+    def has_permission(self, request, view):
+        import ipdb; ipdb.set_trace() 
+        
+        if request.method in ['POST']:
+            return can_create_match(request.user)
+
+        return False
 
 class CanReadMatch(permissions.BasePermission):
     

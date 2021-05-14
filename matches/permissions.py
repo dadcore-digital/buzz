@@ -1,3 +1,28 @@
+def can_create_match(user, return_error_msg=False):
+    """
+    Return True if requesting user can create a Match object.
+
+    Normal users do not have this permission. Only users with permission of
+    `matches.match.can_add_match` may create matches.
+
+    By default all admin users have this permission.
+    """
+    has_perms = user.has_perm('matches.match.can_add_match')
+    error_msg = 'Only service accounts can create matches.'
+
+    if not has_perms:
+        if return_error_msg:
+            return False, error_msg
+        else:
+            return False
+
+    else:
+        if return_error_msg:
+            return True, error_msg
+        else:
+            return True
+
+
 def can_update_match(match, user):
     """
     Return True if requesting user can update a matche's start time or caster.
@@ -22,7 +47,6 @@ def can_update_match(match, user):
 
     if all([is_authenticated, is_captain, season_is_active, no_result]):
         return True
-
         
     return False
 

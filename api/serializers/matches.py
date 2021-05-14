@@ -2,7 +2,7 @@ from rest_framework import serializers
 from casters.models import Caster
 from matches.models import (
     Game, Match, Result, Set, SetLog, PlayerMapping, TeamMapping)
-from matches.permissions import can_create_result
+from matches.permissions import can_create_match, can_create_result
 from teams.models import Team
 
 class MatchPlayerSerializer(serializers.ModelSerializer):
@@ -387,4 +387,29 @@ class MatchUpdateSerializer(serializers.ModelSerializer):
         fields = [
             'primary_caster', 'start_time'            
         ]
+
+class CreateMatchSerializer(serializers.ModelSerializer):
+    
+    circuit = serializers.IntegerField(source='circuit_id', style={'base_template': 'input.html', 'placeholder': 'Circuit ID'})
+    home = serializers.IntegerField(source='home_id', style={'base_template': 'input.html', 'placeholder': 'Home Team ID'})
+    away = serializers.IntegerField(source='away_id', style={'base_template': 'input.html', 'placeholder': 'Away Team ID'})
+    round = serializers.IntegerField(source='round_id', style={'base_template': 'input.html', 'placeholder': 'Round ID'})
+
+    class Meta:
+        model = Match
+        fields = [
+            'id', 'circuit', 'home', 'away', 'round'
+        ]
+
+
+    def validate(self, data):
+        """Only users in 'service' account group can create matches."""
+        user = self.context['request'].user
+
+        has_permission, error = can_create_match(user, return_error_msg=True)
+
+        if not has_permission:
+            raise serializers.ValidationError(error)
+
+        return data
 
