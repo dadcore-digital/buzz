@@ -110,10 +110,10 @@ class Team(models.Model):
         return new_invite_code
 
     def __str__(self):
-        if self.captain:
-            return f'{self.name} (captained by {self.captain.name})'
+        if self.circuit:
+            return f'{self.name} ({self.circuit.season.name} {self.circuit.name})'
         else:
-            return f'{self.name}'
+            return self.name
 
 
     
