@@ -190,6 +190,12 @@ class ResultSerializer(serializers.ModelSerializer):
 
         result = Result.objects.create(**validated_data)
 
+        for data in player_mappings_data:
+            PlayerMapping.objects.create(result=result, **data)
+        
+        for data in team_mappings_data:
+            TeamMapping.objects.create(result=result, **data)
+        
         for data in sets_data:
             
             log_data = None
@@ -200,13 +206,8 @@ class ResultSerializer(serializers.ModelSerializer):
             
             if log_data:
                 SetLog.objects.create(set=set, **log_data)
-
-        for data in player_mappings_data:
-            PlayerMapping.objects.create(result=result, **data)
-        
-        for data in team_mappings_data:
-            TeamMapping.objects.create(result=result, **data)
-
+                set.generate_games()
+    
         return result
     
     def validate(self, data):
