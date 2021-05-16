@@ -40,20 +40,34 @@ class GameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
         fields = [
-            'id', 'number', 'winner', 'loser', 'home_berries', 'away_berries',
-            'home_smail', 'away_snail', 'home_queen_deaths',
-            'away_queen_deaths', 'win_condition'
+            'id', 'number', 'map', 'winner', 'loser', 'win_condition', 'set',
+            'duration'
         ]
 
 ################
 # Set Endpoint #
 ################
+class SetGameSerializer(serializers.ModelSerializer):
+    
+    winner = MatchTeamSummary()
+    loser = MatchTeamSummary()
+
+    class Meta:
+        model = Game
+        fields = [
+            'id', 'number', 'map', 'winner', 'loser', 'win_condition',
+            'duration'
+        ]
+
+
 class SetSerializer(serializers.ModelSerializer):
+
+    games = SetGameSerializer(many=True, read_only=True)
 
     class Meta:
         model = Set
         fields = [
-            'id', 'number', 'winner', 'loser', 'log'
+            'id', 'number', 'winner', 'loser', 'games', 'log'
         ]
 
 class SetDetailLogSerializer(serializers.ModelSerializer):
@@ -88,6 +102,18 @@ class ResultSetLogSerializer(serializers.ModelSerializer):
             'id', 'filename', 'body'
         ]
 
+class ResultSetGameSerializer(serializers.ModelSerializer):
+    
+    winner = MatchTeamSummary()
+    loser = MatchTeamSummary()
+
+    class Meta:
+        model = Game
+        fields = [
+            'id', 'number', 'map', 'winner', 'loser', 'win_condition',
+            'duration'
+        ]
+
 class ResultSetSerializer(serializers.ModelSerializer):
 
     winner = serializers.PrimaryKeyRelatedField(
@@ -102,12 +128,14 @@ class ResultSetSerializer(serializers.ModelSerializer):
         style={'base_template': 'input.html'}
     )
 
+    games = ResultSetGameSerializer(many=True, read_only=True)
+
     log = ResultSetLogSerializer(required=False, write_only=True)
 
     class Meta:
         model = Set
         fields = [
-            'id', 'number', 'winner', 'loser', 'log'
+            'id', 'number', 'winner', 'loser', 'games', 'log'
         ]
 
 class ResultPlayerMappingSerializer(serializers.ModelSerializer):
@@ -229,17 +257,31 @@ class ResultSerializer(serializers.ModelSerializer):
             'source', 'notes', 'player_mappings', 'team_mappings' 
         ]
 
+
+class ResultDetailSetGameSerializer(serializers.ModelSerializer):
+    
+    winner = MatchTeamSummary()
+    loser = MatchTeamSummary()
+
+    class Meta:
+        model = Game
+        fields = [
+            'id', 'number', 'map', 'winner', 'loser', 'win_condition',
+            'duration'
+        ]
+
 class ResultDetailSetSerializer(serializers.ModelSerializer):
     
     winner = serializers.PrimaryKeyRelatedField(read_only=True)
     loser = serializers.PrimaryKeyRelatedField(read_only=True)
 
+    games = ResultDetailSetGameSerializer(many=True, read_only=True)
     log = ResultSetLogSerializer(read_only=True)
 
     class Meta:
         model = Set
         fields = [
-            'id', 'number', 'winner', 'loser', 'log'
+            'id', 'number', 'winner', 'loser', 'games', 'log'
         ]
 
 class ResultDetailPlayerMappingSerializer(serializers.ModelSerializer):

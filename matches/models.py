@@ -1,4 +1,5 @@
 import arrow
+import datetime
 from django.db import models
 from django.urls import reverse
 from buzz.services import trim_humanize
@@ -163,6 +164,38 @@ class Set(models.Model):
     def __str__(self):
         return f'Set {self.number}: {self.winner.name}'
 
+    def generate_games(self):
+        """Create Game objects via JSON objects associated with this set."""
+        if hasattr(self, 'log'):
+            
+            # Delete any old games, no dupes!
+            if self.games.exists():
+                self.games.all().delete()
+        
+            WINCON_LOOKUP = {1: 'M', 2: 'E', 3: 'S'}
+            MAP_LOOKUP = {
+                2: 'PD', 4: 'BQ', 7: 'HT', 11:'TF', 14: 'SP', 15: 'SJ', 17: 'NF'
+            }
+
+            blue_team = self.result.team_mappings.filter(color=2).first().team
+            gold_team = self.result.team_mappings.filter(color=1).first().team
+            TEAM_LOOKUP = {1: gold_team, 2: blue_team}
+
+            log = self.log.body
+            log_games = log['games']
+
+            for idx, entry in enumerate(log_games):
+                game = Game()
+                game.number = idx + 1
+                game.win_condition = WINCON_LOOKUP[entry['winCondition']]
+                game.winner = TEAM_LOOKUP[log['gameWinners'][idx]]
+                game.loser = blue_team if game.winner == gold_team else gold_team
+                game.duration = datetime.timedelta(seconds=entry['duration'])
+                game.map = MAP_LOOKUP[log['mapPool'][idx]]
+                game.save()
+                self.games.add(game)
+
+
 class SetLog(models.Model):
     """Log data for a set, should be a single JSONField."""
     set = models.OneToOneField(
@@ -204,6 +237,7 @@ class Game(models.Model):
         Set, related_name='games', on_delete=models.CASCADE, blank=True,
         null=True
     )
+    
 
     WIN_CONDITION_CHOICES = (
         ('E', 'Economic'),
@@ -214,6 +248,7 @@ class Game(models.Model):
     win_condition = models.CharField(
         max_length=1, choices=WIN_CONDITION_CHOICES, blank=True, null=True)
 
+    duration = models.DurationField(blank=True, null=True)
 
     def __str__(self):
         return f'Game {self.number}: {self.winner.name}'
