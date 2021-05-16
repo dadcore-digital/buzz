@@ -1,13 +1,15 @@
 from django.urls import include, path
 from rest_framework import routers
 from .views import (
-    AwardViewSet, LeagueViewSet, SeasonViewSet, CircuitViewSet, MatchViewSet,
-    TeamViewSet, DynastyViewSet, PlayerViewSet, EventViewSet, RoundViewSet,
-    CasterViewSet, StreamViewSet, PlayingViewSet, ReleaseViewSet,
-    ResultViewSet, SetViewSet, MeViewSet, GameViewSet, GroupViewSet)
+    AwardViewSet, AwardCategoryViewSet, LeagueViewSet, SeasonViewSet,
+    CircuitViewSet, MatchViewSet, TeamViewSet, DynastyViewSet, PlayerViewSet,
+    EventViewSet, RoundViewSet, CasterViewSet, StreamViewSet, PlayingViewSet,
+    ReleaseViewSet, ResultViewSet, SetViewSet, StatViewSet, StatCategoryViewSet,
+    MeViewSet, GameViewSet, GroupViewSet)
 
 router = routers.DefaultRouter()
 router.register(r'awards', AwardViewSet)
+router.register(r'award_categories', AwardCategoryViewSet)
 router.register(r'casters', CasterViewSet)
 router.register(r'circuits', CircuitViewSet, basename='circuits')
 router.register(r'groups', GroupViewSet, basename='groups')
@@ -23,6 +25,8 @@ router.register(r'results', ResultViewSet, basename='results'),
 router.register(r'releases', ReleaseViewSet)
 router.register(r'sets', SetViewSet),
 router.register(r'rounds', RoundViewSet, basename='rounds')
+router.register(r'stats', StatViewSet)
+router.register(r'stat_categories', StatCategoryViewSet)
 router.register(r'streams', StreamViewSet)
 router.register(r'seasons', SeasonViewSet, basename='seasons')
 router.register(r'teams', TeamViewSet)

@@ -111,6 +111,17 @@ class SetAdmin(admin.ModelAdmin):
 
         return result_link
 
+    def games(self):
+        games = ''
+
+        for obj in self.games.all():
+            game_link = get_object_admin_link(obj, obj)
+            games += f'{game_link}, <br>'
+        
+        games = games[0:-6]
+        games = mark_safe(games)
+        return games
+
     def log(self):
         log_link = ''
 
@@ -120,7 +131,7 @@ class SetAdmin(admin.ModelAdmin):
 
         return log_link
 
-    readonly_fields = (result, log)
+    readonly_fields = (games, result, log)
     search_fields = [
         'match__home__name',
         'match__away__name'

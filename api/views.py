@@ -17,7 +17,9 @@ from .filters.matches import MatchFilter
 from .filters.players import PlayerFilter
 from .filters.streams import StreamFilter
 from .filters.teams import DynastyFilter, TeamFilter
-from .serializers.awards import AwardSerializer
+from .serializers.awards import (
+    AwardSerializer, AwardCategorySerializer, CreateAwardSerializer,
+    StatSerializer, StatCategorySerializer)
 from .serializers.casters import CasterSerializer
 from .serializers.leagues import (
     LeagueSerializer, SeasonSerializer, CircuitSerializer, GroupSerializer,
@@ -35,7 +37,7 @@ from .serializers.players import PlayerSerializer
 from .serializers.events import EventSerializer
 from .serializers.streams import StreamSerializer
 from .serializers.users import MeSerializer, UserSerializer
-from awards.models import Award
+from awards.models import Award, AwardCategory, Stat, StatCategory
 from beegame.models import Playing, Release
 from events.models import Event
 from leagues.models import League, Season, Circuit, Group, Round
@@ -48,10 +50,31 @@ from teams.models import Dynasty, Team
 from teams.permissions import can_regenerate_team_invite_code
 
 
-class AwardViewSet(viewsets.ReadOnlyModelViewSet):
+class AwardViewSet(viewsets.ModelViewSet):
     queryset = Award.objects.all().order_by('round__round_number')
-    serializer_class = AwardSerializer
     filterset_class = AwardFilter
+
+    permission_classes = [
+        permissions.CanReadAward|permissions.CanCreateAward
+    ]
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CreateAwardSerializer
+
+        return AwardSerializer 
+
+class AwardCategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = AwardCategory.objects.all().order_by('id')
+    serializer_class = AwardCategorySerializer
+
+class StatViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Stat.objects.all().order_by('-id')
+    serializer_class = StatSerializer
+
+class StatCategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = StatCategory.objects.all().order_by('id')
+    serializer_class = StatCategorySerializer    
 
 class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = League.objects.all().order_by('name')

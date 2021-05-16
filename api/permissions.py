@@ -1,8 +1,29 @@
 from rest_framework import permissions
+from awards.permissions import can_create_award
 from matches.permissions import (
     can_create_match, can_create_result, can_update_match)
 from matches.models import Match
 from teams.permissions import can_create_team, can_rename_team
+
+class CanReadAward(permissions.BasePermission):
+    
+    def has_object_permission(self, request, view, player):
+        # Read permissions are allowed to any request,
+        # so we'll always allow GET, HEAD or OPTIONS requests.
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return False
+
+class CanCreateAward(permissions.BasePermission):
+        
+    def has_permission(self, request, view):
+        
+        if request.method in ['POST']:
+            return can_create_award(request.user)
+
+        return False
+
 
 class CanReadPlayer(permissions.BasePermission):
 
@@ -64,7 +85,6 @@ class CanUpdateTeam(permissions.BasePermission):
 class CanCreateMatch(permissions.BasePermission):
         
     def has_permission(self, request, view):
-        import ipdb; ipdb.set_trace() 
         
         if request.method in ['POST']:
             return can_create_match(request.user)
