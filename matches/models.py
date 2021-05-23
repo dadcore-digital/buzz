@@ -17,7 +17,9 @@ class Match(models.Model):
         Team, related_name='home_matches', on_delete=models.CASCADE)
 
     away = models.ForeignKey(
-        Team, related_name='away_matches', on_delete=models.CASCADE)
+        Team, related_name='away_matches', blank=True, null=True,
+        on_delete=models.CASCADE
+    )
 
     circuit = models.ForeignKey(
         Circuit, related_name='circuit_matches', on_delete=models.CASCADE)
@@ -70,7 +72,10 @@ class Match(models.Model):
         return False
         
     def __str__(self):
-        return f'{self.away.name} @ {self.home.name}'
+        if self.away:
+            return f'{self.away.name} @ {self.home.name}'
+        else:
+            return f'Nobody @ {self.home.name}'
 
     def get_absolute_url(self):
         return reverse('match-detail', kwargs={'pk': self.pk})
@@ -90,11 +95,13 @@ class Result(models.Model):
     COMPLETED = 'C'
     SINGLE_FORFEIT = 'SF'
     DOUBLE_FORFEIT = 'DF'
+    BYE = 'BY'
     
     STATUS_CHOICES = (
         (COMPLETED, 'Completed'),
         (SINGLE_FORFEIT, 'Single Forfeit'),
         (DOUBLE_FORFEIT, 'Double Forfeit'),
+        (BYE, 'Bye'),
     )
 
     status = models.CharField(
@@ -131,7 +138,10 @@ class Result(models.Model):
 
 
     def __str__(self):
-        return f'{self.winner.name} over {self.loser.name} in {self.sets.count()} sets'
+        if self.loser:
+            return f'{self.winner.name} over {self.loser.name} in {self.sets.count()} sets'
+        else:
+            return f'{self.winner.name} over Nobody '
 
     @property
     def set_count(self):
