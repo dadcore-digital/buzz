@@ -140,8 +140,10 @@ class Result(models.Model):
     def __str__(self):
         if self.loser:
             return f'{self.winner.name} over {self.loser.name} in {self.sets.count()} sets'
-        else:
+        elif self.winner:
             return f'{self.winner.name} over Nobody '
+        else:
+            return 'Nobody over Nobody (DF)'
 
     @property
     def set_count(self):
