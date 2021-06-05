@@ -147,7 +147,8 @@ class GameAdmin(admin.ModelAdmin):
     list_display = [
         'id', 'set', 'map', 'number', 'winner', 'loser', 'win_condition' 
     ]
-    autocomplete_fields = ['winner', 'loser', 'set' ]
+    autocomplete_fields = ['winner', 'loser']
+    raw_id_fields = ['set']
 
 class PlayerMappingAdmin(admin.ModelAdmin):
     
