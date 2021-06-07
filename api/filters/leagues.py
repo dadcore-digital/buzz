@@ -1,5 +1,19 @@
 from django_filters import rest_framework as filters
-from leagues.models import League, Season, Circuit
+from leagues.models import Group, League, Season, Circuit
+
+class GroupFilter(filters.FilterSet):
+    name = filters.CharFilter(lookup_expr='icontains', label='Group Name')
+
+    is_active = filters.BooleanFilter(
+        field_name='circuit__season__is_active',
+        label='Season Is Active?'
+    )
+
+
+    class Meta:
+        model = Group
+        fields = ['name', 'circuit', 'is_active']
+
 
 class LeagueFilter(filters.FilterSet):
     name = filters.CharFilter(lookup_expr='icontains', label='League Name')

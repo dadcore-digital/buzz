@@ -12,7 +12,8 @@ from django.shortcuts import get_object_or_404, redirect
 from .filters.awards import AwardFilter
 from .filters.casters import CasterFilter
 from .filters.events import EventFilter    
-from .filters.leagues import CircuitFilter, LeagueFilter, SeasonFilter
+from .filters.leagues import (
+    CircuitFilter, GroupFilter, LeagueFilter, SeasonFilter)
 from .filters.matches import MatchFilter
 from .filters.players import PlayerFilter
 from .filters.streams import StreamFilter
@@ -105,6 +106,7 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
         Prefetch('teams__members')            
     ).order_by('id')
     
+    filterset_class = GroupFilter
     serializer_class = GroupSerializer
 
 class RoundViewSet(viewsets.ReadOnlyModelViewSet):

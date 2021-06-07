@@ -342,7 +342,7 @@ class MatchRoundSummarySerializer(serializers.ModelSerializer):
         model = Round
         fields = ['number', 'name', 'is_current_round']
 
-class MatchTeamGroupSerializer(serializers.ModelSerializer):
+class MatchGroupSerializer(serializers.ModelSerializer):
     
     class Meta:
         from leagues.models import Group
@@ -352,7 +352,7 @@ class MatchTeamGroupSerializer(serializers.ModelSerializer):
 class MatchTeamSerializer(serializers.ModelSerializer):
 
     members = MatchPlayerSerializer(many=True, read_only=True)
-    group = MatchTeamGroupSerializer(read_only=True)
+    group = MatchGroupSerializer(read_only=True)
     wins = serializers.IntegerField(read_only=True)
     losses = serializers.IntegerField(read_only=True)
 
@@ -401,6 +401,7 @@ class MatchSerializer(serializers.ModelSerializer):
     round = MatchRoundSummarySerializer()
     result = MatchResultSerializer()
     circuit_display = serializers.CharField()
+    group = MatchGroupSerializer(read_only=True)
 
     primary_caster = MatchCasterSummarySerializer()
     secondary_casters = serializers.SlugRelatedField(
@@ -409,7 +410,7 @@ class MatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Match
         fields = [
-            'id', 'home', 'away', 'circuit', 'circuit_display', 'round', 'start_time',
+            'id', 'home', 'away', 'circuit', 'circuit_display', 'round', 'group', 'start_time',
             'time_until', 'scheduled', 'primary_caster', 'secondary_casters',
             'result', 'vod_link'
         ]

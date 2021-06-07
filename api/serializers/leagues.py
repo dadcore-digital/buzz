@@ -99,9 +99,17 @@ class CircuitSeasonSerializer(serializers.ModelSerializer):
             'tournament_end'
         ]
 
+class CircuitGroupSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        from leagues.models import Group
+        model = Group
+        fields = ['id', 'name', 'number']
+
 class CircuitSerializer(serializers.ModelSerializer):
     
     season = CircuitSeasonSerializer(many=False, read_only=True)
+    groups = CircuitGroupSerializer(many=True, read_only=True)
     teams = CircuitTeamSerializer(many=True)
 
     class Meta:
@@ -109,7 +117,7 @@ class CircuitSerializer(serializers.ModelSerializer):
         depth = 1
         fields = [
             'id', 'is_active', 'region', 'tier', 'name', 'season',
-            'teams', 'verbose_name'
+            'groups', 'teams', 'verbose_name'
         ]
 
 ####################
@@ -138,7 +146,7 @@ class GroupSerializer(serializers.ModelSerializer):
         model = Group
         depth = 1
         fields = [
-            'id', 'name', 'abbreviation', 'emoji', 'circuit', 'number', 'teams'
+            'id', 'circuit', 'name', 'number', 'teams'
         ]
 
 ###################

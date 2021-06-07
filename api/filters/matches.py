@@ -120,6 +120,12 @@ class MatchFilter(filters.FilterSet):
         label='Circuit ID Number'
     )
 
+    group = filters.CharFilter(
+        field_name='group__id',
+        lookup_expr='exact',
+        label='Group ID Number'
+    )
+
     region = filters.CharFilter(
         field_name='circuit__region',
         lookup_expr='icontains',
@@ -310,5 +316,5 @@ class MatchFilter(filters.FilterSet):
             'starts_in_minutes', 'home', 'away', 'team', 'team_id', 'teams',
             'player', 'winner', 'loser',  'scheduled', 'awaiting_results',
             'status', 'league', 'season', 'season_is_active', 'circuit',
-            'region', 'tier'
+            'group', 'region', 'tier'
         ]

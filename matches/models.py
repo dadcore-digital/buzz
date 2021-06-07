@@ -4,7 +4,7 @@ from django.db import models
 from django.urls import reverse
 from buzz.services import trim_humanize
 from casters.models import Caster
-from leagues.models import Circuit, Round
+from leagues.models import Circuit, Group, Round
 from players.models import Player
 from teams.models import Team
 from matches.managers import ResultManager, SetManager
@@ -23,6 +23,10 @@ class Match(models.Model):
 
     circuit = models.ForeignKey(
         Circuit, related_name='circuit_matches', on_delete=models.CASCADE)
+
+    group = models.ForeignKey(
+        Group, related_name='group_matches', on_delete=models.SET_NULL,
+        blank=True, null=True)
 
     round = models.ForeignKey(
         Round, related_name='matches', on_delete=models.CASCADE)
