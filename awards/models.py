@@ -1,5 +1,5 @@
 from django.db import models
-from leagues.models import Circuit, Round
+from leagues.models import Circuit, Group, Round
 from players.models import Player
 
 class AwardCategory(models.Model):
@@ -20,6 +20,12 @@ class Award(models.Model):
     circuit = models.ForeignKey(
         Circuit, related_name='awards', on_delete=models.deletion.CASCADE
     )
+
+    group = models.ForeignKey(
+        Group, related_name='awards', on_delete=models.SET_NULL,
+        blank=True, null=True)
+
+
     round = models.ForeignKey(
         Round, related_name='awards', on_delete=models.deletion.CASCADE)
     

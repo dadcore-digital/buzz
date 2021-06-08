@@ -42,10 +42,15 @@ class AwardFilter(filters.FilterSet):
         label='Circuit Tier Number'
     )
 
+    group = filters.CharFilter(
+        field_name='group__id',
+        lookup_expr='exact',
+        label='Group ID Number'
+    )
 
     class Meta:
         model = Award
         fields = [
             'category_name', 'player_name', 'league', 'season', 'round',
-            'region', 'tier'
+            'region', 'tier', 'group'
         ]

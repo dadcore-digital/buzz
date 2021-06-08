@@ -29,16 +29,25 @@ class PlayerAwardCategorySerializer(serializers.ModelSerializer):
         model = AwardCategory
         fields = ['id', 'name', 'discord_emoji']
 
+class PlayerAwardGroupSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        from leagues.models import Group
+        model = Group
+        fields = ['id', 'name', 'number']
+
+
 class PlayerAwardSerializer(serializers.ModelSerializer):
     
     award_category = PlayerAwardCategorySerializer(many=False, read_only=True)
     circuit = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
+    group = PlayerAwardGroupSerializer(read_only=True)
 
     class Meta:
         from awards.models import Award
         model = Award
         fields = [
-            'id', 'award_category', 'circuit', 'round', 'stats'
+            'id', 'award_category', 'circuit', 'group', 'round', 'stats'
         ]
         depth = 1
 

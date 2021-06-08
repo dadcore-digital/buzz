@@ -14,7 +14,14 @@ class AwardCircuitSeasonSerializer(serializers.ModelSerializer):
         from leagues.models import Season
         model = Season
         fields = ['id', 'name', ]
-        
+
+class AwardGroupSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        from leagues.models import Group
+        model = Group
+        fields = ['id', 'name', 'number']
+
 class AwardCircuitSerializer(serializers.ModelSerializer):
     season = AwardCircuitSeasonSerializer(many=False, read_only=True)
 
@@ -27,11 +34,12 @@ class AwardSerializer(serializers.ModelSerializer):
 
     award_category = AwardCategorySerializer()
     circuit = AwardCircuitSerializer(many=False, read_only=True)
+    group = AwardGroupSerializer(read_only=True)
 
     class Meta:
         model = Award
         fields = [
-            'award_category', 'circuit', 'round', 'player', 'stats'
+            'award_category', 'circuit', 'group', 'round', 'player', 'stats'
         ]
         depth = 1
 
