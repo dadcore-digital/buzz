@@ -263,7 +263,7 @@ def test_create_result_has_result_permission_denied(django_app):
 @mark.django_db
 def test_create_result_not_enough_sets_permission_denied(django_app):
     """
-    Must submit at least 3 sets in match.
+    Must submit at least 1 set in a match.
     """
     match = MatchFactory()
     player = match.home.captain
@@ -277,15 +277,12 @@ def test_create_result_not_enough_sets_permission_denied(django_app):
         'status': 'C',
         'winner': match.home.id,
         'loser': match.away.id,
-        'sets': [
-            { 'number': 1, 'winner': match.away.id, 'loser': match.home.id }
-
-        ]
+        'sets': []
     }
 
     resp = client.results(None, method='POST', data=data, expect_errors=True)
     assert resp.status_code == 400
-    assert resp.json['non_field_errors'][0] == 'Validation Error: You must include results for at least three Sets.'
+    assert resp.json['non_field_errors'][0] == 'Validation Error: You must include results for at least one Set.'
 
     match.refresh_from_db()
     assert not hasattr(match, 'result')
@@ -314,14 +311,18 @@ def test_create_result_too_many_sets_permission_denied(django_app):
             { 'number': 3, 'winner': match.away.id, 'loser': match.home.id },
             { 'number': 4, 'winner': match.away.id, 'loser': match.home.id },
             { 'number': 5, 'winner': match.away.id, 'loser': match.home.id },
-            { 'number': 6, 'winner': match.away.id, 'loser': match.home.id }
+            { 'number': 6, 'winner': match.away.id, 'loser': match.home.id },
+            { 'number': 7, 'winner': match.away.id, 'loser': match.home.id },
+            { 'number': 8, 'winner': match.away.id, 'loser': match.home.id },
+            { 'number': 9, 'winner': match.away.id, 'loser': match.home.id },
+            { 'number': 10, 'winner': match.away.id, 'loser': match.home.id }
 
         ]
     }
 
     resp = client.results(None, method='POST', data=data, expect_errors=True)
     assert resp.status_code == 400
-    assert resp.json['non_field_errors'][0] == 'Validation Error: You cannot include more than five Sets.'
+    assert resp.json['non_field_errors'][0] == 'Validation Error: You cannot include more than nine Sets.'
 
     match.refresh_from_db()
     assert not hasattr(match, 'result')
