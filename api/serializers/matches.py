@@ -233,13 +233,13 @@ class ResultSerializer(serializers.ModelSerializer):
              raise serializers.ValidationError(
                  'Validation Error: Result Winner and Loser must be associated with Match')
 
-        if len(data['sets']) < 3:
+        if len(data['sets']) < 1:
              raise serializers.ValidationError(
-                 'Validation Error: You must include results for at least three Sets.')
+                 'Validation Error: You must include results for at least one Set.')
 
-        if len(data['sets']) > 5:
+        if len(data['sets']) > 9:
              raise serializers.ValidationError(
-                 'Validation Error: You cannot include more than five Sets.')
+                 'Validation Error: You cannot include more than nine Sets.')
 
         for set in data['sets']:
             if (
