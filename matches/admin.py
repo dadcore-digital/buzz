@@ -6,7 +6,7 @@ from .models import Match, Result, Set, SetLog, Game, PlayerMapping, TeamMapping
 
 class MatchAdmin(admin.ModelAdmin):
     
-    list_display = ('id', 'home', 'away', 'round', 'group', 'start_time', 'primary_caster', 'created', 'modified')
+    list_display = ('id', 'home', 'away', 'round', 'group', 'start_time', 'primary_caster', 'vod_link', 'created', 'modified')
     
     search_fields = (
         'home__name',
@@ -15,6 +15,7 @@ class MatchAdmin(admin.ModelAdmin):
         'circuit__season__name',
         'group__name',
         'primary_caster__player__name',
+        'vod_link'
     )
 
     def result(self):
