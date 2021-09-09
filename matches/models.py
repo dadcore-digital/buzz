@@ -245,7 +245,7 @@ class Game(models.Model):
         ('BQ', 'Black Queen\'s Keep'),
         ('HT', 'Helix Temple'),
         ('SP', 'The Spire'),
-        ('TR', 'The Throme Room')
+        ('TR', 'The Throne Room')
     )
 
     map = models.CharField(
