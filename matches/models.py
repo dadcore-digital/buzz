@@ -192,7 +192,7 @@ class Set(models.Model):
                 WINCON_LOOKUP = {1: 'M', 2: 'E', 3: 'S'}
                 MAP_LOOKUP = {
                     2: 'PD', 4: 'BQ', 7: 'HT', 11:'TF', 14: 'SP', 15: 'SJ',
-                    17: 'NF'
+                    17: 'NF', 18: 'TR'
                 }
 
                 blue_team = self.result.team_mappings.filter(
@@ -245,6 +245,7 @@ class Game(models.Model):
         ('BQ', 'Black Queen\'s Keep'),
         ('HT', 'Helix Temple'),
         ('SP', 'The Spire'),
+        ('TR', 'The Throme Room')
     )
 
     map = models.CharField(
