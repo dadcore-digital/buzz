@@ -32,6 +32,16 @@ class MatchFilter(filters.FilterSet):
         label='Starting in exact number of minutes'
     )
 
+    start_time_range_begin = filters.IsoDateTimeFilter(
+        field_name='start_time', method='get_start_time_range_begin',
+        label='Start Time Beginning Range'
+    )
+
+    start_time_range_end = filters.IsoDateTimeFilter(
+        field_name='start_time', method='get_start_time_range_end',
+        label='Start Time Ending Range'
+    )
+
     home = filters.CharFilter(
         field_name='home__name', lookup_expr='icontains', label='Home Team Name'
     )
@@ -205,6 +215,20 @@ class MatchFilter(filters.FilterSet):
             start_time__lte=time_ceiling
         )
 
+    def get_start_time_range_begin(self, queryset, field_name, value):
+        return queryset.filter(start_time__gte=value)
+    
+
+    def get_start_time_range_end(self, queryset, field_name, value):
+        return queryset.filter(start_time__lte=value)
+
+    def get_by_team_id(self, queryset, field_name, value):
+        
+        return queryset.filter(
+            Q(home__id=value) |
+            Q(away__id=value)
+        )
+
     def get_by_team_id(self, queryset, field_name, value):
     
         return queryset.filter(
@@ -313,7 +337,7 @@ class MatchFilter(filters.FilterSet):
         model = Match
         fields = [
             'round', 'round_is_current',  'minutes', 'hours', 'days',
-            'starts_in_minutes', 'home', 'away', 'team', 'team_id', 'teams',
+            'starts_in_minutes', 'start_time_range_begin', 'start_time_range_end', 'home', 'away', 'team', 'team_id', 'teams',
             'player', 'winner', 'loser',  'scheduled', 'awaiting_results',
             'status', 'league', 'season', 'season_is_active', 'circuit',
             'group', 'region', 'tier'
