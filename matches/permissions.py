@@ -34,6 +34,9 @@ def can_update_match(match, user):
     - Season associated with Match is active
     - NO Result object associated with Match
     """
+    if user.is_anonymous:
+        return False
+        
     try:
         player = user.player
 
