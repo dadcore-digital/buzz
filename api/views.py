@@ -52,7 +52,7 @@ from teams.permissions import can_regenerate_team_invite_code
 
 
 class AwardViewSet(viewsets.ModelViewSet):
-    queryset = Award.objects.all().order_by('round__round_number')
+    queryset = Award.objects.all().order_by('round__round_number', 'id')
     filterset_class = AwardFilter
 
     permission_classes = [
@@ -78,12 +78,12 @@ class StatCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = StatCategorySerializer    
 
 class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = League.objects.all().order_by('name')
+    queryset = League.objects.all().order_by('name', 'id')
     filterset_class = LeagueFilter
     serializer_class = LeagueSerializer
 
 class SeasonViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Season.objects.all().order_by('name')
+    queryset = Season.objects.all().order_by('name', 'id')
     filterset_class = SeasonFilter
     serializer_class = SeasonSerializer
 
@@ -110,11 +110,11 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = GroupSerializer
 
 class RoundViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Round.objects.all().order_by('name')
+    queryset = Round.objects.all().order_by('name', 'id')
     serializer_class = RoundSerializer
 
 class MatchViewSet(viewsets.ModelViewSet):
-    queryset = Match.objects.all().order_by('round__round_number', 'start_time')
+    queryset = Match.objects.all().order_by('round__round_number', 'start_time', 'id')
     queryset = queryset.select_related('circuit')
     queryset = queryset.select_related('round')
 
@@ -261,7 +261,7 @@ class GameViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = GameSerializer
 
 class TeamViewSet(viewsets.ModelViewSet):
-    queryset = Team.objects.all().order_by('name')
+    queryset = Team.objects.all().order_by('name', 'id')
     queryset = queryset.select_related('captain')
     queryset = queryset.select_related('circuit')
     queryset = queryset.select_related('dynasty')
@@ -388,7 +388,7 @@ class TeamViewSet(viewsets.ModelViewSet):
 
 
 class DynastyViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Dynasty.objects.all().order_by('name').distinct()
+    queryset = Dynasty.objects.all().order_by('name', 'id').distinct()
     serializer_class = DynastySerializer
     filterset_class = DynastyFilter
 
@@ -410,28 +410,28 @@ class PlayerViewSet(viewsets.ModelViewSet):
     filterset_class = PlayerFilter
 
 class CasterViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Caster.objects.all().order_by('player__name')
+    queryset = Caster.objects.all().order_by('player__name', 'id')
     queryset = queryset.select_related('player')
     filterset_class = CasterFilter
 
     serializer_class = CasterSerializer
 
 class StreamViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Stream.objects.all().order_by('-start_time')
+    queryset = Stream.objects.all().order_by('-start_time', 'id')
     serializer_class = StreamSerializer
     filterset_class = StreamFilter
 
 class EventViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Event.objects.all().order_by('start_time')
+    queryset = Event.objects.all().order_by('start_time', 'id')
     serializer_class = EventSerializer
     filterset_class = EventFilter
 
 class PlayingViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Playing.objects.all().order_by('-updated')
+    queryset = Playing.objects.all().order_by('-updated', 'id')
     serializer_class = PlayingSerializer
 
 class ReleaseViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Release.objects.all().order_by('-released_on')
+    queryset = Release.objects.all().order_by('-released_on', 'id')
     serializer_class = ReleaseSerializer
 
 class MeViewSet(viewsets.ViewSet):
