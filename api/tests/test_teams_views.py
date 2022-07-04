@@ -214,6 +214,63 @@ def test_create_team_existing_team_same_region_permission_denied(django_app):
     assert resp.json['non_field_errors'][0] == 'Permission Error: You have already registered a team for this circuit.'
     assert player.teams.filter(captain=player).count() == 1
 
+@mark.django_db
+def test_create_three_teams_all_region_permission_granted(django_app):
+    """
+    You CAN create more than two teams if region is "ALL", and the circuits
+    are DIFFERENT.
+    """
+    player = PlayerFactory()
+    berry_circuit = CircuitFactory(region='A',  tier='0')
+    season = berry_circuit.season
+    queen_circuit = CircuitFactory(region='A', tier='0', season=season)
+    ladder_circuit = CircuitFactory(region='A', tier='0', season=season)
+
+    # Create berry and queen teams
+    TeamFactory(circuit=berry_circuit, captain=player)
+    TeamFactory(circuit=queen_circuit, captain=player)
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    
+    data = {
+        'name': 'My Ladder Team',
+        'circuit': ladder_circuit.id,
+    }
+    
+    resp = client.teams(None, method='POST', data=data, expect_errors=True)
+
+    assert resp.status_code == 201
+    assert player.teams.filter(captain=player).count() == 3
+
+@mark.django_db
+def test_three_teams_all_region_same_circuit_permission_denied(django_app):
+    """
+    You CAN create more than two teams if region is "ALL", but you CANNOT
+    create two teams in the same circuit
+    """
+    player = PlayerFactory()
+    berry_circuit = CircuitFactory(region='A',  tier='0')
+    season = berry_circuit.season
+    queen_circuit = CircuitFactory(region='A', tier='0', season=season)
+
+    # Create berry and queen teams
+    TeamFactory(circuit=berry_circuit, captain=player)
+    TeamFactory(circuit=queen_circuit, captain=player)
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    
+    data = {
+        'name': 'My Second Queen Team',
+        'circuit': queen_circuit.id,
+    }
+    
+    resp = client.teams(None, method='POST', data=data, expect_errors=True)
+
+    assert resp.status_code == 400
+    assert resp.json['non_field_errors'][0] == 'Permission Error: You have already registered a team for this circuit.'
+    assert player.teams.filter(captain=player).count() == 2
 
 @mark.django_db
 def test_rename_team_as_captain_permission_granted(django_app):
@@ -370,6 +427,64 @@ def test_join_team_permission_granted(django_app):
     assert resp.status_code == 200
     assert team.members.filter(id=player.id).exists()
 
+@mark.django_db
+def test_join_team_region_all_existing_team_in_region_permission_granted(django_app):
+    """
+    Join a team in region "All" with a valid invite code, even if player has 
+    a membership in another team in this region.
+    """
+    player = PlayerFactory()
+    berry_circuit = CircuitFactory(region='A',  tier='0')
+    season = berry_circuit.season
+    queen_circuit = CircuitFactory(region='A', tier='0', season=season)
+    ladder_circuit = CircuitFactory(region='A', tier='0', season=season)
+
+    # Create berry and queen teams
+    TeamFactory(circuit=berry_circuit, captain=player)
+    TeamFactory(circuit=queen_circuit, captain=player)
+    ladder_team = TeamFactory(circuit=ladder_circuit, captain=player)
+
+    player = PlayerFactory()
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    
+    data = {
+        'invite_code': ladder_team.invite_code
+    }
+    
+    resp = client.join_team(
+        ladder_team.id, method='POST', data=data, expect_errors=False)
+    
+    assert resp.status_code == 200
+    assert ladder_team.members.filter(id=player.id).exists()
+
+@mark.django_db
+def test_join_team_region_all_existing_but_team_in_circuit_permission_denied(django_app):
+    """
+    Cannot join a team in region "All" if player is already on another team
+    in this Circuit.
+    """
+    player = PlayerFactory()
+    ladder_circuit = CircuitFactory(region='A', tier='0')
+
+    # Create two teams, one with player already on it
+    ladder_team = TeamFactory(circuit=ladder_circuit)
+    ladder_team.members.add(player)
+    second_ladder_team = TeamFactory(circuit=ladder_circuit)
+
+    client = BuzzClient(
+        django_app, token=player.get_or_create_token(), return_json=False)
+    
+    data = {
+        'invite_code': second_ladder_team.invite_code
+    }
+    
+    resp = client.join_team(
+        second_ladder_team.id, method='POST', data=data, expect_errors=True)
+
+    assert resp.status_code == 400
+    assert not second_ladder_team.members.filter(id=player.id).exists()
 
 @mark.django_db
 def test_join_team_existing_member_other_region_permission_granted(django_app):

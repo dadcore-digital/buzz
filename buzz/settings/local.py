@@ -2,7 +2,7 @@ from .base import *
 
 ALLOWED_HOSTS = ['buzz.local']
 DEBUG = True
-DEBUG_TOOLBAR = True
+DEBUG_TOOLBAR = False
 INTERNAL_IPS = ('127.0.0.1', '192.168.56.2', '192.168.56.1', '192.168.56.2')
 
 STATIC_ROOT = '/var/www/buzz_static/'
@@ -10,9 +10,9 @@ MEDIA_ROOT = '/var/www/buzz_media/'
 
 REQUEST_TIME_DELAY = 0
 
-INSTALLED_APPS += [
-    'debug_toolbar'
-]
+# INSTALLED_APPS += [
+#     'debug_toolbar'
+# ]
 # Session Settings
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 SESSION_CACHE_ALIAS = "default"
@@ -20,7 +20,7 @@ SESSION_CACHE_ALIAS = "default"
 # Select 2 Autocomplete Settings
 SELECT2_CACHE_BACKEND = "select2"
 
-MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+# MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
 
 INSTALLED_APPS += [
     'django_extensions'

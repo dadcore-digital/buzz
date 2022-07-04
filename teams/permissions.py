@@ -9,9 +9,14 @@ def can_create_team(circuit, user):
         1. User must be signed in and have a player record
         
         2. Season linked to Circuit must have `registration_open` set to True
-        
-        3. Player can be a member of max two teams in a season, and their
+
+        3. User must not have already created a team in the requested Circuit
+
+        4. Player can be a member of max two teams in a season, and their
            Region field must be set different. Tiers are not relevant.
+
+            4a. UNLESS Region is set to "ALL", in which case we do not
+                restrict number of teams created in this region.
     """
     from teams.models import Team  # Avoid circular import
     
@@ -29,20 +34,42 @@ def can_create_team(circuit, user):
 
     elif circuit.season.registration_open:
 
+        # Find all teams where requesting user is either captain or player
         existing_teams = Team.objects.filter(
             Q(circuit__season=circuit.season, captain=player) |
             Q(circuit__season=circuit.season, members__id=player.id)
-        ).distinct()
+        )
 
+        # Exclude any team with region of "All" from the count of teams, see
+        # rule 4a in docstring.
+        existing_teams = existing_teams.exclude(circuit__region='A')
+
+        # Only unique teams
+        existing_teams = existing_teams.distinct()
+
+        # Final number of unique teams captained, not in Region "ALL"
         num_teams = existing_teams.count()
         
+        # We still limit you two create two teams per season (1 East, 1 West) 
         if num_teams >= 2:
             return False, 'Permission Error: You can only create two teams per season, one per region.'
 
+        # You can only create one team per circuit
         elif num_teams == 1:            
             if existing_teams[0].circuit.region == circuit.region:
                 return False, 'Permission Error: You have already registered a team for this circuit.'
         
+        # Don't let captain create two teams in one Circuit, under any 
+        # circumstance, even if Region is set to 'All'
+        pre_existing_team_in_circuit = Team.objects.filter(
+            Q(circuit=circuit, captain=player) |
+            Q(circuit=circuit, members__id=player.id)
+        ).exists()
+
+        if pre_existing_team_in_circuit:
+            return False, 'Permission Error: You have already registered a team for this circuit.'
+
+
     return True, None
 
 def can_rename_team(team, user):
@@ -92,6 +119,10 @@ def can_join_team(team, user, invite_code):
         
         4. Player can be a member of max two teams in a season, and their
            Region field must be set different. Tiers are not relevant.
+
+           4a. UNLESS this team is in a circuit of region "All" (A). We permit
+               an unlimited number of teams in this region. However, player
+               may only be in one team per circuit.
         
         5. Player cannot already be a member of this team 
     """
@@ -114,19 +145,34 @@ def can_join_team(team, user, invite_code):
         team.can_add_members and not
         is_existing_member
     ):
-        existing_teams = Team.objects.filter(
-            Q(circuit__season=team.circuit.season, captain=player) |
-            Q(circuit__season=team.circuit.season, members__id=player.id)
-        ).distinct()
 
-        num_teams = existing_teams.count()
-        
-        if num_teams == 0:            
+        # Special rules for "All" Region, see rule 4a in docstring
+        if team.circuit.region == 'A':
+            pre_existing_team_in_circuit = Team.objects.filter(
+                Q(circuit=team.circuit, captain=player) |
+                Q(circuit=team.circuit, members__id=player.id)
+            ).exists()
+
+            if pre_existing_team_in_circuit:
+                return False
+            
             return True
-        
-        elif num_teams == 1:
-            if existing_teams[0].circuit.region != team.circuit.region:
+
+        # Apply normal rules restricting team membership to one per region
+        else:
+            existing_teams = Team.objects.filter(
+                Q(circuit__season=team.circuit.season, captain=player) |
+                Q(circuit__season=team.circuit.season, members__id=player.id)
+            ).distinct()
+
+            num_teams = existing_teams.count()
+            
+            if num_teams == 0:            
                 return True
+            
+            elif num_teams == 1:
+                if existing_teams[0].circuit.region != team.circuit.region:
+                    return True
 
     return False
 
