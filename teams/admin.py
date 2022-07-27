@@ -14,11 +14,13 @@ class TeamAdmin(admin.ModelAdmin):
         members = members.strip().rstrip(',')
         return members
 
+
     list_display = ('name', 'dynasty', 'captain', members, 'circuit')
     search_fields = ('name', 'dynasty__name', 'members__name', 'captain__name')
-    
+
     autocomplete_fields = ['members', 'dynasty',  'captain']
 
+    ordering = ['-id']
 
 class TeamInline(admin.StackedInline):
     model = Team

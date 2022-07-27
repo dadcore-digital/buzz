@@ -109,6 +109,7 @@ class RoundAdmin(admin.ModelAdmin):
 
     search_fields = ('season__name',)
 
+    ordering = ['-id']
 
 admin.site.register(League, LeagueAdmin)
 admin.site.register(Season, SeasonAdmin)

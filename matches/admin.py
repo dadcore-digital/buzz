@@ -18,6 +18,8 @@ class MatchAdmin(admin.ModelAdmin):
         'vod_link'
     )
 
+    ordering = ('-id',)
+
     def result(self):
         result_link = ''
         
