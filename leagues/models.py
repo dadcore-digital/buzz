@@ -84,6 +84,8 @@ class Circuit(models.Model):
     TIER_CHOICES = (
         ('1', 'Tier 1'),
         ('2', 'Tier 2'),
+        ('2A', 'Tier 2A'),
+        ('2B', 'Tier 2B'),                
         ('3', 'Tier 3'),
         ('4', 'Tier 4'),        
         ('0', 'No Tier'),
